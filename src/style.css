@@ -315,6 +315,96 @@ fieldset.kompetenz-block legend {
   font-weight: 600;
 }
 
+.vergleichs-werkzeuge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.vergleichs-werkzeuge .formularzeile {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+.vergleich-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.vergleichsanzeige {
+  margin: 0.6rem 0;
+}
+
+.vergleichs-text {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.vergleichsskala {
+  position: relative;
+  height: 1rem;
+}
+
+.skala-leiste {
+  position: relative;
+  height: 4px;
+  background: var(--farbe-rand);
+  border-radius: 2px;
+  margin: 0.45rem 0.5rem 0;
+}
+
+.skala-tick {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 8px;
+  background: var(--farbe-rand);
+  transform: translate(-50%, -50%);
+}
+
+.skala-marker {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+.skala-marker--eigene {
+  background: var(--farbe-primaer);
+  width: 14px;
+  height: 14px;
+  z-index: 3;
+}
+
+.skala-marker--vergleich {
+  background: #d9822b;
+  z-index: 2;
+}
+
+.skala-marker--median {
+  background: #6a4fb3;
+  border-radius: 2px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  z-index: 1;
+}
+
+.skala-marker--durchschnitt {
+  background: #2c8f6e;
+  border-radius: 50% 50% 50% 0;
+  z-index: 1;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

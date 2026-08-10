@@ -3,6 +3,8 @@ import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
 import type { Bewertung, Bewertungstext, Kompetenz, KompetenzDatei, Schueler } from '../types';
 import { findeKompetenz } from '../utils/kompetenzstruktur';
 import { ersetzePlatzhalter, waehleBausteinIndex } from '../services/textgenerierung';
+import { berechneDurchschnitt, berechneMedian, formatiereStufenwert } from '../services/statistik';
+import { erstelleSkalaHtml, type SkalaMarker } from './vergleichsSkala';
 import { escapeHtml } from './bestaetigungsDialog';
 
 export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => void): HTMLElement {
@@ -14,12 +16,17 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
   kopf.querySelector('[data-aktion="zurueck"]')?.addEventListener('click', onZurueck);
 
   const titel = document.createElement('h2');
+  const vergleichsWerkzeuge = document.createElement('section');
+  vergleichsWerkzeuge.className = 'karte vergleichs-werkzeuge';
   const veralteteBereich = document.createElement('section');
   veralteteBereich.className = 'karte';
 
   const baum = document.createElement('div');
 
-  wurzel.append(kopf, titel, veralteteBereich, baum);
+  wurzel.append(kopf, titel, vergleichsWerkzeuge, veralteteBereich, baum);
+
+  let vergleichsschuelerId: string | null = null;
+  let zeigeKlassenvergleich = false;
 
   function aktuellerSchueler(): Schueler | null {
     return datensatzStore.get()?.schueler.find((s) => s.id === schuelerId) ?? null;
@@ -33,6 +40,92 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
     return (
       datensatzStore.get()?.bewertungstexte.find((t) => t.schuelerId === schuelerId && t.kompetenzId === kompetenzId) ?? null
     );
+  }
+
+  function renderVergleichsWerkzeuge(): void {
+    const datensatz = datensatzStore.get();
+    const andereSchueler = datensatz?.schueler.filter((s) => s.id !== schuelerId) ?? [];
+    vergleichsWerkzeuge.innerHTML = `
+      <div class="formularzeile">
+        <label for="vergleichsschueler-auswahl">Vergleichsschüler:in einblenden</label>
+        <select id="vergleichsschueler-auswahl">
+          <option value="">– keine Auswahl –</option>
+          ${andereSchueler
+            .map((s) => `<option value="${s.id}">${escapeHtml(s.vorname)} ${escapeHtml(s.nachname)}</option>`)
+            .join('')}
+        </select>
+      </div>
+      <label class="vergleich-checkbox">
+        <input type="checkbox" id="klassenvergleich-toggle" ${zeigeKlassenvergleich ? 'checked' : ''} />
+        Klassenmedian/-durchschnitt je Kompetenz einblenden
+      </label>
+    `;
+    const auswahl = vergleichsWerkzeuge.querySelector('#vergleichsschueler-auswahl') as HTMLSelectElement;
+    auswahl.value = vergleichsschuelerId ?? '';
+    auswahl.addEventListener('change', () => {
+      vergleichsschuelerId = auswahl.value || null;
+      render();
+    });
+    const toggle = vergleichsWerkzeuge.querySelector('#klassenvergleich-toggle') as HTMLInputElement;
+    toggle.addEventListener('change', () => {
+      zeigeKlassenvergleich = toggle.checked;
+      render();
+    });
+  }
+
+  function vergleichHtml(kompetenz: Kompetenz): string {
+    if (!vergleichsschuelerId && !zeigeKlassenvergleich) return '';
+    const datensatz = datensatzStore.get();
+    if (!datensatz) return '';
+    const stufenzahl = kompetenz.stufen.length;
+    // Ungültige (nach Kompetenzdatei-Update veraltete) Bewertungen fließen nicht ein.
+    const gueltigeBewertungen = datensatz.bewertungen.filter((b) => b.kompetenzId === kompetenz.id && b.stufe <= stufenzahl);
+    const werte = gueltigeBewertungen.map((b) => b.stufe);
+
+    const marker: SkalaMarker[] = [];
+    const eigene = bewertungFuer(kompetenz.id);
+    if (eigene && eigene.stufe <= stufenzahl) {
+      marker.push({ typ: 'eigene', wert: eigene.stufe, label: `Eigene Bewertung: Stufe ${eigene.stufe}` });
+    }
+
+    const textteile: string[] = [];
+
+    if (vergleichsschuelerId) {
+      const vergleichsSchueler = datensatz.schueler.find((s) => s.id === vergleichsschuelerId);
+      const name = vergleichsSchueler ? `${vergleichsSchueler.vorname} ${vergleichsSchueler.nachname}` : '';
+      const vergleichsBewertung = gueltigeBewertungen.find((b) => b.schuelerId === vergleichsschuelerId);
+      if (vergleichsBewertung) {
+        marker.push({ typ: 'vergleich', wert: vergleichsBewertung.stufe, label: `${name}: Stufe ${vergleichsBewertung.stufe}` });
+        textteile.push(`${escapeHtml(name)}: Stufe ${vergleichsBewertung.stufe}`);
+      } else {
+        textteile.push(`${escapeHtml(name)}: noch keine Bewertung`);
+      }
+    }
+
+    if (zeigeKlassenvergleich) {
+      const median = berechneMedian(werte);
+      const durchschnitt = berechneDurchschnitt(werte);
+      if (median !== null) {
+        marker.push({ typ: 'median', wert: median, label: `Klassenmedian: Stufe ${formatiereStufenwert(median)}` });
+      }
+      if (durchschnitt !== null) {
+        marker.push({ typ: 'durchschnitt', wert: durchschnitt, label: `Klassendurchschnitt: Stufe ${formatiereStufenwert(durchschnitt)}` });
+      }
+      textteile.push(
+        werte.length === 0
+          ? 'Klassenwerte: noch keine Bewertungen vorhanden'
+          : `Median: Stufe ${formatiereStufenwert(median as number)} · Durchschnitt: Stufe ${formatiereStufenwert(durchschnitt as number)} (${werte.length} von ${datensatz.schueler.length} Schüler:in(nen) bewertet)`,
+      );
+    }
+
+    if (marker.length === 0 && textteile.length === 0) return '';
+
+    return `
+      <div class="vergleichsanzeige">
+        ${erstelleSkalaHtml(stufenzahl, marker)}
+        <p class="vergleichs-text">${textteile.join(' · ')}</p>
+      </div>
+    `;
   }
 
   function kompetenzBlockHtml(kompetenz: Kompetenz): string {
@@ -81,6 +174,7 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
         <legend>${escapeHtml(kompetenz.titel)}</legend>
         ${ungueltig ? `<p class="fehler" role="alert">Bisherige Bewertung (Stufe ${bewertung!.stufe}) ist nach einem Kompetenzdatei-Update nicht mehr gültig (nur noch ${stufenzahl} Stufe(n)). <button type="button" class="sekundaer" data-bereinigen="${escapeHtml(kompetenz.id)}">Bereinigen</button></p>` : ''}
         <div class="stufen-radiogroup" role="radiogroup" aria-label="${escapeHtml(kompetenz.titel)}">${radios}</div>
+        ${!ungueltig ? vergleichHtml(kompetenz) : ''}
         ${textBereichHtml}
       </fieldset>
     `;
@@ -135,6 +229,7 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
       return;
     }
     titel.textContent = `Bewertung: ${schueler.vorname} ${schueler.nachname}`;
+    renderVergleichsWerkzeuge();
 
     const kdZustand = kompetenzdateiStore.get();
     if (kdZustand.status !== 'geladen' || !kdZustand.datei) {
