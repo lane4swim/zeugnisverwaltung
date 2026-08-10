@@ -150,7 +150,7 @@ Hierarchie: **Abschnitt → Bereich → Kompetenz → Stufe → Satzbausteine**
 
 Hinweise:
 - Die **Anzahl der Stufen ist pro Kompetenz variabel** (kein festes Enum, sondern Array beliebiger Länge).
-- Pro Stufe können **mehrere alternative Satzbausteine** hinterlegt sein (zur sprachlichen Variation, damit nicht alle Zeugnisse einer Klasse identisch klingen); die App wählt z. B. zufällig oder nutzerauswählbar einen Baustein aus.
+- Pro Stufe können **mehrere alternative Satzbausteine** hinterlegt sein (zur sprachlichen Variation, damit nicht alle Zeugnisse einer Klasse identisch klingen). Bei Erstgenerierung wählt die App automatisch **zufällig** einen Baustein aus den verfügbaren Alternativen der aktuellen Stufe. Der Anwender kann diese Auswahl über eine „Würfeln"/„Alternative anzeigen"-Steuerung (z. B. Icon-Button neben dem generierten Text) erneut zufällig neu ziehen lassen, solange der Text nicht manuell gesperrt ist (siehe 3.5); der zuletzt gewählte Index wird in `gewaehlterBausteinIndex` (3.4) persistiert, damit derselbe Baustein bei erneutem Öffnen erhalten bleibt.
 - Das Feld `halbjahr` dient der Konsistenzprüfung: Die App lädt beim Öffnen eines Klassendatensatzes automatisch die zum hinterlegten Halbjahr passende Kompetenzdatei.
 - Platzhaltersyntax siehe Abschnitt 6.
 
@@ -214,6 +214,13 @@ Ein Export entspricht **genau einer Klasse in einem Halbjahr**:
 - **Wichtig:** Diese Dateien enthalten niemals Schülerdaten, daher ist der Serverzugriff unkritisch bzgl. Datenschutz.
 - Versionierung (`version`-Feld je Halbjahresdatei) ermöglicht Kompatibilitätsprüfung mit bereits gespeicherten Bewertungen (z. B. Warnung bei Versionswechsel, wenn Kompetenz-IDs sich geändert haben).
 
+### 4.1 Verhalten bei Versionskonflikt nach „Aktualisieren"
+Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompetenzdatei verweisen, muss die App nach einem manuellen „Aktualisieren" folgendes prüfen und dem Anwender anzeigen, **bevor** die neue Version aktiv gesetzt wird:
+- **Unveränderte/neue Kompetenz-IDs:** Kein Konflikt, stillschweigende Übernahme der neuen `version`.
+- **Entfallene Kompetenz-IDs** (in der neuen Datei nicht mehr vorhanden, aber mit bestehender Bewertung im Datensatz): Deutliche Warnung mit Auflistung der betroffenen Kompetenzen und Schüler:innen; betroffene Bewertungen bleiben im Datensatz erhalten (nicht automatisch gelöscht), werden aber in der Bewertungsansicht als „veraltet/nicht mehr in aktueller Kompetenzdatei" markiert, bis der Anwender sie manuell bereinigt.
+- **Geänderte Stufenanzahl einer weiterhin existierenden Kompetenz-ID:** Warnung, falls eine gespeicherte `stufe` außerhalb der neuen Stufenanzahl liegt; betroffene Bewertung wird zur erneuten Prüfung markiert, Text wird nicht automatisch neu generiert.
+- Der Anwender kann die neue Version trotz Warnung übernehmen oder das „Aktualisieren" abbrechen und mit der zuletzt lokal zwischengespeicherten Version weiterarbeiten.
+
 ---
 
 ## 5. Funktionale Anforderungen im Detail
@@ -242,7 +249,7 @@ Ein Export entspricht **genau einer Klasse in einem Halbjahr**:
 ### 5.4 Textgenerierungs-Engine
 - Ersetzt Platzhalter in Satzbausteinen anhand der Schülerdaten (siehe 6).
 - Pronomenlogik anhand `geschlecht` (ausschließlich „w"/„m") mit fest definierten Ersetzungstabellen (Nominativ, Akkusativ, Dativ, Possessiv). Eine dritte Option „divers" wird bewusst **nicht** angeboten.
-- Bei mehreren alternativen Satzbausteinen je Stufe: deterministische oder zufällige Auswahl, vom Anwender überschreibbar/neu würfelbar.
+- Bei mehreren alternativen Satzbausteinen je Stufe: automatische zufällige Erstauswahl, vom Anwender jederzeit über eine explizite „Neu würfeln"-Aktion überschreibbar (siehe 3.3); nicht verfügbar, sobald der Text manuell gesperrt ist (3.5).
 
 ### 5.5 JSON-Import/Export
 - Export des gesamten lokalen Datensatzes (3.7) einer Klasse/eines Halbjahres als Datei-Download.
@@ -288,30 +295,35 @@ Da „Geschlecht divers" gemäß Vorgabe nicht berücksichtigt wird, basiert die
 - **Browser-Kompatibilität:** Aktuelle Versionen von Chrome, Edge, Firefox (Schul-PCs oft mit eingeschränkten Browserversionen – Zielkompatibilität explizit festlegen und testen).
 - **Bedienbarkeit:** Für Lehrkräfte ohne IT-Hintergrund, klare Führung durch den Workflow (Halbjahr wählen → Klasse anlegen → Bewerten → Bemerkungen → Word-Vorlage auswählen → Sammeldokument exportieren).
 - **Robustheit:** Kein Datenverlust bei Browser-Neustart (persistente IndexedDB), regelmäßige Erinnerung an manuellen JSON-Export als „Backup".
-- **Barrierefreiheit:** Tastaturbedienbarkeit, ausreichende Kontraste, sinnvolle ARIA-Labels.
+- **Barrierefreiheit:** Tastaturbedienbarkeit, ausreichende Kontraste, sinnvolle ARIA-Labels; wird bereits bei der Implementierung jeder UI-Komponente berücksichtigt und nicht erst nachträglich geprüft (siehe Prinzipien zu Beginn von Abschnitt 8).
 
 ---
 
 ## 8. Implementierungsplan (Phasen)
 
+**Durchgängige Prinzipien (gelten für jede Phase, nicht erst am Ende):** Barrierefreiheit (Tastaturbedienbarkeit, ausreichende Kontraste, ARIA-Labels) wird bei jeder neu gebauten UI-Komponente direkt mitgebaut, nicht erst nachträglich in Phase 7 geprüft — Phase 7 führt lediglich die abschließende, umfassende Prüfung/den Feinschliff durch. Ebenso wird das technisch risikoreichste Merkmal, der Word-Sammeldokument-Merge (5.6), nicht erst in Phase 6 erstmals angefasst: Parallel zu Phase 1–2 wird ein kleiner, isolierter **Technik-Spike** durchgeführt (Prototyp außerhalb der eigentlichen App), der die programmatische OOXML-Verkettung mehrerer `docxtemplater`-Ergebnisse über `pizzip` zu einem Sammeldokument mit Seitenumbrüchen sowie Kopf-/Fußzeilen-Handling grundsätzlich nachweist. Erst nach positivem Spike-Ergebnis gilt der in 5.6 beschriebene Ansatz als abgesichert; andernfalls wird rechtzeitig auf eine Alternative (z. B. Erzeugung eines ZIP-Archivs mit Einzeldokumenten samt manuellem Zusammenführen durch den Anwender in Word) ausgewichen, siehe 1.3.
+
 ### Phase 1 – Grundgerüst & Datenmodell
 - Projekt-Setup (Build-Tooling, PWA-Manifest, Service-Worker-Grundgerüst).
 - IndexedDB-Schicht für einen Klassendatensatz (Halbjahr, Schüler, Bewertungen, Bewertungstexte, Bemerkungen).
-- Klassenverwaltung (Halbjahr festlegen, CRUD für Schüler:innen).
+- Klassenverwaltung (Halbjahr festlegen, CRUD für Schüler:innen, **sortierbare/filterbare Klassenliste** gemäß 5.1).
 - JSON-Export/-Import inkl. Drag & Drop; Halbjahreswechsel-Assistent (Übernahme der Stammdaten).
-- **Validierung:** Datensatz lässt sich anlegen, exportieren, in neuem Browserprofil importieren und ist identisch; Halbjahreswechsel übernimmt korrekt nur die Stammdaten.
+- Parallel: Technik-Spike Word-Sammeldokument-Merge (siehe Prinzipien oben).
+- **Validierung:** Datensatz lässt sich anlegen, exportieren, in neuem Browserprofil importieren und ist identisch; Halbjahreswechsel übernimmt korrekt nur die Stammdaten; Klassenliste lässt sich nach Name/Vorname sortieren und filtern; Spike-Prototyp erzeugt ein gültiges Mehrseiten-`.docx` aus mind. zwei Testvorlagen-Instanzen.
 
 ### Phase 2 – Kompetenzdatei & Bewertungs-UI
 - Laden/Cachen der halbjahresspezifischen Kompetenzdatei, Versions- und Konsistenzprüfung (`halbjahr`-Abgleich).
+- Manueller „Aktualisieren"-Button je Halbjahresdatei (4) inkl. Versionskonflikt-Behandlung gemäß 4.1 (Warnung bei entfallenen Kompetenz-IDs oder geänderter Stufenanzahl, Markierung betroffener Bewertungen, Möglichkeit zum Abbrechen).
 - Navigierbare Ansicht Abschnitt → Bereich → Kompetenz.
 - Stufenauswahl-UI mit variabler Stufenzahl je Kompetenz.
-- **Validierung:** Für mehrere Testkompetenzen mit unterschiedlicher Stufenzahl aus verschiedenen Halbjahresdateien funktioniert die Bewertung korrekt; falsches/fehlendes Halbjahr wird erkannt.
+- **Validierung:** Für mehrere Testkompetenzen mit unterschiedlicher Stufenzahl aus verschiedenen Halbjahresdateien funktioniert die Bewertung korrekt; falsches/fehlendes Halbjahr wird erkannt; „Aktualisieren" mit geänderter Testdatei löst korrekt Warnung/Markierung gemäß 4.1 aus und ein Abbruch behält die vorherige Version bei.
 
 ### Phase 3 – Textgenerierungs-Engine
 - Platzhalter-/Pronomenersetzung (binär w/m).
-- Automatische Textgenerierung bei Stufenauswahl.
+- Automatische Textgenerierung bei Stufenauswahl inkl. zufälliger Erstauswahl bei mehreren alternativen Satzbausteinen.
+- „Neu würfeln"-Steuerung zur erneuten zufälligen Baustein-Auswahl (3.3, 5.4), inkl. Persistenz von `gewaehlterBausteinIndex`.
 - Manuelle Textbearbeitung inkl. Sperr-/Zurücksetzen-Mechanismus.
-- **Validierung:** Testfälle für beide Geschlechtsausprägungen, Sperrverhalten, Reset-Funktion.
+- **Validierung:** Testfälle für beide Geschlechtsausprägungen, Sperrverhalten, Reset-Funktion; „Neu würfeln" liefert bei ≥2 Alternativen einen anderen/zulässigen Baustein und ist bei gesperrtem Text deaktiviert; gewählter Index bleibt nach Neuladen erhalten.
 
 ### Phase 4 – Vergleichsansichten
 - Auswahl eines Vergleichsschülers.
@@ -334,7 +346,7 @@ Da „Geschlecht divers" gemäß Vorgabe nicht berücksichtigt wird, basiert die
 - Vollständiges Offline-Verhalten (App-Shell + Fallback auf zuletzt geladene Halbjahres-Kompetenzdatei).
 - Installierbarkeit (Manifest, Icons).
 - Backup-Erinnerungen, Fehlerbehandlung bei Import (korruptes JSON, Versions-/Halbjahreskonflikte).
-- Barrierefreiheits- und Browser-Kompatibilitätstests auf typischer Schul-Hardware.
+- Abschließende, umfassende Barrierefreiheits- und Browser-Kompatibilitätstests auf typischer Schul-Hardware (ergänzend zur durchgängigen Berücksichtigung in Phase 1–6, siehe Prinzipien zu Beginn von Abschnitt 8); Behebung hier noch offener Einzelbefunde.
 
 ---
 
