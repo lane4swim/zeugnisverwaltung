@@ -1,0 +1,75 @@
+{
+  "halbjahr": "4.1",
+  "version": "2026-1",
+  "abschnitte": [
+    {
+      "id": "deutsch",
+      "titel": "Deutsch",
+      "bereiche": [
+        {
+          "id": "lesen",
+          "titel": "Lesen",
+          "kompetenzen": [
+            {
+              "id": "lesen_sinnentnehmend",
+              "titel": "Sinnentnehmendes Lesen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} entnimmt einfachen Texten erste Informationen."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} entnimmt altersgemäßen Texten die wesentlichen Informationen.", "{Vorname} erfasst den Inhalt altersgemäßer Texte sicher."] },
+                { "stufe": 3, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} entnimmt auch komplexeren Texten gezielt Informationen."] }
+              ]
+            },
+            {
+              "id": "lesen_vorlesen",
+              "titel": "Vorlesen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} liest kurze, bekannte Texte laut vor."] },
+                { "stufe": 2, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} liest auch unbekannte Texte sinnbetont vor."] }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "schreiben",
+          "titel": "Schreiben",
+          "kompetenzen": [
+            {
+              "id": "schreiben_rechtschreibung",
+              "titel": "Rechtschreibung",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} schreibt lautgetreu."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} wendet grundlegende Rechtschreibstrategien an."] },
+                { "stufe": 3, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} schreibt weitgehend rechtschreibsicher."] },
+                { "stufe": 4, "bezeichnung": "vertieft", "satzbausteine": ["{Vorname} überprüft und korrigiert eigene Texte selbstständig."] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mathematik",
+      "titel": "Mathematik",
+      "bereiche": [
+        {
+          "id": "zahlen_operationen",
+          "titel": "Zahlen und Operationen",
+          "kompetenzen": [
+            {
+              "id": "mathe_kopfrechnen",
+              "titel": "Kopfrechnen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} löst einfache Kopfrechenaufgaben im Zahlenraum bis 100."] },
+                { "stufe": 2, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} löst Kopfrechenaufgaben im Zahlenraum bis 1000 sicher."] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "bemerkungsbausteine": [
+    { "id": "bem_hilfsbereit", "text": "{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit." },
+    { "id": "bem_konzentriert", "text": "{Vorname} arbeitet konzentriert und ausdauernd." }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "halbjahr": "1.1",
+  "version": "2026-1",
+  "abschnitte": [
+    {
+      "id": "deutsch",
+      "titel": "Deutsch",
+      "bereiche": [
+        {
+          "id": "lesen",
+          "titel": "Lesen",
+          "kompetenzen": [
+            {
+              "id": "lesen_buchstaben",
+              "titel": "Buchstaben erkennen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} kennt erste Buchstaben."] },
+                { "stufe": 2, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} kennt alle Buchstaben sicher."] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mathematik",
+      "titel": "Mathematik",
+      "bereiche": [
+        {
+          "id": "zahlen_operationen",
+          "titel": "Zahlen und Operationen",
+          "kompetenzen": [
+            {
+              "id": "mathe_zahlenraum_10",
+              "titel": "Zahlenraum bis 10",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} zählt Mengen bis 10 mit Unterstützung."] },
+                { "stufe": 2, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} zählt Mengen bis 10 sicher und selbstständig."] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "bemerkungsbausteine": [
+    { "id": "bem_freude", "text": "{Vorname} zeigt Freude am gemeinsamen Lernen." }
+  ]
+}

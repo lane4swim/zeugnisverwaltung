@@ -1,5 +1,5 @@
 import { ladeAktivenDatensatz, loescheAktivenDatensatz, speichereAktivenDatensatz } from '../db/database';
-import type { Klassendatensatz, Schueler } from '../types';
+import type { Bewertung, Klassendatensatz, Schueler } from '../types';
 
 type Listener = (datensatz: Klassendatensatz | null) => void;
 
@@ -63,6 +63,48 @@ class DatensatzStore {
     this.aktuell = {
       ...this.aktuell,
       schueler: this.aktuell.schueler.map((s) => (s.id === schueler.id ? schueler : s)),
+    };
+    await this.persist();
+  }
+
+  /** Setzt die Version der zuletzt geladenen Kompetenzdatei (spezifikation.md 3.7, 4). */
+  async setzeKompetenzdateiVersion(version: string): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    if (this.aktuell.kompetenzdateiVersion === version) return;
+    this.aktuell = { ...this.aktuell, kompetenzdateiVersion: version };
+    await this.persist();
+  }
+
+  async setzeBewertung(schuelerId: string, kompetenzId: string, stufe: number): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    const bestehende = this.aktuell.bewertungen.find(
+      (b) => b.schuelerId === schuelerId && b.kompetenzId === kompetenzId,
+    );
+    const neueBewertung: Bewertung = {
+      schuelerId,
+      kompetenzId,
+      stufe,
+      bewertetAm: new Date().toISOString(),
+      gewaehlterBausteinIndex: bestehende?.gewaehlterBausteinIndex ?? 0,
+    };
+    this.aktuell = {
+      ...this.aktuell,
+      bewertungen: [
+        ...this.aktuell.bewertungen.filter((b) => !(b.schuelerId === schuelerId && b.kompetenzId === kompetenzId)),
+        neueBewertung,
+      ],
+    };
+    await this.persist();
+  }
+
+  /** Entfernt eine einzelne Bewertung, z. B. beim Bereinigen veralteter/ungültiger Einträge (4.1). */
+  async entferneBewertung(schuelerId: string, kompetenzId: string): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    this.aktuell = {
+      ...this.aktuell,
+      bewertungen: this.aktuell.bewertungen.filter(
+        (b) => !(b.schuelerId === schuelerId && b.kompetenzId === kompetenzId),
+      ),
     };
     await this.persist();
   }

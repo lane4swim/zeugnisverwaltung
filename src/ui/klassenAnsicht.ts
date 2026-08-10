@@ -1,7 +1,10 @@
 import { datensatzStore } from '../state/store';
+import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
 import type { Klassendatensatz } from '../types';
 import { erstelleSchuelerListe } from './schuelerListe';
 import { erstelleDropzone } from './dropzone';
+import { erstelleKompetenzdateiStatus } from './kompetenzdateiStatus';
+import { erstelleBewertungsAnsicht } from './bewertungsAnsicht';
 import { exportiereDatensatz, importiereDatei } from '../services/exportImport';
 import { bestaetigen, escapeHtml } from './bestaetigungsDialog';
 import { meldungAnzeigen } from './meldungDialog';
@@ -21,6 +24,8 @@ export function erstelleKlassenAnsicht(): HTMLElement {
     <button type="button" class="sekundaer" data-aktion="schliessen">Datensatz schließen</button>
   `;
 
+  const kompetenzdateiStatus = erstelleKompetenzdateiStatus();
+
   const importKarte = document.createElement('section');
   importKarte.className = 'karte';
   importKarte.setAttribute('aria-labelledby', 'ersetzen-titel');
@@ -31,9 +36,30 @@ export function erstelleKlassenAnsicht(): HTMLElement {
   });
   importKarte.appendChild(dropzone);
 
-  const schuelerListe = erstelleSchuelerListe();
+  let ausgewaehlterSchuelerId: string | null = null;
+  const inhalt = document.createElement('div');
 
-  wurzel.append(kopf, toolbar, schuelerListe, importKarte);
+  function renderInhalt(): void {
+    if (ausgewaehlterSchuelerId) {
+      inhalt.replaceChildren(
+        erstelleBewertungsAnsicht(ausgewaehlterSchuelerId, () => {
+          ausgewaehlterSchuelerId = null;
+          renderInhalt();
+        }),
+      );
+      return;
+    }
+    const schuelerListe = erstelleSchuelerListe({
+      onBewerten: (schuelerId) => {
+        ausgewaehlterSchuelerId = schuelerId;
+        renderInhalt();
+      },
+    });
+    inhalt.replaceChildren(schuelerListe, importKarte);
+  }
+
+  wurzel.append(kopf, toolbar, kompetenzdateiStatus, inhalt);
+  renderInhalt();
 
   function renderKopf(datensatz: Klassendatensatz): void {
     kopf.innerHTML = `
@@ -55,6 +81,7 @@ export function erstelleKlassenAnsicht(): HTMLElement {
       gefahr: true,
     });
     if (bestaetigt) {
+      ausgewaehlterSchuelerId = null;
       await datensatzStore.setzeDatensatz(ergebnis.datensatz);
     }
   }
@@ -75,11 +102,26 @@ export function erstelleKlassenAnsicht(): HTMLElement {
     const aktuell = datensatzStore.get();
     if (!aktuell) return;
     const neuerDatensatz = await halbjahreswechselDialogOeffnen(aktuell);
-    if (neuerDatensatz) await datensatzStore.setzeDatensatz(neuerDatensatz);
+    if (neuerDatensatz) {
+      ausgewaehlterSchuelerId = null;
+      await datensatzStore.setzeDatensatz(neuerDatensatz);
+    }
   });
 
   datensatzStore.subscribe((datensatz) => {
-    if (datensatz) renderKopf(datensatz);
+    if (!datensatz) return;
+    renderKopf(datensatz);
+    void kompetenzdateiStore.stelleSicher(datensatz.halbjahr);
+  });
+
+  // Sobald eine (neue oder aktualisierte) Kompetenzdatei-Version geladen ist,
+  // im Klassendatensatz vermerken (spezifikation.md 3.7).
+  kompetenzdateiStore.subscribe((zustand) => {
+    if (zustand.status !== 'geladen' || !zustand.datei) return;
+    const datensatz = datensatzStore.get();
+    if (datensatz && datensatz.halbjahr === zustand.halbjahr && datensatz.kompetenzdateiVersion !== zustand.datei.version) {
+      void datensatzStore.setzeKompetenzdateiVersion(zustand.datei.version);
+    }
   });
 
   return wurzel;

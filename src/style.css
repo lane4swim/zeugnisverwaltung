@@ -227,6 +227,68 @@ dialog .dialog-aktionen {
   margin-top: 1rem;
 }
 
+.kompetenzdatei-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.kompetenzdatei-status p {
+  margin: 0;
+}
+
+details.abschnitt-block,
+details.bereich-block {
+  margin-bottom: 0.75rem;
+}
+
+details.abschnitt-block > summary {
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.4rem 0;
+}
+
+details.bereich-block {
+  margin-left: 0.75rem;
+  border-left: 3px solid var(--farbe-rand);
+  padding-left: 0.75rem;
+}
+
+details.bereich-block > summary {
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0;
+}
+
+fieldset.kompetenz-block {
+  border: 1px solid var(--farbe-rand);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin: 0 0 0.75rem;
+}
+
+fieldset.kompetenz-block legend {
+  font-weight: 600;
+  padding: 0 0.3rem;
+}
+
+.stufen-radiogroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+
+.stufen-option {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

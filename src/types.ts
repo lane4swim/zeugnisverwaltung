@@ -56,6 +56,45 @@ export interface Klassendatensatz {
   bemerkungen: BemerkungEintrag[];
 }
 
+// Kompetenzdatei (serverseitig, nicht-personenbezogen, je Halbjahr; siehe
+// spezifikation.md 3.3/4). Hierarchie: Abschnitt → Bereich → Kompetenz → Stufe.
+
+export interface Stufe {
+  stufe: number;
+  bezeichnung: string;
+  satzbausteine: string[];
+}
+
+export interface Kompetenz {
+  id: string;
+  titel: string;
+  stufen: Stufe[];
+}
+
+export interface Bereich {
+  id: string;
+  titel: string;
+  kompetenzen: Kompetenz[];
+}
+
+export interface Abschnitt {
+  id: string;
+  titel: string;
+  bereiche: Bereich[];
+}
+
+export interface Bemerkungsbaustein {
+  id: string;
+  text: string;
+}
+
+export interface KompetenzDatei {
+  halbjahr: Halbjahr;
+  version: string;
+  abschnitte: Abschnitt[];
+  bemerkungsbausteine: Bemerkungsbaustein[];
+}
+
 export function istHalbjahr(wert: unknown): wert is Halbjahr {
   return typeof wert === 'string' && (HALBJAHRE as readonly string[]).includes(wert);
 }
