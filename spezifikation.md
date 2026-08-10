@@ -1,0 +1,341 @@
+# Zeugnisverwaltungsapp – Spezifikation & Implementierungsplan
+
+**Zielgruppe:** Grundschulen in Nordrhein-Westfalen
+**Architektur:** Progressive Web App (PWA), Single Page Application (SPA)
+**Kernprinzip:** Schülerbezogene Daten verlassen niemals den lokalen Rechner
+
+---
+
+## 1. Ziele und Rahmenbedingungen
+
+### 1.1 Zweck
+Lehrkräfte an NRW-Grundschulen bewerten Schüler:innen je definierter Kompetenz auf einer variablen Stufenskala. Aus diesen Bewertungen generiert die App automatisch Zeugnistexte auf Basis vordefinierter Satzbausteine und fügt diese in eine vom Nutzer bereitgestellte Word-Vorlage ein.
+
+### 1.2 Zentrale Rahmenbedingung: Datenschutz
+- **Keine Verarbeitung oder Speicherung von Schülerdaten auf einem Server.** Alle personenbezogenen Daten (Klassenliste, Bewertungen, generierte Texte, Bemerkungen) verbleiben ausschließlich im Browser des Anwenders (lokaler Speicher / Dateisystem über explizite Nutzeraktion).
+- Die App darf **keine Netzwerkaufrufe mit Schüler- oder Bewertungsdaten** durchführen. Es dürfen keine Analytics-, Tracking- oder Fehlerberichts-Dienste eingebunden werden, die Nutzdaten übertragen.
+- Einzige zulässige Server-Kommunikation: der **initiale/aktualisierte Download der Kompetenz- und Bausteindatei** je Halbjahr (siehe 4) – diese enthält keine personenbezogenen Daten, sondern nur Vorlagen/Konfiguration.
+- Die App muss auch **vollständig offline** nutzbar sein, nachdem sie einmal geladen und die passende Kompetenzdatei bezogen wurde (PWA-Anforderung, Service Worker Caching).
+- Das Word-Template wird **nicht** von der App vorgehalten, sondern vom Nutzer unmittelbar vor dem Export lokal ausgewählt (siehe 5.6) – auch hier findet kein Serverkontakt statt.
+- Bezug zu NRW: Kompetenzraster orientieren sich an den Kernlehrplänen NRW für die Grundschule (Fächer, Kompetenzbereiche); die Zuordnung ist über die austauschbare, halbjahresspezifische Kompetenzdatei konfigurierbar und nicht hart codiert.
+
+### 1.3 Nicht-Ziele (explizit ausgeschlossen)
+- Keine Mehrbenutzer-/Cloud-Synchronisation.
+- Keine serverseitige Nutzerkontenverwaltung.
+- Keine automatische Notenberechnung im Sinne von Ziffernnoten (Fokus: Kompetenzraster/Berichtszeugnis, wie in NRW-Grundschulen üblich).
+- Keine Berücksichtigung der Geschlechtsangabe „divers" bei der Pronomenwahl (siehe 3.1, 6.2).
+- Keine dauerhafte Verwaltung mehrerer Word-Vorlagen innerhalb der App.
+
+---
+
+## 2. Architekturüberblick
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Browser (Client)                     │
+│                                                           │
+│  ┌───────────────┐   ┌────────────────┐   ┌───────────┐ │
+│  │   SPA UI       │   │  App-Zustand    │   │ Service   │ │
+│  │ (Views/Router) │◄─►│ (State Store)   │   │ Worker    │ │
+│  └───────────────┘   └────────────────┘   │ (Offline- │ │
+│         │                     │            │  Cache)   │ │
+│         ▼                     ▼            └───────────┘ │
+│  ┌───────────────┐   ┌────────────────┐                 │
+│  │ Textgenerator- │   │  Persistenz-    │                 │
+│  │ Engine         │   │  schicht        │                 │
+│  │ (Platzhalter-  │   │  (IndexedDB,    │                 │
+│  │  Ersetzung)    │   │  1 Klasse/HJ)   │                 │
+│  └───────────────┘   └────────────────┘                 │
+│         │                     │                          │
+│         ▼                     ▼                          │
+│  ┌───────────────┐   ┌────────────────┐                 │
+│  │ Word-Merge-    │   │ JSON Import/   │                 │
+│  │ Modul (docx,   │   │ Export (Drag & │                 │
+│  │ Template erst  │   │ Drop)          │                 │
+│  │ bei Export     │   └────────────────┘                 │
+│  │ ausgewählt)    │                                       │
+│  └───────────────┘                                       │
+└─────────────────────────────────────────────────────────┘
+                        │ nur beim Erststart /
+                        │ manuellem Update, je Halbjahr
+                        ▼
+          ┌─────────────────────────────┐
+          │ Server: statische Dateien    │
+          │ je Halbjahr (1.1, 1.2, 2.1,  │
+          │ 2.2, 3.1, 3.2, 4.1, 4.2):    │
+          │ Kompetenzen, Stufen,         │
+          │ Satzbausteine, Bemerkungen   │
+          │  – KEINE Schülerdaten        │
+          └─────────────────────────────┘
+```
+
+### 2.1 Tech-Stack-Vorschlag
+| Bereich | Empfehlung | Begründung |
+|---|---|---|
+| UI-Framework | Vanilla JS + Web Components, alternativ leichtgewichtig Svelte oder Preact | Kleine Bundle-Größe, gut PWA-tauglich, kein schwerer Server-Build nötig |
+| Persistenz | IndexedDB (über Wrapper wie `idb`) | localStorage zu klein/synchron für ggf. große Klassendatensätze inkl. generierter Texte |
+| PWA | Web App Manifest + Service Worker (Cache-first für App-Shell, Stale-while-revalidate für Kompetenzdatei) | Offlinefähigkeit, Installierbarkeit |
+| Word-Verarbeitung | `docxtemplater` + `pizzip` (rein clientseitig, kein Upload) | Etablierte Bibliotheken zur Platzhalter-Ersetzung und zum programmatischen Zusammenbau von .docx-Dateien, laufen vollständig im Browser |
+| JSON Import/Export | native File API + Drag&Drop-Events | Kein Server-Roundtrip nötig |
+| Build | Vite (nur als Entwicklungswerkzeug, Ergebnis ist statisches Bundle) | Keine Laufzeitabhängigkeit von einem Server |
+
+---
+
+## 3. Datenmodell
+
+### 3.1 Schüler (lokal, Klassenliste)
+```json
+{
+  "id": "uuid",
+  "nachname": "Muster",
+  "vorname": "Anna",
+  "geburtsdatum": "2017-03-14",
+  "geschlecht": "w"   // "w" | "m" – steuert Pronomenwahl; "divers" wird nicht unterstützt
+}
+```
+
+### 3.2 Klassen-/Halbjahresdatensatz
+Ein Datensatz repräsentiert **genau eine Klasse in genau einem Halbjahr** (z. B. „4.1", „1.2"). Für ein neues Halbjahr oder eine neue Klasse wird ein neuer, eigenständiger Datensatz angelegt. Ein Wechsel zwischen Halbjahren erfolgt über getrenntes Öffnen/Importieren der jeweiligen JSON-Datei (siehe 3.6) – es gibt **keine** parallele Verwaltung mehrerer Klassen/Halbjahre innerhalb eines Datensatzes.
+
+Für den Übergang von einem Halbjahr zum nächsten kann optional eine „Übernehmen"-Funktion angeboten werden, die die Klassenliste (Schülerstammdaten) in einen neuen, leeren Datensatz des Folgehalbjahres kopiert, jedoch **nicht** die Bewertungen, Texte oder Bemerkungen (diese sind halbjahresspezifisch, da sich auch die Kompetenzdatei ändert).
+
+### 3.3 Kompetenzstruktur (serverseitige, nicht-personenbezogene Datei, je Halbjahr)
+Für jedes Halbjahr (1.1, 1.2, 2.1, 2.2, 3.1, 3.2, 4.1, 4.2) existiert eine **eigene** Kompetenzdatei, da sich Kompetenzen, Stufenbeschreibungen und Bausteine zwischen den Halbjahren unterscheiden.
+
+Hierarchie: **Abschnitt → Bereich → Kompetenz → Stufe → Satzbausteine**
+
+```json
+{
+  "halbjahr": "4.1",
+  "version": "2026-1",
+  "abschnitte": [
+    {
+      "id": "deutsch",
+      "titel": "Deutsch",
+      "bereiche": [
+        {
+          "id": "lesen",
+          "titel": "Lesen",
+          "kompetenzen": [
+            {
+              "id": "lesen_sinnentnehmend",
+              "titel": "Sinnentnehmendes Lesen",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Vorname} entnimmt einfachen Texten erste Informationen."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Vorname} entnimmt altersgemäßen Texten die wesentlichen Informationen."
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "bemerkungsbausteine": [
+    { "id": "bem_hilfsbereit", "text": "{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit." }
+  ]
+}
+```
+
+Hinweise:
+- Die **Anzahl der Stufen ist pro Kompetenz variabel** (kein festes Enum, sondern Array beliebiger Länge).
+- Pro Stufe können **mehrere alternative Satzbausteine** hinterlegt sein (zur sprachlichen Variation, damit nicht alle Zeugnisse einer Klasse identisch klingen); die App wählt z. B. zufällig oder nutzerauswählbar einen Baustein aus.
+- Das Feld `halbjahr` dient der Konsistenzprüfung: Die App lädt beim Öffnen eines Klassendatensatzes automatisch die zum hinterlegten Halbjahr passende Kompetenzdatei.
+- Platzhaltersyntax siehe Abschnitt 6.
+
+### 3.4 Bewertung je Schüler je Kompetenz (lokal)
+```json
+{
+  "schuelerId": "uuid",
+  "kompetenzId": "lesen_sinnentnehmend",
+  "stufe": 2,
+  "bewertetAm": "2026-06-10T10:00:00",
+  "gewaehlterBausteinIndex": 0
+}
+```
+
+### 3.5 Bewertungstext je Schüler je Kompetenz/Bereich (lokal)
+```json
+{
+  "schuelerId": "uuid",
+  "kompetenzId": "lesen_sinnentnehmend",
+  "generierterText": "Anna entnimmt altersgemäßen Texten die wesentlichen Informationen.",
+  "manuellerText": null,
+  "gesperrt": false
+}
+```
+- Solange `manuellerText == null` ⇒ `gesperrt = false`, Bewertung kann geändert werden, Text wird bei jeder Stufenänderung neu generiert.
+- Sobald der Anwender den Text manuell editiert ⇒ `manuellerText` wird gesetzt, `gesperrt = true`. Die Bewertungs-UI für diese Kompetenz wird schreibgeschützt (read-only, visuell hervorgehoben, z. B. Schloss-Icon).
+- Ein expliziter „Zurücksetzen"-Button setzt `manuellerText = null`, `gesperrt = false` und generiert den Text neu aus der aktuellen Stufe.
+
+### 3.6 Bemerkungen je Schüler (lokal)
+```json
+{
+  "schuelerId": "uuid",
+  "ausgewaehlteBemerkungen": ["bem_hilfsbereit", "bem_konzentriert"]
+}
+```
+
+### 3.7 Gesamtes lokales Datenmodell (Export-/Import-Format)
+Ein Export entspricht **genau einer Klasse in einem Halbjahr**:
+
+```json
+{
+  "formatVersion": 1,
+  "erstelltAm": "2026-08-10T09:00:00",
+  "halbjahr": "4.1",
+  "kompetenzdateiVersion": "2026-1",
+  "klasse": { "name": "4b", "schuljahr": "2025/2026" },
+  "schueler": [ /* siehe 3.1 */ ],
+  "bewertungen": [ /* siehe 3.4 */ ],
+  "bewertungstexte": [ /* siehe 3.5 */ ],
+  "bemerkungen": [ /* siehe 3.6 */ ]
+}
+```
+
+---
+
+## 4. Kompetenz- und Bausteindatei (serverseitig, nicht-personenbezogen, je Halbjahr)
+
+- Für jedes der acht Halbjahre (1.1 bis 4.2) existiert eine **eigenständige, statische JSON-Datei**, vom Anbieter gepflegt (z. B. Fachberater:innen, orientiert an NRW-Kernlehrplänen).
+- Beim Anlegen bzw. Öffnen eines Klassendatensatzes wählt der Anwender das zutreffende Halbjahr; die App lädt daraufhin die passende Datei und legt sie im Service-Worker-Cache/IndexedDB lokal ab → funktioniert danach offline.
+- App bietet einen manuellen „Aktualisieren"-Button je Halbjahresdatei, der diese erneut vom Server lädt (kein automatischer Hintergrund-Sync, um Transparenz zu wahren).
+- **Wichtig:** Diese Dateien enthalten niemals Schülerdaten, daher ist der Serverzugriff unkritisch bzgl. Datenschutz.
+- Versionierung (`version`-Feld je Halbjahresdatei) ermöglicht Kompatibilitätsprüfung mit bereits gespeicherten Bewertungen (z. B. Warnung bei Versionswechsel, wenn Kompetenz-IDs sich geändert haben).
+
+---
+
+## 5. Funktionale Anforderungen im Detail
+
+### 5.1 Klassenverwaltung
+- Ein Datensatz = eine Klasse in einem Halbjahr. Beim Neuanlegen wird das Halbjahr (1.1–4.2) festgelegt; dies bestimmt die zu ladende Kompetenzdatei und ist nachträglich nicht änderbar (stattdessen: neuer Datensatz).
+- Anlegen/Bearbeiten/Löschen von Schüler:innen (Name, Vorname, Geburtsdatum, Geschlecht: „w"/„m").
+- Sortierbare/filterbare Klassenliste.
+- Optionaler „Halbjahreswechsel"-Assistent: übernimmt die Schülerstammdaten in einen neuen Datensatz des Folgehalbjahres (siehe 3.2), ohne Bewertungsdaten zu übertragen.
+- Da jeweils nur ein Datensatz (eine Klasse/ein Halbjahr) aktiv bearbeitet wird, erfolgt das Wechseln zwischen mehreren Klassen/Halbjahren über Export des aktuellen und Import des gewünschten Datensatzes (Drag & Drop, siehe 5.5).
+
+### 5.2 Bewertungsansicht
+- Navigierbar über Abschnitt → Bereich → Kompetenz (gemäß der zum Halbjahr gehörenden Kompetenzdatei).
+- Je Kompetenz: Stufenauswahl (z. B. Radio-Buttons/Slider, abhängig von Anzahl der Stufen dieser Kompetenz).
+- **Vergleichsfunktion:**
+  - Einblendbare Bewertung eines frei wählbaren anderen Schülers (zum direkten Abgleich).
+  - Einblendbarer **Klassenmedian** und **Klassendurchschnitt** je Kompetenz (numerisch über die Stufennummern berechnet; Durchschnitt ggf. gerundet/mit Dezimalstelle, Median als tatsächlich vorkommende oder mittlere Stufe ausgewiesen).
+  - Darstellung z. B. als kleine Balken-/Skalenanzeige neben der eigenen Bewertung.
+- Anzeige des generierten Bewertungstexts in Echtzeit bei Stufenauswahl.
+- Sperr-/Entsperrmechanismus gemäß 3.5.
+
+### 5.3 Bemerkungen
+- Je Schüler: Liste aller Bemerkungsbausteine aus der (halbjahresspezifischen) Kompetenzdatei als Checkboxen.
+- Mehrfachauswahl möglich; ausgewählte Bausteine werden in der finalen Textzusammenstellung berücksichtigt (Reihenfolge editierbar oder fest nach Definitionsreihenfolge).
+
+### 5.4 Textgenerierungs-Engine
+- Ersetzt Platzhalter in Satzbausteinen anhand der Schülerdaten (siehe 6).
+- Pronomenlogik anhand `geschlecht` (ausschließlich „w"/„m") mit fest definierten Ersetzungstabellen (Nominativ, Akkusativ, Dativ, Possessiv). Eine dritte Option „divers" wird bewusst **nicht** angeboten.
+- Bei mehreren alternativen Satzbausteinen je Stufe: deterministische oder zufällige Auswahl, vom Anwender überschreibbar/neu würfelbar.
+
+### 5.5 JSON-Import/Export
+- Export des gesamten lokalen Datensatzes (3.7) einer Klasse/eines Halbjahres als Datei-Download.
+- Import per **Drag & Drop** einer JSON-Datei in den Browser; Validierung gegen Schema, Prüfung von `halbjahr` und `kompetenzdateiVersion`, Konfliktbehandlung (z. B. „aktuellen Datensatz ersetzen" – da immer nur eine Klasse/ein Halbjahr aktiv ist, ist ein „Zusammenführen" hier nicht vorgesehen).
+
+### 5.6 Word-Vorlagen-Merge (Sammeldokument)
+- Das Word-Template wird **nicht dauerhaft in der App hinterlegt**, sondern vom Anwender unmittelbar **vor jedem Export** über eine lokale Dateiauswahl bereitgestellt (kein Serverkontakt, kein Zwischenspeichern über die Sitzung hinaus).
+- Die Vorlage enthält definierte Platzhalter (siehe 6), u. a. für Schülerstammdaten, Bewertungstexte je Bereich/Kompetenz und Bemerkungen.
+- Für **jeden Schüler der Klasse** wird der Platzhalter-Ersetzungsvorgang auf Basis derselben Vorlage durchgeführt.
+- **Alle erzeugten Einzelzeugnisse werden zu einer einzigen Word-Datei zusammengeführt** (ein Dokument mit einem Abschnitt/mehreren Seiten je Schüler, jeweils durch Seitenumbruch getrennt), anstatt einzelner Dateien oder eines ZIP-Archivs.
+- Technische Umsetzung: Da `docxtemplater` primär einzelne Dokumente aus einer Vorlage befüllt, erfolgt der Zusammenbau der Sammeldatei durch Erzeugen der Einzeldokumente im Speicher und anschließendes programmatisches Verketten der jeweiligen Inhalte (Body-Elemente, ggf. inkl. Kopf-/Fußzeilen-Handling) in ein gemeinsames `.docx`-Gesamtdokument mittels direkter OOXML-Manipulation über `pizzip`, jeweils getrennt durch einen Seitenumbruch (`w:br` mit `type="page"`).
+- Ergebnis: **ein einziger Download** der vollständigen Sammel-Word-Datei für die gesamte Klasse.
+- Kein Zwischenspeichern der erzeugten personenbezogenen Dateien auf einem Server; die Verarbeitung inkl. Zusammenführung erfolgt vollständig im Browser.
+
+---
+
+## 6. Platzhaltersyntax (Vorschlag, konsistent für Satzbausteine & Word-Vorlage)
+
+### 6.1 Übersicht
+| Platzhalter | Bedeutung |
+|---|---|
+| `{Vorname}` / `{Nachname}` | Schülername |
+| `{Pronomen_Nom}` | er / sie |
+| `{Pronomen_Akk}` | ihn / sie |
+| `{Pronomen_Dat}` | ihm / ihr |
+| `{Pronomen_Poss}` | sein / ihr |
+| `{Geburtsdatum}` | formatiert TT.MM.JJJJ |
+| `{Bereich:lesen}` | eingefügter Bewertungstext des Bereichs „Lesen" |
+| `{Kompetenz:lesen_sinnentnehmend}` | Text der einzelnen Kompetenz |
+| `{Bemerkungen}` | zusammengeführter Text aller ausgewählten Bemerkungsbausteine |
+
+In der Word-Datei werden dieselben Bezeichner in doppelten geschweiften Klammern verwendet (docxtemplater-Konvention), z. B. `{{Vorname}}`, `{{Bereich_lesen}}`.
+
+### 6.2 Hinweis zur Pronomenlogik
+Da „Geschlecht divers" gemäß Vorgabe nicht berücksichtigt wird, basiert die Pronomenersetzung ausschließlich auf einer binären Zuordnung (`w`/`m`). Eine Erweiterung ist architektonisch möglich (zusätzliche Spalte in der Ersetzungstabelle, zusätzlicher Wert im `geschlecht`-Feld), ist aber **nicht** Teil des aktuellen Funktionsumfangs.
+
+---
+
+## 7. Nicht-funktionale Anforderungen
+
+- **Datenschutz/DSGVO:** Verarbeitung ausschließlich lokal; keine Drittanbieter-Skripte mit Datenzugriff; klare Datenschutzhinweise in der App.
+- **Offlinefähigkeit:** Nach Erstladen und Bezug der passenden Halbjahres-Kompetenzdatei voll funktionsfähig ohne Internetverbindung.
+- **Browser-Kompatibilität:** Aktuelle Versionen von Chrome, Edge, Firefox (Schul-PCs oft mit eingeschränkten Browserversionen – Zielkompatibilität explizit festlegen und testen).
+- **Bedienbarkeit:** Für Lehrkräfte ohne IT-Hintergrund, klare Führung durch den Workflow (Halbjahr wählen → Klasse anlegen → Bewerten → Bemerkungen → Word-Vorlage auswählen → Sammeldokument exportieren).
+- **Robustheit:** Kein Datenverlust bei Browser-Neustart (persistente IndexedDB), regelmäßige Erinnerung an manuellen JSON-Export als „Backup".
+- **Barrierefreiheit:** Tastaturbedienbarkeit, ausreichende Kontraste, sinnvolle ARIA-Labels.
+
+---
+
+## 8. Implementierungsplan (Phasen)
+
+### Phase 1 – Grundgerüst & Datenmodell
+- Projekt-Setup (Build-Tooling, PWA-Manifest, Service-Worker-Grundgerüst).
+- IndexedDB-Schicht für einen Klassendatensatz (Halbjahr, Schüler, Bewertungen, Bewertungstexte, Bemerkungen).
+- Klassenverwaltung (Halbjahr festlegen, CRUD für Schüler:innen).
+- JSON-Export/-Import inkl. Drag & Drop; Halbjahreswechsel-Assistent (Übernahme der Stammdaten).
+- **Validierung:** Datensatz lässt sich anlegen, exportieren, in neuem Browserprofil importieren und ist identisch; Halbjahreswechsel übernimmt korrekt nur die Stammdaten.
+
+### Phase 2 – Kompetenzdatei & Bewertungs-UI
+- Laden/Cachen der halbjahresspezifischen Kompetenzdatei, Versions- und Konsistenzprüfung (`halbjahr`-Abgleich).
+- Navigierbare Ansicht Abschnitt → Bereich → Kompetenz.
+- Stufenauswahl-UI mit variabler Stufenzahl je Kompetenz.
+- **Validierung:** Für mehrere Testkompetenzen mit unterschiedlicher Stufenzahl aus verschiedenen Halbjahresdateien funktioniert die Bewertung korrekt; falsches/fehlendes Halbjahr wird erkannt.
+
+### Phase 3 – Textgenerierungs-Engine
+- Platzhalter-/Pronomenersetzung (binär w/m).
+- Automatische Textgenerierung bei Stufenauswahl.
+- Manuelle Textbearbeitung inkl. Sperr-/Zurücksetzen-Mechanismus.
+- **Validierung:** Testfälle für beide Geschlechtsausprägungen, Sperrverhalten, Reset-Funktion.
+
+### Phase 4 – Vergleichsansichten
+- Auswahl eines Vergleichsschülers.
+- Berechnung von Klassenmedian und -durchschnitt je Kompetenz.
+- Visuelle Integration in die Bewertungsansicht.
+- **Validierung:** Korrekte Median-/Durchschnittsberechnung bei geraden/ungeraden Klassengrößen, fehlenden Bewertungen.
+
+### Phase 5 – Bemerkungen
+- Checkbox-UI für Bemerkungsbausteine je Schüler (aus der halbjahresspezifischen Datei).
+- Einbindung in Textzusammenstellung.
+- **Validierung:** Mehrfachauswahl, Persistenz, korrekte Textzusammenführung.
+
+### Phase 6 – Word-Vorlagen-Merge als Sammeldokument
+- Lokale Auswahl der `.docx`-Vorlage unmittelbar vor Export (kein dauerhaftes Speichern der Vorlage).
+- Platzhalter-Mapping-Konfiguration.
+- Generierung je Schüler und programmatisches Zusammenführen aller Einzelzeugnisse zu **einer** Sammel-Word-Datei (Seitenumbrüche zwischen Schüler:innen).
+- **Validierung:** Testvorlage mit allen Platzhaltertypen, Rundlauf für vollständige Testklasse, Prüfung auf korrekte Reihenfolge, Seitenumbrüche, Sonderzeichen/Umlaute und Layout-Konsistenz über alle Einzelabschnitte hinweg.
+
+### Phase 7 – PWA-Feinschliff & Härtung
+- Vollständiges Offline-Verhalten (App-Shell + Fallback auf zuletzt geladene Halbjahres-Kompetenzdatei).
+- Installierbarkeit (Manifest, Icons).
+- Backup-Erinnerungen, Fehlerbehandlung bei Import (korruptes JSON, Versions-/Halbjahreskonflikte).
+- Barrierefreiheits- und Browser-Kompatibilitätstests auf typischer Schul-Hardware.
+
+---
+
+*Dieses Dokument dient als lebendige Spezifikation und sollte parallel zur Implementierung aktualisiert werden, sobald einzelne Phasen validiert sind oder von der ursprünglichen Planung abweichen.*
