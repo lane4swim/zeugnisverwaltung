@@ -1,5 +1,7 @@
+# dist/ wird bewusst NICHT ignoriert: es dient als fertig gebauter Ordner
+# für einen schnellen Livetest im Browser (siehe README.md). Vor jedem Commit
+# mit `npm run build` neu erzeugen, damit er nicht veraltet.
 node_modules/
-dist/
 dev-dist/
 spike/word-merge/output/
 *.tsbuildinfo

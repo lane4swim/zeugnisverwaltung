@@ -2,6 +2,10 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  // Relative Pfade, damit der Build auch direkt per file:// oder aus einem
+  // beliebigen Unterordner heraus geöffnet werden kann (siehe dist/-Ordner
+  // für den Livetest im Browser).
+  base: './',
   plugins: [
     VitePWA({
       registerType: 'prompt',
