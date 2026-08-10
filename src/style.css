@@ -289,6 +289,32 @@ fieldset.kompetenz-block legend {
   cursor: pointer;
 }
 
+.bewertungstext-block {
+  margin-top: 0.75rem;
+}
+
+.bewertungstext-block textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--farbe-rand);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+}
+
+.bewertungstext-werkzeuge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 0.4rem;
+}
+
+.gesperrt-hinweis {
+  color: var(--farbe-gesperrt);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

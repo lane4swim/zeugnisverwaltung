@@ -1,7 +1,8 @@
 import { datensatzStore } from '../state/store';
 import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
-import type { Bewertung, Kompetenz, KompetenzDatei, Schueler } from '../types';
+import type { Bewertung, Bewertungstext, Kompetenz, KompetenzDatei, Schueler } from '../types';
 import { findeKompetenz } from '../utils/kompetenzstruktur';
+import { ersetzePlatzhalter, waehleBausteinIndex } from '../services/textgenerierung';
 import { escapeHtml } from './bestaetigungsDialog';
 
 export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => void): HTMLElement {
@@ -28,27 +29,59 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
     return datensatzStore.get()?.bewertungen.find((b) => b.schuelerId === schuelerId && b.kompetenzId === kompetenzId) ?? null;
   }
 
+  function textFuer(kompetenzId: string): Bewertungstext | null {
+    return (
+      datensatzStore.get()?.bewertungstexte.find((t) => t.schuelerId === schuelerId && t.kompetenzId === kompetenzId) ?? null
+    );
+  }
+
   function kompetenzBlockHtml(kompetenz: Kompetenz): string {
     const bewertung = bewertungFuer(kompetenz.id);
+    const text = textFuer(kompetenz.id);
     const stufenzahl = kompetenz.stufen.length;
     const ungueltig = bewertung !== null && bewertung.stufe > stufenzahl;
+    const gesperrt = text?.gesperrt ?? false;
+
     const radios = kompetenz.stufen
       .map((stufe) => {
         const checked = bewertung?.stufe === stufe.stufe ? 'checked' : '';
         return `
           <label class="stufen-option">
-            <input type="radio" name="stufe-${escapeHtml(kompetenz.id)}" value="${stufe.stufe}" data-kompetenz-id="${escapeHtml(kompetenz.id)}" ${checked} />
+            <input type="radio" name="stufe-${escapeHtml(kompetenz.id)}" value="${stufe.stufe}" data-kompetenz-id="${escapeHtml(kompetenz.id)}" ${checked} ${gesperrt ? 'disabled' : ''} />
             ${stufe.stufe}: ${escapeHtml(stufe.bezeichnung)}
           </label>
         `;
       })
       .join('');
 
+    let textBereichHtml = '';
+    if (bewertung !== null && !ungueltig) {
+      const aktuelleStufe = kompetenz.stufen.find((s) => s.stufe === bewertung.stufe);
+      const anzahlBausteine = aktuelleStufe?.satzbausteine.length ?? 0;
+      const anzeigeText = text?.manuellerText ?? text?.generierterText ?? '';
+      textBereichHtml = `
+        <div class="bewertungstext-block">
+          <label class="sr-only" for="text-${escapeHtml(kompetenz.id)}">Zeugnistext für ${escapeHtml(kompetenz.titel)}</label>
+          <textarea id="text-${escapeHtml(kompetenz.id)}" data-text-kompetenz-id="${escapeHtml(kompetenz.id)}" rows="2">${escapeHtml(anzeigeText)}</textarea>
+          <div class="bewertungstext-werkzeuge">
+            ${gesperrt ? '<span class="gesperrt-hinweis">🔒 Manuell bearbeitet – Stufenauswahl gesperrt</span>' : ''}
+            ${
+              anzahlBausteine > 1
+                ? `<button type="button" class="sekundaer" data-wuerfeln="${escapeHtml(kompetenz.id)}" ${gesperrt ? 'disabled' : ''}>🎲 Neu würfeln</button>`
+                : ''
+            }
+            ${gesperrt ? `<button type="button" class="sekundaer" data-zuruecksetzen="${escapeHtml(kompetenz.id)}">Zurücksetzen</button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <fieldset class="kompetenz-block">
         <legend>${escapeHtml(kompetenz.titel)}</legend>
         ${ungueltig ? `<p class="fehler" role="alert">Bisherige Bewertung (Stufe ${bewertung!.stufe}) ist nach einem Kompetenzdatei-Update nicht mehr gültig (nur noch ${stufenzahl} Stufe(n)). <button type="button" class="sekundaer" data-bereinigen="${escapeHtml(kompetenz.id)}">Bereinigen</button></p>` : ''}
         <div class="stufen-radiogroup" role="radiogroup" aria-label="${escapeHtml(kompetenz.titel)}">${radios}</div>
+        ${textBereichHtml}
       </fieldset>
     `;
   }
@@ -109,16 +142,60 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
       baum.innerHTML = '<p class="leerzustand">Kompetenzdatei ist noch nicht geladen.</p>';
       return;
     }
+    const datei = kdZustand.datei;
 
-    veralteteBereich.innerHTML = veralteteHtml(kdZustand.datei);
-    baum.innerHTML = baumHtml(kdZustand.datei);
+    veralteteBereich.innerHTML = veralteteHtml(datei);
+    baum.innerHTML = baumHtml(datei);
 
     wurzel.querySelectorAll<HTMLInputElement>('input[type="radio"][data-kompetenz-id]').forEach((eingabe) => {
       eingabe.addEventListener('change', async () => {
         const kompetenzId = eingabe.dataset.kompetenzId as string;
-        await datensatzStore.setzeBewertung(schuelerId, kompetenzId, Number(eingabe.value));
+        const kompetenz = findeKompetenz(datei, kompetenzId)?.kompetenz;
+        const stufe = Number(eingabe.value);
+        const stufenDefinition = kompetenz?.stufen.find((s) => s.stufe === stufe);
+        const aktuellerSchuelerWert = aktuellerSchueler();
+        if (!stufenDefinition || !aktuellerSchuelerWert) return;
+        const index = waehleBausteinIndex(stufenDefinition.satzbausteine.length);
+        const text = ersetzePlatzhalter(stufenDefinition.satzbausteine[index], aktuellerSchuelerWert);
+        await datensatzStore.setzeBewertungMitGeneriertemText(schuelerId, kompetenzId, stufe, index, text);
       });
     });
+
+    wurzel.querySelectorAll<HTMLButtonElement>('[data-wuerfeln]').forEach((knopf) => {
+      knopf.addEventListener('click', async () => {
+        const kompetenzId = knopf.dataset.wuerfeln as string;
+        const kompetenz = findeKompetenz(datei, kompetenzId)?.kompetenz;
+        const bewertung = bewertungFuer(kompetenzId);
+        const aktuellerSchuelerWert = aktuellerSchueler();
+        const stufenDefinition = kompetenz?.stufen.find((s) => s.stufe === bewertung?.stufe);
+        if (!kompetenz || !bewertung || !stufenDefinition || !aktuellerSchuelerWert) return;
+        const index = waehleBausteinIndex(stufenDefinition.satzbausteine.length, bewertung.gewaehlterBausteinIndex);
+        const text = ersetzePlatzhalter(stufenDefinition.satzbausteine[index], aktuellerSchuelerWert);
+        await datensatzStore.setzeBewertungMitGeneriertemText(schuelerId, kompetenzId, bewertung.stufe, index, text);
+      });
+    });
+
+    wurzel.querySelectorAll<HTMLButtonElement>('[data-zuruecksetzen]').forEach((knopf) => {
+      knopf.addEventListener('click', async () => {
+        const kompetenzId = knopf.dataset.zuruecksetzen as string;
+        const kompetenz = findeKompetenz(datei, kompetenzId)?.kompetenz;
+        const bewertung = bewertungFuer(kompetenzId);
+        const aktuellerSchuelerWert = aktuellerSchueler();
+        const stufenDefinition = kompetenz?.stufen.find((s) => s.stufe === bewertung?.stufe);
+        if (!bewertung || !stufenDefinition || !aktuellerSchuelerWert) return;
+        const text = ersetzePlatzhalter(stufenDefinition.satzbausteine[bewertung.gewaehlterBausteinIndex], aktuellerSchuelerWert);
+        await datensatzStore.setzeTextZurueck(schuelerId, kompetenzId, text);
+      });
+    });
+
+    wurzel.querySelectorAll<HTMLTextAreaElement>('textarea[data-text-kompetenz-id]').forEach((textfeld) => {
+      textfeld.addEventListener('change', async () => {
+        if (textfeld.value === textfeld.defaultValue) return;
+        const kompetenzId = textfeld.dataset.textKompetenzId as string;
+        await datensatzStore.setzeManuellenText(schuelerId, kompetenzId, textfeld.value);
+      });
+    });
+
     wurzel.querySelectorAll<HTMLButtonElement>('[data-bereinigen]').forEach((knopf) => {
       knopf.addEventListener('click', async () => {
         await datensatzStore.entferneBewertung(schuelerId, knopf.dataset.bereinigen as string);

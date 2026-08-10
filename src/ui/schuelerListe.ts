@@ -2,6 +2,7 @@ import { datensatzStore } from '../state/store';
 import type { Schueler } from '../types';
 import { schuelerDialogOeffnen } from './schuelerDialog';
 import { bestaetigen, escapeHtml } from './bestaetigungsDialog';
+import { formatiereDatum } from '../utils/datum';
 
 type SortSpalte = 'nachname' | 'vorname' | 'geburtsdatum' | 'geschlecht';
 
@@ -47,7 +48,7 @@ export function erstelleSchuelerListe(optionen: { onBewerten: (schuelerId: strin
       <tr>
         <td>${escapeHtml(s.nachname)}</td>
         <td>${escapeHtml(s.vorname)}</td>
-        <td>${formatDatum(s.geburtsdatum)}</td>
+        <td>${formatiereDatum(s.geburtsdatum)}</td>
         <td>${s.geschlecht === 'w' ? 'weiblich' : 'männlich'}</td>
         <td>
           <button type="button" data-bewerten="${s.id}">Bewerten<span class="sr-only"> ${anzeigename}</span></button>
@@ -153,10 +154,4 @@ export function erstelleSchuelerListe(optionen: { onBewerten: (schuelerId: strin
   datensatzStore.subscribe(() => render());
 
   return wurzel;
-}
-
-function formatDatum(iso: string): string {
-  const [jahr, monat, tag] = iso.split('-');
-  if (!jahr || !monat || !tag) return iso;
-  return `${tag}.${monat}.${jahr}`;
 }

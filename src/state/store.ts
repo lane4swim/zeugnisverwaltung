@@ -1,5 +1,5 @@
 import { ladeAktivenDatensatz, loescheAktivenDatensatz, speichereAktivenDatensatz } from '../db/database';
-import type { Bewertung, Klassendatensatz, Schueler } from '../types';
+import type { Bewertung, Bewertungstext, Klassendatensatz, Schueler } from '../types';
 
 type Listener = (datensatz: Klassendatensatz | null) => void;
 
@@ -75,17 +75,40 @@ class DatensatzStore {
     await this.persist();
   }
 
-  async setzeBewertung(schuelerId: string, kompetenzId: string, stufe: number): Promise<void> {
+  /**
+   * Übernimmt eine Stufenauswahl (Erstauswahl oder „Neu würfeln") zusammen
+   * mit dem dazu automatisch generierten Text als eine Aktualisierung
+   * (spezifikation.md 3.4/3.5/5.4). Ein zuvor gesperrter Text wird dabei
+   * bewusst nicht überschrieben – die aufrufende UI darf diese Methode für
+   * eine gesperrte Kompetenz gar nicht erst aufrufen (Stufenauswahl ist dann
+   * schreibgeschützt), diese Prüfung dient als zusätzliche Absicherung.
+   */
+  async setzeBewertungMitGeneriertemText(
+    schuelerId: string,
+    kompetenzId: string,
+    stufe: number,
+    gewaehlterBausteinIndex: number,
+    generierterText: string,
+  ): Promise<void> {
     if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
-    const bestehende = this.aktuell.bewertungen.find(
-      (b) => b.schuelerId === schuelerId && b.kompetenzId === kompetenzId,
+    const bestehenderText = this.aktuell.bewertungstexte.find(
+      (t) => t.schuelerId === schuelerId && t.kompetenzId === kompetenzId,
     );
+    if (bestehenderText?.gesperrt) return;
+
     const neueBewertung: Bewertung = {
       schuelerId,
       kompetenzId,
       stufe,
       bewertetAm: new Date().toISOString(),
-      gewaehlterBausteinIndex: bestehende?.gewaehlterBausteinIndex ?? 0,
+      gewaehlterBausteinIndex,
+    };
+    const neuerText: Bewertungstext = {
+      schuelerId,
+      kompetenzId,
+      generierterText,
+      manuellerText: null,
+      gesperrt: false,
     };
     this.aktuell = {
       ...this.aktuell,
@@ -93,17 +116,67 @@ class DatensatzStore {
         ...this.aktuell.bewertungen.filter((b) => !(b.schuelerId === schuelerId && b.kompetenzId === kompetenzId)),
         neueBewertung,
       ],
+      bewertungstexte: [
+        ...this.aktuell.bewertungstexte.filter((t) => !(t.schuelerId === schuelerId && t.kompetenzId === kompetenzId)),
+        neuerText,
+      ],
     };
     await this.persist();
   }
 
-  /** Entfernt eine einzelne Bewertung, z. B. beim Bereinigen veralteter/ungültiger Einträge (4.1). */
+  /** Manuelle Textbearbeitung sperrt die Stufenauswahl (spezifikation.md 3.5). */
+  async setzeManuellenText(schuelerId: string, kompetenzId: string, text: string): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    const bestehender = this.aktuell.bewertungstexte.find(
+      (t) => t.schuelerId === schuelerId && t.kompetenzId === kompetenzId,
+    );
+    const neuerText: Bewertungstext = {
+      schuelerId,
+      kompetenzId,
+      generierterText: bestehender?.generierterText ?? null,
+      manuellerText: text,
+      gesperrt: true,
+    };
+    this.aktuell = {
+      ...this.aktuell,
+      bewertungstexte: [
+        ...this.aktuell.bewertungstexte.filter((t) => !(t.schuelerId === schuelerId && t.kompetenzId === kompetenzId)),
+        neuerText,
+      ],
+    };
+    await this.persist();
+  }
+
+  /** „Zurücksetzen": entsperrt und ersetzt den Text durch eine frische, automatische Generierung (3.5). */
+  async setzeTextZurueck(schuelerId: string, kompetenzId: string, neuGenerierterText: string): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    const neuerText: Bewertungstext = {
+      schuelerId,
+      kompetenzId,
+      generierterText: neuGenerierterText,
+      manuellerText: null,
+      gesperrt: false,
+    };
+    this.aktuell = {
+      ...this.aktuell,
+      bewertungstexte: [
+        ...this.aktuell.bewertungstexte.filter((t) => !(t.schuelerId === schuelerId && t.kompetenzId === kompetenzId)),
+        neuerText,
+      ],
+    };
+    await this.persist();
+  }
+
+  /** Entfernt eine einzelne Bewertung samt zugehörigem Text, z. B. beim Bereinigen veralteter/ungültiger Einträge (4.1). */
   async entferneBewertung(schuelerId: string, kompetenzId: string): Promise<void> {
     if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
     this.aktuell = {
       ...this.aktuell,
       bewertungen: this.aktuell.bewertungen.filter(
         (b) => !(b.schuelerId === schuelerId && b.kompetenzId === kompetenzId),
+      ),
+      bewertungstexte: this.aktuell.bewertungstexte.filter(
+        (t) => !(t.schuelerId === schuelerId && t.kompetenzId === kompetenzId),
       ),
     };
     await this.persist();
