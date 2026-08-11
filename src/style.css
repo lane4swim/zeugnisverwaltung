@@ -578,6 +578,26 @@ fieldset.kompetenz-block legend {
   white-space: pre-wrap;
 }
 
+details.gesamttextvorschau {
+  margin: 0.75rem 0 0.25rem;
+}
+
+details.gesamttextvorschau > summary {
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0;
+}
+
+.gesamttextvorschau-text {
+  background: #f5f7fa;
+  border: 1px solid var(--farbe-rand);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  white-space: pre-wrap;
+  margin-top: 0.4rem;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

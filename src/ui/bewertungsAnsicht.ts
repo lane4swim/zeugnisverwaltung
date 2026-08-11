@@ -4,6 +4,7 @@ import type { Abschnitt, Bereich, Bewertung, Bewertungstext, Kompetenz, Kompeten
 import { findeKompetenz } from '../utils/kompetenzstruktur';
 import { ersetzePlatzhalter, waehleBausteinIndex } from '../services/textgenerierung';
 import { berechneDurchschnitt, berechneMedian, formatiereStufenwert } from '../services/statistik';
+import { erzeugeAbschnittGesamttext } from '../services/wordExport';
 import { erstelleSkalaHtml, type SkalaMarker } from './vergleichsSkala';
 import { escapeHtml } from './bestaetigungsDialog';
 
@@ -27,6 +28,11 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
 
   let vergleichsschuelerId: string | null = null;
   let zeigeKlassenvergleich = false;
+  // Merkt sich geöffnete Gesamttextvorschauen über Re-Renders hinweg (z. B.
+  // nach Änderung einer Stufenauswahl), da der Baum bei jeder Änderung
+  // komplett neu aus HTML-Strings aufgebaut wird und <details>-Elemente
+  // ihren offen/geschlossen-Zustand sonst verlieren würden.
+  const geoeffneteGesamttextvorschauen = new Set<string>();
 
   function aktuellerSchueler(): Schueler | null {
     return datensatzStore.get()?.schueler.find((s) => s.id === schuelerId) ?? null;
@@ -194,6 +200,31 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
     `;
   }
 
+  /**
+   * Einblendbare Gesamttextvorschau je Fach (spezifikation.md 5.2): zeigt
+   * den zusammengeführten Text aller Bereiche dieses Fachs auf einen Blick,
+   * damit sich der spätere Zeugnistext für dieses Fach schon vor dem
+   * Word-Export überprüfen lässt. Standardmäßig eingeklappt, da sie eine
+   * ergänzende Übersicht ist und nicht die primäre Bewertungs-UI verdrängen
+   * soll.
+   */
+  function gesamttextvorschauHtml(abschnitt: Abschnitt): string {
+    const datensatz = datensatzStore.get();
+    if (!datensatz) return '';
+    const text = erzeugeAbschnittGesamttext(abschnitt, schuelerId, datensatz);
+    const offen = geoeffneteGesamttextvorschauen.has(abschnitt.id);
+    return `
+      <details class="gesamttextvorschau" data-abschnitt-id="${escapeHtml(abschnitt.id)}" ${offen ? 'open' : ''}>
+        <summary>Gesamttextvorschau: ${escapeHtml(abschnitt.titel)}</summary>
+        ${
+          text
+            ? `<p class="gesamttextvorschau-text">${escapeHtml(text)}</p>`
+            : '<p class="leerzustand">Noch kein Text vorhanden – in diesem Fach wurde noch keine Kompetenz bewertet.</p>'
+        }
+      </details>
+    `;
+  }
+
   function abschnittHtml(abschnitt: Abschnitt): string {
     const nichtRelevant = abschnitt.optional === true && istAbschnittNichtRelevant(abschnitt.id);
     const toggleHtml = abschnitt.optional
@@ -212,7 +243,7 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
         : '';
     const inhaltHtml = nichtRelevant
       ? `<p class="leerzustand">Als nicht relevant markiert – für dieses Fach ist bei dieser Person keine Bewertung möglich und es fließt nicht in die Vollständigkeitsprüfung ein.</p>${bemerkungsHinweisHtml}`
-      : abschnitt.bereiche.map(bereichHtml).join('');
+      : `${abschnitt.bereiche.map(bereichHtml).join('')}${gesamttextvorschauHtml(abschnitt)}`;
 
     return `
       <details open class="abschnitt-block">
@@ -319,6 +350,14 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
     wurzel.querySelectorAll<HTMLButtonElement>('[data-bereinigen]').forEach((knopf) => {
       knopf.addEventListener('click', async () => {
         await datensatzStore.entferneBewertung(schuelerId, knopf.dataset.bereinigen as string);
+      });
+    });
+
+    wurzel.querySelectorAll<HTMLDetailsElement>('details.gesamttextvorschau').forEach((details) => {
+      const abschnittId = details.dataset.abschnittId as string;
+      details.addEventListener('toggle', () => {
+        if (details.open) geoeffneteGesamttextvorschauen.add(abschnittId);
+        else geoeffneteGesamttextvorschauen.delete(abschnittId);
       });
     });
 

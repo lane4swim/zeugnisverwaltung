@@ -1,4 +1,4 @@
-import type { Klassendatensatz, KompetenzDatei, Schueler } from '../types';
+import type { Abschnitt, Bereich, Klassendatensatz, KompetenzDatei, Schueler } from '../types';
 import { erzeugeSchuelerFelder } from './textgenerierung';
 import { erzeugeBemerkungstext, erzeugeVollstaendigeBausteinListe } from './bemerkungen';
 
@@ -13,6 +13,29 @@ export function sortiereSchuelerFuerExport(schueler: Schueler[]): Schueler[] {
 function effektiverKompetenzText(datensatz: Klassendatensatz, schuelerId: string, kompetenzId: string): string {
   const text = datensatz.bewertungstexte.find((t) => t.schuelerId === schuelerId && t.kompetenzId === kompetenzId);
   return text?.manuellerText ?? text?.generierterText ?? '';
+}
+
+/** Alle Kompetenztexte eines Bereichs, in Definitionsreihenfolge zusammengefügt (entspricht `Bereich_<id>`, siehe 6.1). */
+export function erzeugeBereichText(bereich: Bereich, schuelerId: string, datensatz: Klassendatensatz): string {
+  return bereich.kompetenzen
+    .map((kompetenz) => effektiverKompetenzText(datensatz, schuelerId, kompetenz.id))
+    .filter((text) => text !== '')
+    .join(' ');
+}
+
+/**
+ * Gesamttext eines ganzen Fachs (Abschnitts): alle Bereichstexte dieses
+ * Fachs, in Definitionsreihenfolge zusammengefügt. Grundlage der
+ * einblendbaren Gesamttextvorschau je Fach in der Bewertungsansicht
+ * (spezifikation.md 5.2) – entspricht genau dem Text, der beim Word-Export
+ * entstünde, wenn eine Vorlage dort alle `{{Bereich_*}}`-Platzhalter dieses
+ * Fachs nacheinander verwendet.
+ */
+export function erzeugeAbschnittGesamttext(abschnitt: Abschnitt, schuelerId: string, datensatz: Klassendatensatz): string {
+  return abschnitt.bereiche
+    .map((bereich) => erzeugeBereichText(bereich, schuelerId, datensatz))
+    .filter((text) => text !== '')
+    .join(' ');
 }
 
 /**
@@ -33,13 +56,10 @@ export function erzeugeDatenkontext(
 
   for (const abschnitt of kompetenzdatei.abschnitte) {
     for (const bereich of abschnitt.bereiche) {
-      const bereichTeile: string[] = [];
       for (const kompetenz of bereich.kompetenzen) {
-        const text = effektiverKompetenzText(datensatz, schueler.id, kompetenz.id);
-        kontext[`Kompetenz_${kompetenz.id}`] = text;
-        if (text) bereichTeile.push(text);
+        kontext[`Kompetenz_${kompetenz.id}`] = effektiverKompetenzText(datensatz, schueler.id, kompetenz.id);
       }
-      kontext[`Bereich_${bereich.id}`] = bereichTeile.join(' ');
+      kontext[`Bereich_${bereich.id}`] = erzeugeBereichText(bereich, schueler.id, datensatz);
     }
   }
 

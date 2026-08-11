@@ -267,6 +267,7 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
   - Einblendbarer **Klassenmedian** und **Klassendurchschnitt** je Kompetenz (numerisch über die Stufennummern berechnet; Durchschnitt ggf. gerundet/mit Dezimalstelle, Median als tatsächlich vorkommende oder mittlere Stufe ausgewiesen).
   - Darstellung z. B. als kleine Balken-/Skalenanzeige neben der eigenen Bewertung.
 - Anzeige des generierten Bewertungstexts in Echtzeit bei Stufenauswahl.
+- **Gesamttextvorschau je Fach:** Je Abschnitt (Fach) lässt sich eine Vorschau des zusammengeführten Gesamttextes ein-/ausblenden (standardmäßig eingeklappt), der sich aus allen Bereichstexten dieses Fachs in Definitionsreihenfolge zusammensetzt – identisch zu dem Text, der entstünde, würden in der Word-Vorlage alle `{{Bereich_*}}`-Platzhalter dieses Fachs hintereinander verwendet (siehe 6.1). So lässt sich der spätere Zeugnistext eines Fachs bereits vor dem Word-Export im Zusammenhang lesen und prüfen, ohne die Einzeltexte je Kompetenz mental zusammensetzen zu müssen. Für als „nicht relevant" markierte optionale Fächer (siehe 3.7) entfällt die Vorschau, da dort keine Bewertung erfolgt.
 - Sperr-/Entsperrmechanismus gemäß 3.5.
 
 ### 5.3 Bemerkungen
