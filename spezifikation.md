@@ -229,6 +229,7 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
 - Ein Datensatz = eine Klasse in einem Halbjahr. Beim Neuanlegen wird das Halbjahr (1.1–4.2) festgelegt; dies bestimmt die zu ladende Kompetenzdatei und ist nachträglich nicht änderbar (stattdessen: neuer Datensatz).
 - Anlegen/Bearbeiten/Löschen von Schüler:innen (Name, Vorname, Geburtsdatum, Geschlecht: „w"/„m").
 - Sortierbare/filterbare Klassenliste.
+- **Bewertungsstatus-Ampel je Schüler:in** in der Klassenliste: 🟢 vollständig (alle Kompetenzen der aktuellen Kompetenzdatei gültig bewertet), 🟡 teilweise (mindestens eine, aber nicht alle Kompetenzen bewertet), 🔴 nicht begonnen (keine gültige Bewertung vorhanden). Der Status wird aus den vorhandenen Bewertungen abgeleitet und nicht separat gespeichert; nach 4.1 ungültig gewordene Bewertungen (Stufe außerhalb der aktuellen Stufenzahl) zählen dabei nicht als bewertet. Da der Status ausschließlich der Übersicht dient, ist er kein Blocker für Bearbeitung oder JSON-Export – lediglich der Word-Sammeldokument-Export warnt bei Unvollständigkeit (siehe 5.6).
 - Optionaler „Halbjahreswechsel"-Assistent: übernimmt die Schülerstammdaten in einen neuen Datensatz des Folgehalbjahres (siehe 3.2), ohne Bewertungsdaten zu übertragen.
 - Da jeweils nur ein Datensatz (eine Klasse/ein Halbjahr) aktiv bearbeitet wird, erfolgt das Wechseln zwischen mehreren Klassen/Halbjahren über Export des aktuellen und Import des gewünschten Datensatzes (Drag & Drop, siehe 5.5).
 
@@ -263,6 +264,7 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
 - Technische Umsetzung: Da `docxtemplater` primär einzelne Dokumente aus einer Vorlage befüllt, erfolgt der Zusammenbau der Sammeldatei durch Erzeugen der Einzeldokumente im Speicher und anschließendes programmatisches Verketten der jeweiligen Inhalte (Body-Elemente, ggf. inkl. Kopf-/Fußzeilen-Handling) in ein gemeinsames `.docx`-Gesamtdokument mittels direkter OOXML-Manipulation über `pizzip`, jeweils getrennt durch einen Seitenumbruch (`w:br` mit `type="page"`).
 - Ergebnis: **ein einziger Download** der vollständigen Sammel-Word-Datei für die gesamte Klasse.
 - Kein Zwischenspeichern der erzeugten personenbezogenen Dateien auf einem Server; die Verarbeitung inkl. Zusammenführung erfolgt vollständig im Browser.
+- **Vollständigkeitswarnung vor dem Export:** Unmittelbar bevor die Vorlage befüllt wird, prüft die App den Bewertungsstatus (siehe 5.1) aller Schüler:innen der Klasse. Ist mindestens eine Person nicht vollständig bewertet, erscheint ein Hinweisdialog mit der Liste der betroffenen Schüler:innen samt Status (teilweise/nicht begonnen); der Anwender kann den Export trotzdem fortsetzen (dann bleiben die entsprechenden `{{Kompetenz_*}}`/`{{Bereich_*}}`-Platzhalter im Ergebnis leer) oder abbrechen. Diese Warnung gilt **ausschließlich für den Word-Export** – der JSON-Export (5.5) als reines Backup des Arbeitsstands bleibt jederzeit ohne Rückfrage möglich, auch bei unvollständigen Bewertungen.
 
 ---
 

@@ -1,8 +1,11 @@
 import { datensatzStore } from '../state/store';
+import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
 import type { Schueler } from '../types';
 import { schuelerDialogOeffnen } from './schuelerDialog';
 import { bestaetigen, escapeHtml } from './bestaetigungsDialog';
 import { formatiereDatum } from '../utils/datum';
+import { ermittleBewertungsfortschritt } from '../services/bewertungsstatus';
+import { erstelleAmpelHtml } from './bewertungsampel';
 
 type SortSpalte = 'nachname' | 'vorname' | 'geburtsdatum' | 'geschlecht';
 
@@ -47,12 +50,19 @@ export function erstelleSchuelerListe(optionen: {
 
   function zeileHtml(s: Schueler): string {
     const anzeigename = `${escapeHtml(s.vorname)} ${escapeHtml(s.nachname)}`;
+    const datensatz = datensatzStore.get();
+    const kdZustand = kompetenzdateiStore.get();
+    const statusHtml =
+      datensatz && kdZustand.status === 'geladen' && kdZustand.datei
+        ? erstelleAmpelHtml(ermittleBewertungsfortschritt(s.id, datensatz.bewertungen, kdZustand.datei))
+        : '<span class="leerzustand">–</span>';
     return `
       <tr>
         <td>${escapeHtml(s.nachname)}</td>
         <td>${escapeHtml(s.vorname)}</td>
         <td>${formatiereDatum(s.geburtsdatum)}</td>
         <td>${s.geschlecht === 'w' ? 'weiblich' : 'männlich'}</td>
+        <td>${statusHtml}</td>
         <td>
           <button type="button" data-bewerten="${s.id}">Bewerten<span class="sr-only"> ${anzeigename}</span></button>
           <button type="button" class="sekundaer" data-bemerkungen="${s.id}">Bemerkungen<span class="sr-only"> ${anzeigename}</span></button>
@@ -97,6 +107,7 @@ export function erstelleSchuelerListe(optionen: {
         <thead>
           <tr>
             ${SPALTEN.map((s) => spaltenKopf(s.schluessel, s.label)).join('')}
+            <th scope="col">Bewertungsstatus</th>
             <th scope="col"><span class="sr-only">Aktionen</span></th>
           </tr>
         </thead>
@@ -161,6 +172,7 @@ export function erstelleSchuelerListe(optionen: {
   });
 
   datensatzStore.subscribe(() => render());
+  kompetenzdateiStore.subscribe(() => render());
 
   return wurzel;
 }

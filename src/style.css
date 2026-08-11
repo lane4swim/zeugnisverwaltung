@@ -482,6 +482,43 @@ fieldset.kompetenz-block legend {
   margin-top: 0.25rem;
 }
 
+.ampel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.ampel-punkt {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ampel-punkt--gruen {
+  background: #2c8f6e;
+}
+
+.ampel-punkt--gelb {
+  background: #b8860b;
+}
+
+.ampel-punkt--rot {
+  background: var(--farbe-gefahr);
+}
+
+.unvollstaendigkeits-liste {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.unvollstaendigkeits-liste li {
+  margin-bottom: 0.3rem;
+}
+
 .karte code {
   background: #eef1f5;
   border-radius: 4px;

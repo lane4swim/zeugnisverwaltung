@@ -5,6 +5,8 @@ import { meldungAnzeigen } from './meldungDialog';
 import { erzeugeDatenkontext, sortiereSchuelerFuerExport } from '../services/wordExport';
 import { baueSammeldokument, WordExportFehler } from '../services/wordMerge';
 import { loeseDateiDownloadAus } from '../utils/download';
+import { ermittleBewertungsfortschritt } from '../services/bewertungsstatus';
+import { unvollstaendigkeitsWarnungOeffnen, type UnvollstaendigeBewertung } from './unvollstaendigkeitsDialog';
 
 const WORD_MIME_TYP = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
@@ -67,6 +69,17 @@ export function erstelleWordExportKarte(): HTMLElement {
     if (!vorlagenDatei.name.toLowerCase().endsWith('.docx')) {
       await meldungAnzeigen('Export nicht möglich', [`"${vorlagenDatei.name}" ist keine .docx-Datei.`]);
       return;
+    }
+
+    const unvollstaendige: UnvollstaendigeBewertung[] = datensatz.schueler
+      .map((schueler) => ({
+        schueler,
+        fortschritt: ermittleBewertungsfortschritt(schueler.id, datensatz.bewertungen, kdZustand.datei!),
+      }))
+      .filter(({ fortschritt }) => fortschritt.status !== 'vollstaendig');
+    if (unvollstaendige.length > 0) {
+      const fortfahren = await unvollstaendigkeitsWarnungOeffnen(unvollstaendige);
+      if (!fortfahren) return;
     }
 
     beschaeftigt = true;
