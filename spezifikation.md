@@ -293,6 +293,9 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
 - Kein Zwischenspeichern der erzeugten personenbezogenen Dateien auf einem Server; die Verarbeitung inkl. Zusammenführung erfolgt vollständig im Browser.
 - **Vollständigkeitswarnung vor dem Export:** Unmittelbar bevor die Vorlage befüllt wird, prüft die App den Bewertungsstatus (siehe 5.1) aller Schüler:innen der Klasse. Ist mindestens eine Person nicht vollständig bewertet, erscheint ein Hinweisdialog mit der Liste der betroffenen Schüler:innen samt Status (teilweise/nicht begonnen); der Anwender kann den Export trotzdem fortsetzen (dann bleiben die entsprechenden `{{Kompetenz_*}}`/`{{Bereich_*}}`-Platzhalter im Ergebnis leer) oder abbrechen. Diese Warnung gilt **ausschließlich für den Word-Export** – der JSON-Export (5.5) als reines Backup des Arbeitsstands bleibt jederzeit ohne Rückfrage möglich, auch bei unvollständigen Bewertungen.
 
+### 5.7 Statische Anleitung
+Ergänzend zur App selbst liegt im selben Serververzeichnis wie `index.html` eine statische, mehrseitige HTML-Anleitung (`anleitung.html` als Einstieg, verlinkt von der Kopfzeile der App aus) für alle Anwendungsfälle: Klassenverwaltung (inkl. CSV-Import), Bewerten, Bemerkungen, Word-Export, Datensicherung/Offline-Nutzung/Installation sowie – als eigene Referenzseiten – die Dateiformate der Word-Vorlage (Platzhaltersyntax, siehe 6) und der Bewertungstextdatei (siehe 4). Die Seiten sind eigenständig (kein Build-Schritt, kein JavaScript-Router) und daher unabhängig von der App auch offline/ausgedruckt nutzbar.
+
 ---
 
 ## 6. Platzhaltersyntax (Vorschlag, konsistent für Satzbausteine & Word-Vorlage)

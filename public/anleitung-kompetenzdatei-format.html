@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Format: Bewertungstextdatei – Anleitung Zeugnisverwaltung</title>
+  <meta name="description" content="Aufbau der halbjahresspezifischen JSON-Datei mit Kompetenzen, Stufen und Satzbausteinen." />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="anleitung.css" />
+</head>
+<body>
+  <a class="uebersprung-link" href="#hauptinhalt">Zum Inhalt springen</a>
+
+  <header class="seiten-kopf">
+    <div class="seiten-kopf-inner">
+      <h1>Format: Bewertungstextdatei</h1>
+      <p>Halbjahresspezifische JSON-Datei mit Kompetenzen, Stufen und Satzbausteinen.</p>
+    </div>
+  </header>
+
+  <nav class="anleitung-nav" aria-label="Anleitungsseiten">
+    <ol>
+      <li><a href="anleitung.html">Übersicht</a></li>
+      <li><a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a></li>
+      <li><a href="anleitung-bewertung.html">Bewerten</a></li>
+      <li><a href="anleitung-bemerkungen.html">Bemerkungen</a></li>
+      <li><a href="anleitung-word-export.html">Word-Export</a></li>
+      <li><a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a></li>
+      <li><a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a></li>
+      <li><a href="anleitung-kompetenzdatei-format.html" aria-current="page">Format: Bewertungstextdatei</a></li>
+    </ol>
+  </nav>
+
+  <main id="hauptinhalt" tabindex="-1">
+    <div class="hinweis">
+      <p>
+        Dieser Abschnitt richtet sich an Personen, die die Bewertungstextdatei (auch
+        „Kompetenzdatei" genannt) für eine Schule pflegen – üblicherweise Fachberater:innen oder
+        die Schulverwaltung, orientiert an den Kernlehrplänen NRW. Lehrkräfte, die die App im
+        Alltag nutzen, benötigen dieses Format normalerweise nicht.
+      </p>
+    </div>
+
+    <h2 id="ueberblick">Überblick</h2>
+    <p>
+      Für jedes der acht Halbjahre (1.1, 1.2, 2.1, 2.2, 3.1, 3.2, 4.1, 4.2) existiert eine
+      <strong>eigenständige</strong> Bewertungstextdatei, da sich Fächer, Kompetenzen,
+      Stufenbeschreibungen und Satzbausteine zwischen den Halbjahren unterscheiden. Die App lädt
+      sie automatisch passend zum Halbjahr des jeweils geöffneten Klassendatensatzes. Diese
+      Dateien enthalten <strong>keinerlei Schülerdaten</strong> – sie sind reine Konfiguration und
+      unproblematisch bezüglich Datenschutz.
+    </p>
+
+    <h2 id="ablage">Ablageort auf dem Server</h2>
+    <p>
+      Jede Datei liegt als statische JSON-Datei im Unterordner <code>kompetenzdaten/</code>
+      relativ zu <code>index.html</code>, benannt nach dem Halbjahr:
+    </p>
+    <pre><code>kompetenzdaten/1.1.json
+kompetenzdaten/1.2.json
+kompetenzdaten/2.1.json
+kompetenzdaten/2.2.json
+kompetenzdaten/3.1.json
+kompetenzdaten/3.2.json
+kompetenzdaten/4.1.json
+kompetenzdaten/4.2.json</code></pre>
+    <p>
+      Ein manuelles „Aktualisieren" in der App lädt die jeweilige Datei erneut vom Server (siehe
+      <a href="anleitung-datensicherung.html#versionskonflikt">Bewertungstextdatei aktualisieren &amp; Versionskonflikte</a>).
+      Es findet <strong>kein automatischer Hintergrund-Abgleich</strong> statt.
+    </p>
+
+    <h2 id="struktur">Grundstruktur</h2>
+    <p>Hierarchie: <strong>Abschnitt → Bereich → Kompetenz → Stufe → Satzbausteine</strong>, ergänzt um eine flache Liste an Bemerkungsbausteinen:</p>
+    <pre><code>{
+  "halbjahr": "4.1",
+  "version": "2026-1",
+  "abschnitte": [ /* siehe unten */ ],
+  "bemerkungsbausteine": [ /* siehe unten */ ]
+}</code></pre>
+
+    <table>
+      <caption class="sr-only">Felder auf oberster Ebene</caption>
+      <thead>
+        <tr><th scope="col">Feld</th><th scope="col">Typ</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>halbjahr</code></td>
+          <td>Text</td>
+          <td>Eines von <code>1.1</code>, <code>1.2</code>, <code>2.1</code>, <code>2.2</code>, <code>3.1</code>, <code>3.2</code>, <code>4.1</code>, <code>4.2</code>. Muss zum Dateinamen passen und dient der Konsistenzprüfung – die App vergleicht dieses Feld beim Laden mit dem angeforderten Halbjahr und lehnt die Datei bei Abweichung ab.</td>
+        </tr>
+        <tr>
+          <td><code>version</code></td>
+          <td>Text, Pflichtfeld</td>
+          <td>Frei wählbare Versionskennung (z. B. <code>"2026-1"</code>). Bei jeder inhaltlichen Änderung der Datei sollte dieser Wert geändert werden – er ermöglicht der App die <a href="anleitung-datensicherung.html#versionskonflikt">Versionskonflikt-Prüfung</a> gegenüber bereits gespeicherten Bewertungen.</td>
+        </tr>
+        <tr>
+          <td><code>abschnitte</code></td>
+          <td>Liste, Pflichtfeld</td>
+          <td>Die Fächer dieses Halbjahres, siehe unten.</td>
+        </tr>
+        <tr>
+          <td><code>bemerkungsbausteine</code></td>
+          <td>Liste, Pflichtfeld</td>
+          <td>Auswählbare Bemerkungsbausteine, siehe unten. Darf leer sein (<code>[]</code>), muss aber als Feld vorhanden sein.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="abschnitt">Abschnitt (Fach)</h2>
+    <table>
+      <caption class="sr-only">Felder eines Abschnitts</caption>
+      <thead>
+        <tr><th scope="col">Feld</th><th scope="col">Typ</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>Text, eindeutig</td><td>Technischer Bezeichner, z. B. <code>"deutsch"</code>. Wird u. a. für den Platzhalter-Namensraum verwendet (siehe <a href="anleitung-wordvorlage-format.html#bewertungstexte">Bereich_-/Kompetenz_-Platzhalter</a>) und sollte sich zwischen Versionen nicht ändern, da sonst bestehende Bewertungen als „entfallen" gelten.</td></tr>
+        <tr><td><code>titel</code></td><td>Text</td><td>Anzeigename, z. B. <code>"Deutsch"</code>.</td></tr>
+        <tr id="optional"><td><code>optional</code></td><td>Wahrheitswert, optional</td><td>Auf <code>true</code> setzen, wenn dieses Fach nicht für jede Person zutrifft (z. B. konfessioneller Religionsunterricht). Fehlt das Feld oder ist es <code>false</code>, gilt das Fach als für alle Schüler:innen verpflichtend und die Lehrkraft kann es nicht als „nicht relevant" markieren (siehe <a href="anleitung-bewertung.html#optionale-faecher">Optionale Fächer</a>).</td></tr>
+        <tr><td><code>nichtRelevantBemerkung</code></td><td>Text, optional</td><td>Nur bei <code>optional: true</code> wirksam. Ein Satzbaustein (gleiche Platzhaltersyntax wie unten), der automatisch in die Bemerkungen einer Person übernommen wird, sobald dieses Fach für sie als „nicht relevant" markiert wird, z. B. <code>"{Vorname} nahm nicht am Religionsunterricht teil."</code> Fehlt das Feld, wird beim Markieren keine Bemerkung ergänzt.</td></tr>
+        <tr><td><code>bereiche</code></td><td>Liste, Pflichtfeld</td><td>Die Kompetenzbereiche dieses Fachs, siehe unten. Bei „nicht relevant" markierten Fächern ohne Bedeutung, da keine Bewertung erfolgt.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="bereich">Bereich</h2>
+    <table>
+      <caption class="sr-only">Felder eines Bereichs</caption>
+      <thead>
+        <tr><th scope="col">Feld</th><th scope="col">Typ</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>Text, eindeutig innerhalb der Datei</td><td>Technischer Bezeichner, z. B. <code>"lesen"</code>. Ergibt den Word-Platzhalter <code>{{Bereich_lesen}}</code>.</td></tr>
+        <tr><td><code>titel</code></td><td>Text</td><td>Anzeigename, z. B. <code>"Lesen"</code>.</td></tr>
+        <tr><td><code>kompetenzen</code></td><td>Liste, Pflichtfeld</td><td>Die einzelnen Kompetenzen dieses Bereichs, siehe unten.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="kompetenz">Kompetenz</h2>
+    <table>
+      <caption class="sr-only">Felder einer Kompetenz</caption>
+      <thead>
+        <tr><th scope="col">Feld</th><th scope="col">Typ</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>Text, eindeutig innerhalb der Datei</td><td>Technischer Bezeichner, z. B. <code>"lesen_sinnentnehmend"</code>. Ergibt den Word-Platzhalter <code>{{Kompetenz_lesen_sinnentnehmend}}</code> und wird von den Bewertungen einer Person referenziert. Sollte sich zwischen Versionen nicht ändern.</td></tr>
+        <tr><td><code>titel</code></td><td>Text</td><td>Anzeigename in der Bewertungsansicht, z. B. <code>"Sinnentnehmendes Lesen"</code>.</td></tr>
+        <tr><td><code>stufen</code></td><td>Liste, Pflichtfeld, beliebige Länge</td><td>Die Bewertungsstufen dieser Kompetenz, siehe unten. Die Anzahl der Stufen ist von Kompetenz zu Kompetenz frei wählbar (kein festes Schema).</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="stufe">Stufe</h2>
+    <table>
+      <caption class="sr-only">Felder einer Stufe</caption>
+      <thead>
+        <tr><th scope="col">Feld</th><th scope="col">Typ</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>stufe</code></td><td>Zahl</td><td>Fortlaufende Nummer beginnend bei 1, z. B. <code>1</code>, <code>2</code>, <code>3</code>. Bestimmt die Reihenfolge in der Bewertungsansicht sowie in Vergleichs-/Statistikanzeigen.</td></tr>
+        <tr><td><code>bezeichnung</code></td><td>Text</td><td>Kurzbezeichnung der Stufe, z. B. <code>"beginnend"</code>, <code>"grundlegend"</code>, <code>"sicher"</code>, <code>"vertieft"</code>.</td></tr>
+        <tr><td><code>satzbausteine</code></td><td>Liste von Texten, mind. 1 Eintrag</td><td>Ein oder mehrere alternative Formulierungen für diese Stufe (Platzhaltersyntax siehe unten). Bei mehreren Alternativen wählt die App bei Erstbewertung zufällig eine aus; über „Neu würfeln" lässt sich erneut zufällig ziehen (siehe <a href="anleitung-bewertung.html#stufenauswahl">Stufe auswählen</a>).</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="bemerkungsbaustein">Bemerkungsbaustein</h2>
+    <table>
+      <caption class="sr-only">Felder eines Bemerkungsbausteins</caption>
+      <thead>
+        <tr><th scope="col">Feld</th><th scope="col">Typ</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>Text, eindeutig innerhalb der Datei</td><td>Technischer Bezeichner, z. B. <code>"bem_hilfsbereit"</code>.</td></tr>
+        <tr><td><code>text</code></td><td>Text</td><td>Der auswählbare Bemerkungssatz (Platzhaltersyntax siehe unten), z. B. <code>"{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit."</code></td></tr>
+      </tbody>
+    </table>
+    <p>
+      Die Reihenfolge der Einträge in <code>bemerkungsbausteine</code> bestimmt sowohl die
+      Anzeigereihenfolge in der Bemerkungenansicht als auch die Reihenfolge im zusammengeführten
+      Bemerkungstext, siehe <a href="anleitung-bemerkungen.html">Bemerkungen</a>.
+    </p>
+
+    <h2 id="platzhaltersyntax">Platzhaltersyntax in Satzbausteinen</h2>
+    <p>
+      Innerhalb von <code>satzbausteine</code>, <code>nichtRelevantBemerkung</code> und
+      <code>bemerkungsbausteine[].text</code> werden dieselben Platzhalter wie in der Word-Vorlage
+      verwendet, hier jedoch mit <strong>einfachen</strong> geschweiften Klammern:
+    </p>
+    <table>
+      <caption class="sr-only">Verfügbare Platzhalter in Satzbausteinen</caption>
+      <thead>
+        <tr><th scope="col">Platzhalter</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>{Vorname}</code> / <code>{Nachname}</code></td><td>Schülername</td></tr>
+        <tr><td><code>{Pronomen_Nom}</code></td><td>er / sie</td></tr>
+        <tr><td><code>{Pronomen_Akk}</code></td><td>ihn / sie</td></tr>
+        <tr><td><code>{Pronomen_Dat}</code></td><td>ihm / ihr</td></tr>
+        <tr><td><code>{Pronomen_Poss}</code></td><td>sein / ihr</td></tr>
+        <tr><td><code>{Geburtsdatum}</code></td><td>formatiert TT.MM.JJJJ</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Ausführliche Erläuterung der Pronomenlogik und der Platzhalter, die stattdessen in der
+      Word-Vorlage selbst verwendet werden (<code>{{Bereich_…}}</code>, <code>{{Kompetenz_…}}</code>,
+      <code>{{Bemerkungen}}</code>), siehe <a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a>.
+    </p>
+
+    <h2 id="vollstaendiges-beispiel">Vollständiges Beispiel</h2>
+    <pre><code>{
+  "halbjahr": "4.1",
+  "version": "2026-1",
+  "abschnitte": [
+    {
+      "id": "deutsch",
+      "titel": "Deutsch",
+      "bereiche": [
+        {
+          "id": "lesen",
+          "titel": "Lesen",
+          "kompetenzen": [
+            {
+              "id": "lesen_sinnentnehmend",
+              "titel": "Sinnentnehmendes Lesen",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Vorname} entnimmt einfachen Texten erste Informationen."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Vorname} entnimmt altersgemäßen Texten die wesentlichen Informationen.",
+                    "{Vorname} erfasst den Inhalt altersgemäßer Texte sicher."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} entnimmt auch komplexeren Texten gezielt Informationen."
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "religion",
+      "titel": "Religion",
+      "optional": true,
+      "nichtRelevantBemerkung": "{Vorname} nahm nicht am Religionsunterricht teil.",
+      "bereiche": [
+        {
+          "id": "religion_allgemein",
+          "titel": "Religiöse Bildung",
+          "kompetenzen": [
+            {
+              "id": "religion_erzaehlungen",
+              "titel": "Biblische Erzählungen",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Vorname} hört biblischen Erzählungen aufmerksam zu."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} gibt biblische Erzählungen sicher in eigenen Worten wieder."
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "bemerkungsbausteine": [
+    {
+      "id": "bem_hilfsbereit",
+      "text": "{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit."
+    },
+    {
+      "id": "bem_konzentriert",
+      "text": "{Vorname} arbeitet konzentriert und ausdauernd."
+    }
+  ]
+}</code></pre>
+
+    <h2 id="pflege-hinweise">Hinweise zur Pflege</h2>
+    <ul>
+      <li>Alle <code>id</code>-Werte (Fächer, Bereiche, Kompetenzen, Bemerkungsbausteine) sollten innerhalb einer Datei eindeutig und über Versionen hinweg stabil sein – sie werden von gespeicherten Bewertungen sowie von Word-Vorlagen referenziert. Eine Änderung einer <code>id</code> lässt bestehende Bewertungen „entfallen" erscheinen (siehe <a href="anleitung-datensicherung.html#versionskonflikt">Versionskonflikt</a>).</li>
+      <li>Beim Hinzufügen weiterer Stufen zu einer bestehenden Kompetenz oder beim Entfernen von Stufen ändert sich die Stufenanzahl – auch das löst beim „Aktualisieren" ggf. eine Warnung für Personen mit einer inzwischen ungültigen Stufe aus.</li>
+      <li>Bei jeder inhaltlichen Änderung sollte das Feld <code>version</code> angepasst werden, damit die Versionskonflikt-Prüfung greift.</li>
+      <li>Die Datei muss gültiges JSON sein und die Pflichtfelder aus den Tabellen oben enthalten; fehlt eines davon, lehnt die App die Datei beim Laden mit einer entsprechenden Fehlermeldung ab.</li>
+    </ul>
+
+    <a class="zurueck-zur-app" href="./">Zur Anwendung</a>
+  </main>
+
+  <footer class="seiten-fuss">
+    <p><a href="anleitung.html">← Zurück zur Übersicht</a></p>
+  </footer>
+</body>
+</html>

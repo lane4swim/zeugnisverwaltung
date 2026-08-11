@@ -13,7 +13,9 @@ export function erstelleAppRoot(): HTMLElement {
 
   const kopf = document.createElement('header');
   kopf.className = 'kopfzeile';
-  kopf.innerHTML = '<h1>Zeugnisverwaltung</h1>';
+  kopf.innerHTML =
+    '<h1>Zeugnisverwaltung</h1>' +
+    '<a class="anleitung-link" href="./anleitung.html" target="_blank" rel="noopener">Anleitung öffnen (neuer Tab)</a>';
 
   const hinweis = document.createElement('p');
   hinweis.className = 'datenschutz-hinweis';

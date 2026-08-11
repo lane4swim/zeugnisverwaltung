@@ -161,6 +161,12 @@ header.kopfzeile h1 {
   margin: 0 0 0.25rem;
 }
 
+.anleitung-link {
+  display: inline-block;
+  font-size: 0.9rem;
+  color: var(--farbe-primaer);
+}
+
 .datenschutz-hinweis {
   background: #eaf2ea;
   border: 1px solid #b6d4b6;

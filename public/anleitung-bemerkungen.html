@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bemerkungen – Anleitung Zeugnisverwaltung</title>
+  <meta name="description" content="Bemerkungsbausteine auswählen, automatische Bemerkungen bei nicht relevanten Fächern, Vorschau des zusammengeführten Textes." />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="anleitung.css" />
+</head>
+<body>
+  <a class="uebersprung-link" href="#hauptinhalt">Zum Inhalt springen</a>
+
+  <header class="seiten-kopf">
+    <div class="seiten-kopf-inner">
+      <h1>Bemerkungen</h1>
+      <p>Zusätzliche Bemerkungsbausteine je Schüler:in auswählen.</p>
+    </div>
+  </header>
+
+  <nav class="anleitung-nav" aria-label="Anleitungsseiten">
+    <ol>
+      <li><a href="anleitung.html">Übersicht</a></li>
+      <li><a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a></li>
+      <li><a href="anleitung-bewertung.html">Bewerten</a></li>
+      <li><a href="anleitung-bemerkungen.html" aria-current="page">Bemerkungen</a></li>
+      <li><a href="anleitung-word-export.html">Word-Export</a></li>
+      <li><a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a></li>
+      <li><a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a></li>
+      <li><a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a></li>
+    </ol>
+  </nav>
+
+  <main id="hauptinhalt" tabindex="-1">
+    <h2 id="bausteine-auswaehlen">Bemerkungsbausteine auswählen</h2>
+    <p>
+      Über die Schaltfläche <strong>„Bemerkungen"</strong> in der jeweiligen Zeile der
+      Klassenliste öffnet sich die Bemerkungenansicht einer einzelnen Person. Dort steht eine
+      Liste vordefinierter Bemerkungsbausteine aus der Bewertungstextdatei des Halbjahres als
+      Kontrollkästchen zur Verfügung, z. B.:
+    </p>
+    <blockquote>„{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit."</blockquote>
+    <ul>
+      <li>Platzhalter wie <code>{Vorname}</code> oder <code>{Pronomen_Poss}</code> werden dabei bereits in der Vorschau durch die tatsächlichen Werte der Person ersetzt.</li>
+      <li>Es ist eine <strong>Mehrfachauswahl</strong> möglich.</li>
+      <li>Alle angehakten Bausteine werden zu einem zusammenhängenden Bemerkungstext zusammengeführt, in der Reihenfolge, in der sie in der Bewertungstextdatei definiert sind (nicht in der Reihenfolge des Anklickens).</li>
+    </ul>
+
+    <h2 id="vorschau">Vorschau des zusammengeführten Textes</h2>
+    <p>
+      Unterhalb der Auswahl zeigt der Bereich „Vorschau: zusammengeführter Bemerkungstext" in
+      Echtzeit, wie der vollständige Bemerkungstext dieser Person aussehen wird – exakt in der
+      Form, in der er später auch über den Platzhalter <code>{{Bemerkungen}}</code> in die
+      Word-Vorlage eingesetzt wird (siehe
+      <a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a>).
+    </p>
+
+    <h2 id="automatische-bemerkungen">Automatische Fach-Bemerkungen</h2>
+    <p>
+      Wird ein optionales Fach (z. B. Religion) für eine Person in der
+      <a href="anleitung-bewertung.html#optionale-faecher">Bewertungsansicht</a> als „nicht
+      relevant" markiert und ist für dieses Fach eine automatische Bemerkungsvorlage hinterlegt
+      (z. B. „{Vorname} nahm nicht am Religionsunterricht teil."), erscheint in der
+      Bemerkungenansicht automatisch ein zusätzlicher Eintrag – erkennbar am 🔒-Symbol und dem
+      Hinweis „(automatisch – Fach als „nicht relevant" markiert, siehe Bewertungsansicht)".
+    </p>
+    <ul>
+      <li>Dieser Eintrag hat <strong>kein eigenes Kontrollkästchen</strong> und lässt sich in der Bemerkungenansicht nicht direkt an- oder abwählen.</li>
+      <li>Er fließt automatisch in den zusammengeführten Bemerkungstext (und die Vorschau) mit ein, solange die Markierung „nicht relevant" für dieses Fach besteht.</li>
+      <li>Einzige Möglichkeit, ihn zu entfernen: die Markierung des Fachs in der Bewertungsansicht zurücknehmen. Der Eintrag verschwindet dann automatisch wieder aus den Bemerkungen.</li>
+    </ul>
+
+    <a class="zurueck-zur-app" href="./">Zur Anwendung</a>
+  </main>
+
+  <footer class="seiten-fuss">
+    <p><a href="anleitung.html">← Zurück zur Übersicht</a></p>
+  </footer>
+</body>
+</html>

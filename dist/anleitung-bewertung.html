@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bewerten – Anleitung Zeugnisverwaltung</title>
+  <meta name="description" content="Kompetenzen bewerten, Zeugnistext würfeln/sperren/zurücksetzen, Klassen- und Einzelvergleich, optionale Fächer." />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="anleitung.css" />
+</head>
+<body>
+  <a class="uebersprung-link" href="#hauptinhalt">Zum Inhalt springen</a>
+
+  <header class="seiten-kopf">
+    <div class="seiten-kopf-inner">
+      <h1>Bewerten</h1>
+      <p>Kompetenzen bewerten und automatisch generierte Zeugnistexte bearbeiten.</p>
+    </div>
+  </header>
+
+  <nav class="anleitung-nav" aria-label="Anleitungsseiten">
+    <ol>
+      <li><a href="anleitung.html">Übersicht</a></li>
+      <li><a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a></li>
+      <li><a href="anleitung-bewertung.html" aria-current="page">Bewerten</a></li>
+      <li><a href="anleitung-bemerkungen.html">Bemerkungen</a></li>
+      <li><a href="anleitung-word-export.html">Word-Export</a></li>
+      <li><a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a></li>
+      <li><a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a></li>
+      <li><a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a></li>
+    </ol>
+  </nav>
+
+  <main id="hauptinhalt" tabindex="-1">
+    <h2 id="navigation">Zur Bewertungsansicht wechseln</h2>
+    <p>
+      Über die Schaltfläche <strong>„Bewerten"</strong> in der jeweiligen Zeile der Klassenliste
+      öffnet sich die Bewertungsansicht einer einzelnen Person. Die Kompetenzen sind darin
+      dreistufig gegliedert und passend zum Halbjahr des Datensatzes geladen:
+    </p>
+    <p><strong>Abschnitt</strong> (entspricht einem Schulfach, z. B. „Deutsch") → <strong>Bereich</strong> (z. B. „Lesen") → <strong>Kompetenz</strong> (z. B. „Sinnentnehmendes Lesen").</p>
+    <p>
+      Abschnitte und Bereiche lassen sich über die Überschrift auf-/zuklappen. Über
+      „← Zurück zur Klassenliste" geht es zurück zur Übersicht.
+    </p>
+
+    <h2 id="stufenauswahl">Stufe auswählen</h2>
+    <p>
+      Je Kompetenz stehen Radio-Buttons für die verfügbaren Stufen zur Verfügung (die Anzahl der
+      Stufen ist je Kompetenz unterschiedlich, z. B. „1: beginnend", „2: grundlegend", „3: sicher").
+      Sobald eine Stufe gewählt wird, erzeugt die App automatisch einen passenden Zeugnistext und
+      zeigt ihn direkt darunter in einem Textfeld an.
+    </p>
+    <ul>
+      <li>Gibt es zu einer Stufe mehrere alternative Formulierungen, wählt die App bei der ersten Bewertung <strong>zufällig</strong> eine davon aus (sprachliche Variation innerhalb der Klasse).</li>
+      <li>Über den Knopf <strong>„🎲 Neu würfeln"</strong> lässt sich – solange der Text nicht gesperrt ist (siehe unten) – erneut zufällig eine andere Formulierung derselben Stufe ziehen.</li>
+      <li>Der zuletzt gewählte Text bleibt auch nach dem erneuten Öffnen der Ansicht erhalten.</li>
+    </ul>
+
+    <h2 id="text-bearbeiten">Zeugnistext manuell bearbeiten, sperren, zurücksetzen</h2>
+    <p>
+      Der generierte Text lässt sich direkt im Textfeld überschreiben. Sobald er manuell geändert
+      wurde:
+    </p>
+    <ul>
+      <li>wird die Stufenauswahl für diese Kompetenz <strong>gesperrt</strong> (die Radio-Buttons werden deaktiviert, erkennbar am Hinweis „🔒 Manuell bearbeitet – Stufenauswahl gesperrt"), damit eine neue Stufenwahl den manuell angepassten Text nicht versehentlich überschreibt;</li>
+      <li>steht der Knopf <strong>„🎲 Neu würfeln"</strong> für diese Kompetenz nicht mehr zur Verfügung.</li>
+    </ul>
+    <p>
+      Über den Knopf <strong>„Zurücksetzen"</strong> lässt sich die Sperre wieder aufheben: Der
+      Text wird frisch aus der aktuell gewählten Stufe generiert und die Stufenauswahl ist wieder
+      bedienbar.
+    </p>
+
+    <h2 id="veraltete-bewertungen">Veraltete Bewertungen</h2>
+    <p>
+      Wurde die Bewertungstextdatei eines Halbjahres zwischenzeitlich aktualisiert (siehe
+      <a href="anleitung-datensicherung.html#versionskonflikt">Versionskonflikt</a>) und dabei eine
+      Kompetenz entfernt oder ihre Stufenanzahl verringert, erscheinen betroffene, zuvor
+      gespeicherte Bewertungen deutlich markiert (Abschnitt „Veraltete Bewertungen" bzw. roter
+      Warnhinweis direkt an der Kompetenz) mit einem Knopf <strong>„Bereinigen"</strong>, der die
+      veraltete Bewertung entfernt.
+    </p>
+
+    <h2 id="vergleich">Vergleichsfunktionen</h2>
+    <p>Oberhalb der Kompetenzliste stehen zwei optionale Vergleichswerkzeuge zur Verfügung:</p>
+    <ul>
+      <li>
+        <strong>Vergleichsschüler:in einblenden:</strong> Über das Auswahlfeld lässt sich eine
+        andere Person der Klasse wählen; deren Bewertung wird zusätzlich zur eigenen als Markierung
+        auf einer kleinen Skala neben jeder Kompetenz sowie als Text angezeigt.
+      </li>
+      <li>
+        <strong>Klassenmedian/-durchschnitt je Kompetenz einblenden:</strong> Zeigt zusätzlich den
+        Median und den rechnerischen Durchschnitt aller in der Klasse für diese Kompetenz
+        vergebenen Stufen (Stufennummern werden dafür herangezogen), inklusive Angabe, wie viele
+        von wie vielen Schüler:innen bereits bewertet sind.
+      </li>
+    </ul>
+    <p>
+      Beide Werkzeuge lassen sich unabhängig voneinander ein-/ausblenden und gemeinsam nutzen. Die
+      Skalenanzeige ist rein visuell ergänzend – alle Werte stehen zusätzlich als Text daneben.
+    </p>
+
+    <h2 id="optionale-faecher">Optionale Fächer („nicht relevant" markieren)</h2>
+    <p>
+      Manche Fächer treffen nicht auf jede Person zu – klassisches Beispiel ist konfessioneller
+      Religionsunterricht. Ist ein Fach (Abschnitt) in der Bewertungstextdatei entsprechend
+      gekennzeichnet, erscheint neben der Fachüberschrift der Zusatz „(optional)" sowie ein
+      Kontrollkästchen:
+    </p>
+    <blockquote>„Nicht relevant für diese Person (keine Bewertung nötig)"</blockquote>
+    <ul>
+      <li>Wird es angehakt, verschwinden die Kompetenzen dieses Fachs aus der Bewertungsansicht für diese Person; eine Bewertung ist dann nicht möglich.</li>
+      <li>Das Fach zählt für diese Person <strong>weder als offen noch als erledigt</strong> in der Vollständigkeitsprüfung (Ampel, siehe <a href="anleitung-klassenverwaltung.html#ampel">Bewertungsstatus-Ampel</a>) und beim <a href="anleitung-word-export.html">Word-Export</a>.</li>
+      <li>Bereits vorhandene Bewertungen in diesem Fach gehen dabei nicht verloren, sondern werden nur ausgeblendet; wird die Markierung zurückgenommen, sind sie wieder da.</li>
+      <li>Ist für das Fach zusätzlich eine automatische Bemerkungsvorlage hinterlegt, zeigt die Bewertungsansicht eine Vorschau des Satzes an, der beim Markieren automatisch in die Bemerkungen dieser Person übernommen wird (📝-Hinweis) – siehe <a href="anleitung-bemerkungen.html#automatische-bemerkungen">Automatische Bemerkungen</a>.</li>
+    </ul>
+    <p>
+      Verpflichtende (nicht als optional markierte) Fächer bieten dieses Kontrollkästchen nicht an
+      – sie müssen für jede Person bewertet werden. Ob ein Fach optional ist, wird zentral in der
+      Bewertungstextdatei festgelegt, siehe
+      <a href="anleitung-kompetenzdatei-format.html#optional">Format: Bewertungstextdatei</a>.
+    </p>
+
+    <a class="zurueck-zur-app" href="./">Zur Anwendung</a>
+  </main>
+
+  <footer class="seiten-fuss">
+    <p><a href="anleitung.html">← Zurück zur Übersicht</a></p>
+  </footer>
+</body>
+</html>

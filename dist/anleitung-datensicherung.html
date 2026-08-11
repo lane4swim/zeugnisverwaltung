@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Datensicherung &amp; Offline – Anleitung Zeugnisverwaltung</title>
+  <meta name="description" content="JSON-Export/-Import als Backup, Backup-Erinnerung, Bewertungstextdatei aktualisieren, Offline-Nutzung, Installation als App." />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="anleitung.css" />
+</head>
+<body>
+  <a class="uebersprung-link" href="#hauptinhalt">Zum Inhalt springen</a>
+
+  <header class="seiten-kopf">
+    <div class="seiten-kopf-inner">
+      <h1>Datensicherung &amp; Offline</h1>
+      <p>Backups, Versionskonflikte, Offline-Nutzung und Installation.</p>
+    </div>
+  </header>
+
+  <nav class="anleitung-nav" aria-label="Anleitungsseiten">
+    <ol>
+      <li><a href="anleitung.html">Übersicht</a></li>
+      <li><a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a></li>
+      <li><a href="anleitung-bewertung.html">Bewerten</a></li>
+      <li><a href="anleitung-bemerkungen.html">Bemerkungen</a></li>
+      <li><a href="anleitung-word-export.html">Word-Export</a></li>
+      <li><a href="anleitung-datensicherung.html" aria-current="page">Datensicherung &amp; Offline</a></li>
+      <li><a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a></li>
+      <li><a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a></li>
+    </ol>
+  </nav>
+
+  <main id="hauptinhalt" tabindex="-1">
+    <div class="hinweis">
+      <p>
+        Alle Schülerdaten (Klassenliste, Bewertungen, generierte Texte, Bemerkungen) werden
+        ausschließlich im Browser gespeichert (IndexedDB) und <strong>nie automatisch</strong> an
+        einen Server übertragen. Der <strong>JSON-Export ist der einzige Weg</strong>, ein
+        Backup zu erstellen oder Daten auf einen anderen Rechner bzw. Browser zu übertragen.
+      </p>
+    </div>
+
+    <h2 id="json-export">JSON-Export</h2>
+    <p>
+      Über die Schaltfläche <strong>„Als JSON exportieren"</strong> in der Kopfleiste der
+      Klassenansicht wird der gesamte aktuelle Datensatz (Klasse, Schüler:innen, Bewertungen,
+      Texte, Bemerkungen) als Datei heruntergeladen, z. B.
+      <code>zeugnisdaten_4b_4.1_2026-06-20.json</code>. Der Export ist jederzeit möglich, auch bei
+      unvollständigen Bewertungen – anders als der <a href="anleitung-word-export.html">Word-Export</a>
+      erscheint hier keine Vollständigkeitswarnung, da es sich um ein reines Backup des
+      Arbeitsstands handelt.
+    </p>
+
+    <h2 id="json-import">JSON-Import</h2>
+    <p>
+      Eine zuvor exportierte JSON-Datei lässt sich per Drag &amp; Drop oder Dateiauswahl wieder
+      öffnen:
+    </p>
+    <ul>
+      <li>Auf der Startseite (kein Datensatz aktiv) über die Karte „Bestehenden Datensatz öffnen".</li>
+      <li>In der Klassenansicht über die Karte „Anderen Datensatz laden" – dabei wird der aktuell aktive Datensatz nach Sicherheitsabfrage <strong>ersetzt</strong> (nicht zusammengeführt, da immer nur eine Klasse aktiv ist). Nicht exportierte Änderungen des bisherigen Datensatzes bleiben zwar in der lokalen Datenbank erhalten, verschwinden aber aus der Ansicht.</li>
+    </ul>
+    <p>
+      Die Datei wird vor der Übernahme validiert (gültiges JSON, richtiges Format). Eine
+      beschädigte oder falsch formatierte Datei wird mit einer Fehlermeldung abgelehnt, ohne den
+      aktuellen Datensatz zu verändern.
+    </p>
+
+    <h2 id="backup-erinnerung">Backup-Erinnerung</h2>
+    <p>
+      Sammeln sich mehrere inhaltliche Änderungen seit dem letzten JSON-Export an (Schüler:innen,
+      Bewertungen, Texte oder Bemerkungen), blendet die App den Hinweis „Es gibt ungesicherte
+      Änderungen …" mit den Schaltflächen <strong>„Jetzt exportieren"</strong> und
+      <strong>„Für jetzt ausblenden"</strong> ein. Das Ausblenden gilt nur bis zur nächsten
+      Schwelle weiterer Änderungen – die Erinnerung verschwindet also nicht dauerhaft.
+    </p>
+
+    <h2 id="versionskonflikt">Bewertungstextdatei aktualisieren &amp; Versionskonflikte</h2>
+    <p>
+      Für jedes Halbjahr existiert eine eigene, vom Anbieter (z. B. Schulverwaltung/Fachberatung)
+      gepflegte Bewertungstextdatei (siehe
+      <a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a>). Die App lädt
+      sie beim Öffnen eines Datensatzes automatisch passend zum hinterlegten Halbjahr und legt sie
+      lokal ab, damit sie danach auch offline zur Verfügung steht.
+    </p>
+    <p>
+      Ändert sich diese Datei im Laufe der Zeit (z. B. weil ein Fach oder eine Stufe angepasst
+      wurde), kann sie über einen manuellen <strong>„Aktualisieren"</strong>-Hinweis erneut vom
+      Server geladen werden. Dabei prüft die App, ob bestehende Bewertungen mit der neuen Version
+      in Konflikt stehen, <strong>bevor</strong> die neue Version aktiv gesetzt wird:
+    </p>
+    <ul>
+      <li><strong>Unveränderte oder neue Kompetenzen:</strong> kein Konflikt, stillschweigende Übernahme.</li>
+      <li><strong>Entfallene Kompetenzen</strong> (mit vorhandener Bewertung im Datensatz): deutliche Warnung mit Auflistung der betroffenen Kompetenzen und Schüler:innen. Die Bewertungen bleiben erhalten, werden in der Bewertungsansicht aber als veraltet markiert, bis sie manuell bereinigt werden (siehe <a href="anleitung-bewertung.html#veraltete-bewertungen">Veraltete Bewertungen</a>).</li>
+      <li><strong>Geänderte Stufenanzahl</strong> einer weiterhin bestehenden Kompetenz: Warnung, falls eine gespeicherte Stufe außerhalb der neuen Stufenanzahl liegt.</li>
+    </ul>
+    <p>
+      Die neue Version lässt sich trotz Warnung übernehmen oder das Aktualisieren abbrechen, um
+      mit der zuletzt lokal gespeicherten Version weiterzuarbeiten. Derselbe Hinweis erscheint
+      automatisch auch nach einem <a href="#json-import">JSON-Import</a>, falls die im Datensatz
+      vermerkte Version von der aktuell geladenen abweicht.
+    </p>
+
+    <h2 id="offline">Offline-Nutzung</h2>
+    <p>
+      Nachdem die App einmal vollständig geladen und die passende Bewertungstextdatei für das
+      jeweilige Halbjahr bezogen wurde, funktioniert sie vollständig ohne Internetverbindung –
+      inklusive Bewerten, Bemerkungen, JSON-Export/-Import und Word-Export. Ein Internetzugriff
+      ist ausschließlich zum (erneuten) Laden der halbjahresspezifischen Bewertungstextdatei
+      nötig, niemals für Schülerdaten.
+    </p>
+    <p>
+      Ist eine neue Version der App verfügbar, erscheint der Hinweis „Eine neue Version der App
+      ist verfügbar." mit der Schaltfläche <strong>„Jetzt aktualisieren"</strong>. Nach dem ersten
+      vollständigen Laden erscheint zudem einmalig der Hinweis „Fertig geladen: Die App
+      funktioniert ab jetzt auch ohne Internetverbindung."
+
+    </p>
+
+    <h2 id="installation">Installation als App</h2>
+    <p>
+      Unterstützt der Browser die Installation, blendet die App den Hinweis „Diese App lässt sich
+      installieren – für schnelleren Zugriff, auch offline." mit der Schaltfläche
+      <strong>„App installieren"</strong> ein. Nach der Installation lässt sich die
+      Zeugnisverwaltung wie eine eigenständige Anwendung über das Betriebssystem starten, ohne den
+      Browser mit Adressleiste sichtbar zu öffnen.
+    </p>
+
+    <a class="zurueck-zur-app" href="./">Zur Anwendung</a>
+  </main>
+
+  <footer class="seiten-fuss">
+    <p><a href="anleitung.html">← Zurück zur Übersicht</a></p>
+  </footer>
+</body>
+</html>

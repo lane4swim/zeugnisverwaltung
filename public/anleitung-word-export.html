@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Word-Export – Anleitung Zeugnisverwaltung</title>
+  <meta name="description" content="Sammeldokument für die ganze Klasse erzeugen, Vollständigkeitswarnung, Fehlermeldungen." />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="anleitung.css" />
+</head>
+<body>
+  <a class="uebersprung-link" href="#hauptinhalt">Zum Inhalt springen</a>
+
+  <header class="seiten-kopf">
+    <div class="seiten-kopf-inner">
+      <h1>Word-Sammeldokument-Export</h1>
+      <p>Alle Einzelzeugnisse der Klasse als eine Word-Datei erzeugen.</p>
+    </div>
+  </header>
+
+  <nav class="anleitung-nav" aria-label="Anleitungsseiten">
+    <ol>
+      <li><a href="anleitung.html">Übersicht</a></li>
+      <li><a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a></li>
+      <li><a href="anleitung-bewertung.html">Bewerten</a></li>
+      <li><a href="anleitung-bemerkungen.html">Bemerkungen</a></li>
+      <li><a href="anleitung-word-export.html" aria-current="page">Word-Export</a></li>
+      <li><a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a></li>
+      <li><a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a></li>
+      <li><a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a></li>
+    </ol>
+  </nav>
+
+  <main id="hauptinhalt" tabindex="-1">
+    <h2 id="ablauf">Ablauf</h2>
+    <p>
+      Die Karte <strong>„Sammelzeugnis exportieren"</strong> befindet sich in der Klassenansicht.
+      Anders als die Klassendaten wird die Word-Vorlage <strong>nicht dauerhaft in der App
+      gespeichert</strong>, sondern unmittelbar vor jedem Export neu ausgewählt.
+    </p>
+    <ol class="schritte">
+      <li>
+        Eine <code>.docx</code>-Vorlage mit Platzhaltern wie <code>{{Vorname}}</code>,
+        <code>{{Bereich_lesen}}</code> oder <code>{{Bemerkungen}}</code> per Drag &amp; Drop oder
+        Dateiauswahl bereitstellen. Details zum Aufbau der Vorlage:
+        <a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a>.
+      </li>
+      <li>
+        Die App prüft zunächst den Bewertungsstatus aller Schüler:innen der Klasse (siehe
+        unten „Vollständigkeitswarnung").
+      </li>
+      <li>
+        Anschließend wird die Vorlage für <strong>jede Person der Klasse einmal befüllt</strong>,
+        in alphabetischer Reihenfolge (Nachname, bei Gleichheit Vorname).
+      </li>
+      <li>
+        Alle Einzelzeugnisse werden zu <strong>einer einzigen Word-Datei</strong> zusammengeführt
+        (ein Dokument, jede Person auf einer neuen Seite durch Seitenumbruch getrennt) und direkt
+        als Download angeboten. Es entstehen weder Einzeldateien noch ein ZIP-Archiv.
+      </li>
+    </ol>
+    <p>
+      Der Dateiname wird automatisch nach dem Muster
+      <code>sammelzeugnisse_&lt;Klasse&gt;_&lt;Halbjahr&gt;_&lt;Datum&gt;.docx</code> vergeben,
+      z. B. <code>sammelzeugnisse_4b_4.1_2026-06-20.docx</code>.
+    </p>
+
+    <div class="hinweis">
+      <p>
+        Die gesamte Verarbeitung inklusive Zusammenführung findet vollständig im Browser statt.
+        Weder die Vorlage noch die erzeugten personenbezogenen Word-Dateien werden an einen
+        Server übertragen oder dort zwischengespeichert.
+      </p>
+    </div>
+
+    <h2 id="vollstaendigkeitswarnung">Vollständigkeitswarnung</h2>
+    <p>
+      Unmittelbar bevor die Vorlage befüllt wird, prüft die App, ob alle Schüler:innen der Klasse
+      vollständig bewertet sind (siehe
+      <a href="anleitung-klassenverwaltung.html#ampel">Bewertungsstatus-Ampel</a>). Ist mindestens
+      eine Person nicht vollständig bewertet, erscheint der Hinweis
+      <strong>„Nicht alle Bewertungen sind vollständig"</strong> mit einer Liste der betroffenen
+      Personen samt Status (teilweise/nicht begonnen).
+    </p>
+    <ul>
+      <li>Über <strong>„Trotzdem exportieren"</strong> lässt sich der Export fortsetzen; die entsprechenden Kompetenz-/Bereichs-Platzhalter bleiben im Ergebnis dann leer.</li>
+      <li>Über <strong>„Abbrechen"</strong> lässt sich zunächst zur Bewertungsansicht zurückkehren, um die fehlenden Bewertungen zu ergänzen.</li>
+    </ul>
+    <p>
+      Diese Warnung erscheint <strong>ausschließlich vor dem Word-Export</strong>. Der
+      <a href="anleitung-datensicherung.html#json-export">JSON-Export</a> als reines Backup des
+      Arbeitsstands ist davon unabhängig und jederzeit ohne Rückfrage möglich, auch bei
+      unvollständigen Bewertungen.
+    </p>
+
+    <h2 id="fehlermeldungen">Mögliche Fehlermeldungen</h2>
+    <table>
+      <caption class="sr-only">Fehlermeldungen beim Word-Export und ihre Ursachen</caption>
+      <thead>
+        <tr><th scope="col">Meldung</th><th scope="col">Ursache / Abhilfe</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>„Die Klasse enthält noch keine Schüler:innen."</td>
+          <td>Vor dem Export muss mindestens eine Person angelegt sein (siehe <a href="anleitung-klassenverwaltung.html#schueler-manuell">Schüler:innen manuell verwalten</a> oder <a href="anleitung-klassenverwaltung.html#csv-import">CSV-Import</a>).</td>
+        </tr>
+        <tr>
+          <td>„Die Kompetenzdatei für dieses Halbjahr ist noch nicht geladen."</td>
+          <td>Erfordert einmalig eine Internetverbindung, damit die Bewertungstextdatei des Halbjahres geladen werden kann (siehe <a href="anleitung-datensicherung.html#offline">Offline-Nutzung</a>).</td>
+        </tr>
+        <tr>
+          <td>„… ist keine .docx-Datei."</td>
+          <td>Es wurde eine Datei mit falscher Endung ausgewählt. Es muss eine reguläre, in Word gespeicherte <code>.docx</code>-Datei sein (kein <code>.doc</code>, kein PDF).</td>
+        </tr>
+        <tr>
+          <td>„Die ausgewählte Datei ist keine gültige .docx-Datei (kein lesbares ZIP-Archiv)."</td>
+          <td>Die Datei ist beschädigt oder kein echtes <code>.docx</code>-Dokument.</td>
+        </tr>
+        <tr>
+          <td>„Die Word-Vorlage enthält ungültige Platzhalter: …"</td>
+          <td>Ein Platzhalter in der Vorlage ist syntaktisch fehlerhaft (z. B. nicht geschlossene doppelte geschweifte Klammern). Siehe <a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a>.</td>
+        </tr>
+        <tr>
+          <td>„Die Vorlage enthält keine gültige Abschnitts-/Seiteneinrichtung (sectPr)."</td>
+          <td>Die Datei wurde nicht regulär mit Word gespeichert. Abhilfe: Vorlage in Microsoft Word öffnen und erneut als <code>.docx</code> speichern.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <a class="zurueck-zur-app" href="./">Zur Anwendung</a>
+  </main>
+
+  <footer class="seiten-fuss">
+    <p><a href="anleitung.html">← Zurück zur Übersicht</a></p>
+  </footer>
+</body>
+</html>

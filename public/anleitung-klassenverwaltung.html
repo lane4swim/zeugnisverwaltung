@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Klassenverwaltung – Anleitung Zeugnisverwaltung</title>
+  <meta name="description" content="Datensatz anlegen, Klassenliste manuell oder per CSV erfassen, Halbjahreswechsel, Bewertungsampel." />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="anleitung.css" />
+</head>
+<body>
+  <a class="uebersprung-link" href="#hauptinhalt">Zum Inhalt springen</a>
+
+  <header class="seiten-kopf">
+    <div class="seiten-kopf-inner">
+      <h1>Klassenverwaltung</h1>
+      <p>Datensatz anlegen, Klassenliste erfassen, Halbjahr wechseln.</p>
+    </div>
+  </header>
+
+  <nav class="anleitung-nav" aria-label="Anleitungsseiten">
+    <ol>
+      <li><a href="anleitung.html">Übersicht</a></li>
+      <li><a href="anleitung-klassenverwaltung.html" aria-current="page">Klassenverwaltung</a></li>
+      <li><a href="anleitung-bewertung.html">Bewerten</a></li>
+      <li><a href="anleitung-bemerkungen.html">Bemerkungen</a></li>
+      <li><a href="anleitung-word-export.html">Word-Export</a></li>
+      <li><a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a></li>
+      <li><a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a></li>
+      <li><a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a></li>
+    </ol>
+  </nav>
+
+  <main id="hauptinhalt" tabindex="-1">
+    <h2 id="datensatz-anlegen">Klassendatensatz anlegen oder öffnen</h2>
+    <p>
+      Ein Datensatz entspricht immer <strong>genau einer Klasse in genau einem Halbjahr</strong>
+      (1.1 bis 4.2). Es ist zu jedem Zeitpunkt immer nur ein Datensatz aktiv geöffnet.
+    </p>
+    <ol class="schritte">
+      <li>Beim ersten Start bzw. wenn kein Datensatz aktiv ist, erscheint die Startseite mit dem Formular „Neuen Klassendatensatz anlegen".</li>
+      <li>Halbjahr, Klassenname (z. B. „4b") und Schuljahr (z. B. „2025/2026") eintragen und auf <strong>„Anlegen"</strong> klicken.</li>
+      <li>Das gewählte Halbjahr bestimmt, welche Bewertungstextdatei geladen wird, und ist danach <strong>nicht mehr änderbar</strong> – bei einem falschen Halbjahr muss ein neuer Datensatz angelegt werden.</li>
+    </ol>
+    <p>
+      Alternativ kann auf der Startseite über die Karte „Bestehenden Datensatz öffnen" eine zuvor
+      exportierte JSON-Datei per Drag &amp; Drop oder Dateiauswahl geöffnet werden (siehe
+      <a href="anleitung-datensicherung.html#json-import">JSON-Import</a>).
+    </p>
+
+    <div class="hinweis">
+      <p>
+        Da immer nur eine Klasse aktiv ist, erfolgt der Wechsel zwischen mehreren Klassen oder
+        Halbjahren über <strong>Export der aktuellen</strong> und <strong>Import der gewünschten</strong>
+        Klasse. Vor dem Öffnen einer anderen Klasse also unbedingt zuerst über „Als JSON
+        exportieren" sichern, sonst bleibt der aktuelle Stand zwar in der lokalen Datenbank
+        erhalten, ist aber nicht mehr sichtbar, bis er erneut importiert wird.
+      </p>
+    </div>
+
+    <h2 id="schueler-manuell">Schüler:innen manuell verwalten</h2>
+    <p>In der Klassenansicht steht die Klassenliste als sortierbare, filterbare Tabelle zur Verfügung:</p>
+    <ul>
+      <li><strong>Hinzufügen:</strong> Über „+ Schüler:in hinzufügen" öffnet sich ein Dialog für Nachname, Vorname, Geburtsdatum und Geschlecht („w"/„m").</li>
+      <li><strong>Bearbeiten:</strong> Über „Bearbeiten" in der jeweiligen Zeile lassen sich die Stammdaten einer Person nachträglich korrigieren.</li>
+      <li><strong>Löschen:</strong> Über „Löschen" wird die Person mitsamt allen Bewertungen, Texten und Bemerkungen unwiderruflich aus dem aktuellen Datensatz entfernt (nach Sicherheitsabfrage).</li>
+      <li><strong>Sortieren:</strong> Klick auf eine Spaltenüberschrift (Nachname, Vorname, Geburtsdatum, Geschlecht) sortiert danach; erneuter Klick kehrt die Richtung um.</li>
+      <li><strong>Filtern:</strong> Das Eingabefeld „Nach Name filtern…" schränkt die Liste in Echtzeit auf Vor- oder Nachname ein.</li>
+    </ul>
+
+    <div class="warnung">
+      <p>
+        <strong>Hinweis zum Geschlecht:</strong> Die App unterstützt für die Anrede/Pronomenwahl in
+        generierten Texten ausschließlich die binäre Auswahl „w"/„m". Ein drittes Merkmal
+        („divers") ist bewusst nicht vorgesehen (siehe
+        <a href="anleitung-wordvorlage-format.html#pronomen">Pronomen-Platzhalter</a>).
+      </p>
+    </div>
+
+    <h2 id="csv-import">Klassenliste per CSV importieren</h2>
+    <p>
+      Als Alternative zur manuellen Einzelerfassung lässt sich eine ganze Klassenliste aus einer
+      CSV-Datei importieren, z. B. aus einem Export der Schulverwaltungssoftware oder aus Excel.
+      Die Karte „Klassenliste aus CSV importieren" befindet sich in der Klassenansicht unterhalb
+      der Klassenliste.
+    </p>
+
+    <h3>Erwartetes Dateiformat</h3>
+    <table>
+      <caption>Erforderliche Spalten (Reihenfolge beliebig)</caption>
+      <thead>
+        <tr><th scope="col">Spaltenname</th><th scope="col">Bedeutung</th><th scope="col">Zulässige Werte</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Name</code></td><td>Nachname</td><td>beliebiger Text (Pflichtfeld)</td></tr>
+        <tr><td><code>Vorname</code></td><td>Vorname</td><td>beliebiger Text (Pflichtfeld)</td></tr>
+        <tr><td><code>Geburtsdatum</code></td><td>Geburtsdatum</td><td><code>TT.MM.JJJJ</code> (z. B. <code>14.03.2017</code>) oder <code>JJJJ-MM-TT</code> (z. B. <code>2017-03-14</code>)</td></tr>
+        <tr><td><code>Geschlecht</code></td><td>steuert die Pronomenwahl</td><td>abgekürzt <code>m</code>/<code>M</code>/<code>w</code>/<code>W</code> oder ausgeschrieben <code>männlich</code>/<code>weiblich</code></td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>Die <strong>Kopfzeile</strong> muss die vier Spaltennamen enthalten (Groß-/Kleinschreibung spielt keine Rolle); die Reihenfolge der Spalten ist beliebig, zusätzliche Spalten werden ignoriert.</li>
+      <li>Als <strong>Trennzeichen</strong> werden Semikolon, Komma oder Tabulator automatisch erkannt (Semikolon ist bei deutschen Excel-Exporten üblich).</li>
+      <li>Felder können in Anführungszeichen stehen (z. B. <code>"Müller"</code>), etwa wenn sie selbst das Trennzeichen enthalten.</li>
+      <li>Die Zeichenkodierung wird automatisch erkannt: UTF-8 wird direkt gelesen, bei aus Excel exportierten Windows-1252-Dateien (erkennbar an fehlerhaft dargestellten Umlauten) wird automatisch auf Windows-1252 zurückgegriffen.</li>
+    </ul>
+
+    <h3>Beispieldatei</h3>
+    <pre><code>Name;Vorname;Geburtsdatum;Geschlecht
+Müller;Anna;14.03.2017;w
+Schmidt;Ben;2017-05-20;m
+</code></pre>
+
+    <h3>Ablauf und Validierung</h3>
+    <ol class="schritte">
+      <li>CSV-Datei per Drag &amp; Drop auf die Import-Karte ziehen oder über „Datei auswählen…" öffnen.</li>
+      <li>Die App prüft <strong>die gesamte Datei</strong>, bevor irgendetwas übernommen wird. Ist auch nur eine Zeile fehlerhaft (fehlender Name/Vorname, ungültiges Datum, ungültiges Geschlecht, fehlende Spalte), wird <strong>gar nichts</strong> importiert; stattdessen erscheint eine Liste aller gefundenen Fehler samt Zeilennummer.</li>
+      <li>Sind alle Zeilen gültig, zeigt ein Bestätigungsdialog die Anzahl und Namen der zu importierenden Personen. Erst nach Bestätigung werden sie der aktuellen Klassenliste <strong>hinzugefügt</strong> – bereits vorhandene Schüler:innen bleiben unverändert erhalten, es wird nichts ersetzt.</li>
+    </ol>
+
+    <div class="warnung">
+      <p>
+        <strong>Zeilen mit „divers"/„d"/„D" im Geschlecht-Feld werden abgelehnt</strong>, nicht
+        automatisch umgewandelt. Der Import bricht dann komplett ab (auch für die übrigen,
+        gültigen Zeilen) und die Fehlermeldung nennt die betroffene Zeilennummer. Grund: Die
+        Pronomen-Logik der App unterstützt ausschließlich „w"/„m" (siehe oben). Um eine solche
+        Zeile zu importieren, muss der Wert in der CSV-Datei vorher manuell auf „w" oder „m"
+        korrigiert werden.
+      </p>
+    </div>
+
+    <h2 id="halbjahreswechsel">Halbjahreswechsel</h2>
+    <p>
+      Am Ende eines Halbjahres lässt sich über die Schaltfläche <strong>„Halbjahreswechsel…"</strong>
+      in der Kopfleiste der Klassenansicht ein neuer, leerer Datensatz für das Folgehalbjahr
+      anlegen, in den nur die <strong>Schülerstammdaten</strong> (Name, Vorname, Geburtsdatum,
+      Geschlecht) übernommen werden.
+    </p>
+    <ul>
+      <li>Bewertungen, generierte/manuelle Texte und Bemerkungen werden <strong>nicht</strong> übertragen, da sie sich auf die (halbjahresspezifische) Bewertungstextdatei des jeweiligen Halbjahres beziehen.</li>
+      <li>Das Ziel-Halbjahr ist im Dialog vorausgewählt (das direkt folgende Halbjahr), lässt sich aber ändern.</li>
+      <li>Der Dialog bietet direkt die Möglichkeit, den aktuellen Datensatz vorher als JSON zu exportieren, da er beim Übernehmen des neuen Datensatzes aus der Ansicht verschwindet (er bleibt zwar in der lokalen Datenbank erhalten, ist aber ohne erneuten Import nicht mehr sichtbar).</li>
+    </ul>
+
+    <h2 id="ampel">Bewertungsstatus-Ampel</h2>
+    <p>
+      Jede Zeile der Klassenliste zeigt eine Ampel mit dem Bewertungsfortschritt der Person an:
+    </p>
+    <table>
+      <caption class="sr-only">Bedeutung der Ampelfarben</caption>
+      <thead>
+        <tr><th scope="col">Farbe</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🟢 Vollständig</td><td>Alle Kompetenzen der aktuell geladenen Bewertungstextdatei sind gültig bewertet.</td></tr>
+        <tr><td>🟡 Teilweise</td><td>Mindestens eine, aber nicht alle Kompetenzen sind bewertet.</td></tr>
+        <tr><td>🔴 Nicht begonnen</td><td>Es liegt noch keine gültige Bewertung vor.</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Als „nicht relevant" markierte optionale Fächer (siehe
+      <a href="anleitung-bewertung.html#optionale-faecher">Optionale Fächer</a>) zählen dabei
+      weder als offen noch als erledigt. Der Status dient ausschließlich der Übersicht und
+      blockiert weder die Bearbeitung noch den JSON-Export – lediglich der
+      <a href="anleitung-word-export.html">Word-Sammeldokument-Export</a> warnt bei
+      Unvollständigkeit.
+    </p>
+
+    <a class="zurueck-zur-app" href="./">Zur Anwendung</a>
+  </main>
+
+  <footer class="seiten-fuss">
+    <p><a href="anleitung.html">← Zurück zur Übersicht</a></p>
+  </footer>
+</body>
+</html>

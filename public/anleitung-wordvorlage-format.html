@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Format: Word-Vorlage – Anleitung Zeugnisverwaltung</title>
+  <meta name="description" content="Wie eine .docx-Vorlage mit Platzhaltern für den Sammeldokument-Export aufgebaut sein muss, vollständige Platzhalterliste." />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="anleitung.css" />
+</head>
+<body>
+  <a class="uebersprung-link" href="#hauptinhalt">Zum Inhalt springen</a>
+
+  <header class="seiten-kopf">
+    <div class="seiten-kopf-inner">
+      <h1>Format: Word-Vorlage</h1>
+      <p>Aufbau der <code>.docx</code>-Vorlage für den Sammeldokument-Export.</p>
+    </div>
+  </header>
+
+  <nav class="anleitung-nav" aria-label="Anleitungsseiten">
+    <ol>
+      <li><a href="anleitung.html">Übersicht</a></li>
+      <li><a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a></li>
+      <li><a href="anleitung-bewertung.html">Bewerten</a></li>
+      <li><a href="anleitung-bemerkungen.html">Bemerkungen</a></li>
+      <li><a href="anleitung-word-export.html">Word-Export</a></li>
+      <li><a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a></li>
+      <li><a href="anleitung-wordvorlage-format.html" aria-current="page">Format: Word-Vorlage</a></li>
+      <li><a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a></li>
+    </ol>
+  </nav>
+
+  <main id="hauptinhalt" tabindex="-1">
+    <h2 id="grundlagen">Grundlagen</h2>
+    <p>
+      Die Word-Vorlage ist eine normale, in Microsoft Word (oder einer kompatiblen Anwendung wie
+      LibreOffice Writer) erstellte und als <code>.docx</code> gespeicherte Datei mit beliebigem
+      Layout, Kopf-/Fußzeilen, Logos usw. Sie enthält an den gewünschten Stellen
+      <strong>Platzhalter in doppelten geschweiften Klammern</strong>, z. B.:
+    </p>
+    <pre><code>{{Vorname}} {{Nachname}}, geboren am {{Geburtsdatum}}
+
+Deutsch – Lesen
+{{Bereich_lesen}}
+
+Bemerkungen
+{{Bemerkungen}}</code></pre>
+    <p>
+      Beim Export wird die Vorlage einmal je Schüler:in befüllt (alle Platzhalter werden durch die
+      jeweiligen Werte dieser Person ersetzt) und die entstandenen Einzelseiten werden zu einem
+      Sammeldokument zusammengefügt, siehe <a href="anleitung-word-export.html">Word-Export</a>.
+      Die Vorlage selbst bleibt dabei unverändert und wird nirgends gespeichert.
+    </p>
+
+    <div class="hinweis">
+      <p>
+        Die doppelten geschweiften Klammern (<code>{{ }}</code>) gelten <strong>nur in der
+        Word-Vorlage</strong>. In der Bewertungstextdatei (Satzbausteine, Bemerkungsbausteine)
+        werden dieselben Platzhalter mit <strong>einfachen</strong> geschweiften Klammern
+        geschrieben, z. B. <code>{Vorname}</code> statt <code>{{Vorname}}</code> – siehe
+        <a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a>.
+      </p>
+    </div>
+
+    <h2 id="platzhalter">Verfügbare Platzhalter</h2>
+    <h3>Schülerstammdaten</h3>
+    <table>
+      <caption class="sr-only">Platzhalter für Schülerstammdaten</caption>
+      <thead>
+        <tr><th scope="col">Platzhalter</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>{{Vorname}}</code></td><td>Vorname der Person</td></tr>
+        <tr><td><code>{{Nachname}}</code></td><td>Nachname der Person</td></tr>
+        <tr><td><code>{{Geburtsdatum}}</code></td><td>Geburtsdatum, formatiert als TT.MM.JJJJ</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="pronomen">Pronomen</h3>
+    <table>
+      <caption>Ersetzung abhängig vom Geschlecht der Person („w"/„m")</caption>
+      <thead>
+        <tr><th scope="col">Platzhalter</th><th scope="col">weiblich</th><th scope="col">männlich</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>{{Pronomen_Nom}}</code> (Nominativ)</td><td>sie</td><td>er</td></tr>
+        <tr><td><code>{{Pronomen_Akk}}</code> (Akkusativ)</td><td>sie</td><td>ihn</td></tr>
+        <tr><td><code>{{Pronomen_Dat}}</code> (Dativ)</td><td>ihr</td><td>ihm</td></tr>
+        <tr><td><code>{{Pronomen_Poss}}</code> (Possessiv)</td><td>ihr</td><td>sein</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Die App unterstützt für die Pronomenwahl ausschließlich die binäre Zuordnung „w"/„m" – ein
+      drittes Geschlechtsmerkmal steht hier bewusst nicht zur Verfügung.
+    </p>
+
+    <h3 id="bewertungstexte">Bewertungstexte</h3>
+    <table>
+      <caption class="sr-only">Platzhalter für Bewertungstexte</caption>
+      <thead>
+        <tr><th scope="col">Platzhalter</th><th scope="col">Bedeutung</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>{{Bereich_&lt;id&gt;}}</code><br />z. B. <code>{{Bereich_lesen}}</code></td>
+          <td>Alle Kompetenztexte dieses Bereichs, in der in der Bewertungstextdatei definierten Reihenfolge zu einem Absatz zusammengefügt. Nicht bewertete Kompetenzen tragen dazu nichts bei.</td>
+        </tr>
+        <tr>
+          <td><code>{{Kompetenz_&lt;id&gt;}}</code><br />z. B. <code>{{Kompetenz_lesen_sinnentnehmend}}</code></td>
+          <td>Der Zeugnistext genau einer einzelnen Kompetenz (bereits mit ersetzten Platzhaltern), oder ein leerer Text, falls die Kompetenz für diese Person nicht bewertet wurde.</td>
+        </tr>
+        <tr>
+          <td><code>{{Bemerkungen}}</code></td>
+          <td>Der zusammengeführte Text aller für diese Person ausgewählten Bemerkungsbausteine (siehe <a href="anleitung-bemerkungen.html">Bemerkungen</a>), inklusive automatischer Fach-Bemerkungen bei „nicht relevant" markierten optionalen Fächern.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Die Platzhalter-Kennungen <code>&lt;id&gt;</code> entsprechen exakt den <code>id</code>-Werten
+      der Bereiche bzw. Kompetenzen in der Bewertungstextdatei des jeweiligen Halbjahres, siehe
+      <a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a>. Welche
+      <code>Bereich_</code>-/<code>Kompetenz_</code>-Platzhalter zur Verfügung stehen, hängt also
+      vom jeweiligen Halbjahr ab; eine für Halbjahr 4.1 erstellte Vorlage passt in aller Regel
+      nicht 1:1 auf ein anderes Halbjahr.
+    </p>
+
+    <h2 id="unbekannte-platzhalter">Verhalten bei unbekannten oder leeren Platzhaltern</h2>
+    <p>
+      Enthält die Vorlage einen Platzhalter, der zu keiner Kompetenz/keinem Bereich der aktuell
+      geladenen Bewertungstextdatei passt, wird er beim Export zu einem leeren Text aufgelöst statt
+      den gesamten Export abzubrechen. Ebenso bleiben Platzhalter leer, wenn die zugehörige
+      Kompetenz für eine Person (noch) nicht bewertet wurde – siehe dazu auch die
+      <a href="anleitung-word-export.html#vollstaendigkeitswarnung">Vollständigkeitswarnung</a>
+      vor dem Export.
+    </p>
+
+    <h2 id="technische-hinweise">Technische Hinweise</h2>
+    <ul>
+      <li>Die Vorlage muss eine <strong>regulär mit Word gespeicherte <code>.docx</code>-Datei</strong> sein (kein <code>.doc</code>, kein reines Textdokument, kein PDF).</li>
+      <li>Beliebiges Layout, Formatierung, Kopf- und Fußzeilen sowie eingebettete Bilder/Logos der Vorlage bleiben im Sammeldokument erhalten.</li>
+      <li>Zwischen den Einzelzeugnissen der Schüler:innen fügt die App automatisch einen Seitenumbruch ein; ein manueller Seitenumbruch am Ende der Vorlage ist nicht nötig.</li>
+      <li>Sonderzeichen und Umlaute in Platzhalterwerten (Namen, Texten) werden korrekt übernommen.</li>
+      <li>Wird ein Platzhalter über mehrere Formatierungsabschnitte hinweg eingegeben (z. B. wenn beim Tippen versehentlich die Formatierung mitten im Platzhalter wechselt), kann Word ihn intern in mehrere Textteile zerlegen, sodass er nicht erkannt wird. Im Zweifel den Platzhalter löschen und in einem Zug neu eintippen.</li>
+    </ul>
+
+    <h2 id="test-empfehlung">Empfehlung zum Testen</h2>
+    <p>
+      Vor dem Einsatz mit einer echten Klasse empfiehlt es sich, die Vorlage einmal mit einer
+      kleinen Testklasse (z. B. zwei bis drei Testschüler:innen, teils vollständig, teils
+      unvollständig bewertet) zu exportieren und das Ergebnis in Word zu öffnen, um Platzierung,
+      Layout und Seitenumbrüche zu prüfen, bevor die echten Zeugnisse erzeugt werden.
+    </p>
+
+    <a class="zurueck-zur-app" href="./">Zur Anwendung</a>
+  </main>
+
+  <footer class="seiten-fuss">
+    <p><a href="anleitung.html">← Zurück zur Übersicht</a></p>
+  </footer>
+</body>
+</html>

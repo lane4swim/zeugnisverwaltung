@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Anleitung – Zeugnisverwaltung</title>
+  <meta name="description" content="Statische Anleitung zur Zeugnisverwaltung: Klassenverwaltung, Bewerten, Bemerkungen, Word-Export, Datensicherung sowie die Dateiformate für Word-Vorlage und Bewertungstextdatei." />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="anleitung.css" />
+</head>
+<body>
+  <a class="uebersprung-link" href="#hauptinhalt">Zum Inhalt springen</a>
+
+  <header class="seiten-kopf">
+    <div class="seiten-kopf-inner">
+      <h1>Anleitung: Zeugnisverwaltung</h1>
+      <p>Lokale Zeugnisverwaltung für NRW-Grundschulen – alle Schülerdaten bleiben im Browser.</p>
+    </div>
+  </header>
+
+  <nav class="anleitung-nav" aria-label="Anleitungsseiten">
+    <ol>
+      <li><a href="anleitung.html" aria-current="page">Übersicht</a></li>
+      <li><a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a></li>
+      <li><a href="anleitung-bewertung.html">Bewerten</a></li>
+      <li><a href="anleitung-bemerkungen.html">Bemerkungen</a></li>
+      <li><a href="anleitung-word-export.html">Word-Export</a></li>
+      <li><a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a></li>
+      <li><a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a></li>
+      <li><a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a></li>
+    </ol>
+  </nav>
+
+  <main id="hauptinhalt" tabindex="-1">
+    <h2>Worum geht es?</h2>
+    <p>
+      Die Zeugnisverwaltung unterstützt Lehrkräfte an NRW-Grundschulen dabei, Schüler:innen je
+      Kompetenz auf einer Stufenskala zu bewerten und daraus automatisch Zeugnistexte zu erzeugen,
+      die anschließend in eine selbst mitgebrachte Word-Vorlage eingefügt werden. Die App läuft
+      vollständig im Browser: Klassendaten, Bewertungen und Texte verlassen den Rechner nie von
+      selbst – ein Datenaustausch findet ausschließlich über einen von der Lehrkraft angestoßenen
+      JSON-Export/-Import statt.
+    </p>
+
+    <div class="hinweis">
+      <p>
+        <strong>Diese Anleitung ist eine statische Sammlung von HTML-Seiten</strong> und liegt im
+        selben Verzeichnis wie <code>index.html</code> auf dem Server. Sie kann daher unabhängig
+        von der eigentlichen Anwendung geöffnet, verlinkt und ausgedruckt werden.
+      </p>
+    </div>
+
+    <h2>Grundlegender Arbeitsablauf</h2>
+    <ol class="schritte">
+      <li>
+        <strong>Klassendatensatz anlegen oder öffnen</strong> – Halbjahr, Klassenname und Schuljahr
+        festlegen bzw. eine zuvor exportierte JSON-Datei importieren.
+        Siehe <a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a>.
+      </li>
+      <li>
+        <strong>Klassenliste erfassen</strong> – Schüler:innen einzeln anlegen oder eine
+        CSV-Datei importieren.
+        Siehe <a href="anleitung-klassenverwaltung.html#csv-import">CSV-Import</a>.
+      </li>
+      <li>
+        <strong>Bewerten</strong> – je Schüler:in und Kompetenz eine Stufe wählen; die App
+        generiert daraus automatisch einen Zeugnistext.
+        Siehe <a href="anleitung-bewertung.html">Bewerten</a>.
+      </li>
+      <li>
+        <strong>Bemerkungen auswählen</strong> – zusätzliche Bemerkungsbausteine je Schüler:in
+        ankreuzen. Siehe <a href="anleitung-bemerkungen.html">Bemerkungen</a>.
+      </li>
+      <li>
+        <strong>Word-Vorlage bereitstellen und Sammeldokument exportieren</strong> – eine
+        <code>.docx</code>-Datei mit Platzhaltern auswählen; die App befüllt sie für jede Person
+        und lädt ein einziges Sammeldokument herunter.
+        Siehe <a href="anleitung-word-export.html">Word-Export</a> und
+        <a href="anleitung-wordvorlage-format.html">Format der Word-Vorlage</a>.
+      </li>
+      <li>
+        <strong>Regelmäßig als JSON sichern</strong> – der einzige Weg, Daten dauerhaft zu
+        sichern oder auf einen anderen Rechner/Browser zu übertragen.
+        Siehe <a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a>.
+      </li>
+    </ol>
+
+    <h2>Themen im Überblick</h2>
+    <table>
+      <caption class="sr-only">Übersicht aller Anleitungsseiten</caption>
+      <thead>
+        <tr>
+          <th scope="col">Seite</th>
+          <th scope="col">Inhalt</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a></td>
+          <td>Datensatz anlegen/öffnen/schließen, Halbjahreswechsel, Schüler:innen manuell oder per CSV erfassen, Bewertungsampel.</td>
+        </tr>
+        <tr>
+          <td><a href="anleitung-bewertung.html">Bewerten</a></td>
+          <td>Kompetenzen bewerten, Zeugnistext würfeln/sperren/zurücksetzen, Klassen- und Einzelvergleich, optionale Fächer.</td>
+        </tr>
+        <tr>
+          <td><a href="anleitung-bemerkungen.html">Bemerkungen</a></td>
+          <td>Bemerkungsbausteine auswählen, automatische Bemerkungen bei nicht relevanten Fächern, Vorschau.</td>
+        </tr>
+        <tr>
+          <td><a href="anleitung-word-export.html">Word-Export</a></td>
+          <td>Sammeldokument für die ganze Klasse erzeugen, Vollständigkeitswarnung, Fehlermeldungen.</td>
+        </tr>
+        <tr>
+          <td><a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a></td>
+          <td>JSON-Export/-Import als Backup, Backup-Erinnerung, Kompetenzdatei aktualisieren, Offline-Nutzung, Installation als App.</td>
+        </tr>
+        <tr>
+          <td><a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a></td>
+          <td>Wie eine <code>.docx</code>-Vorlage mit Platzhaltern aufgebaut sein muss, vollständige Platzhalterliste.</td>
+        </tr>
+        <tr>
+          <td><a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a></td>
+          <td>Aufbau der halbjahresspezifischen JSON-Datei mit Kompetenzen, Stufen und Satzbausteinen (für Fachberater:innen/Administration).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Datenschutz in Kürze</h2>
+    <p>
+      Schüler- und Bewertungsdaten werden ausschließlich lokal im Browser gespeichert
+      (IndexedDB) und nur auf ausdrückliche Aktion der Lehrkraft hin als Datei exportiert oder in
+      eine Word-Datei eingefügt. Die App lädt vom Server ausschließlich die nicht
+      personenbezogene Bewertungstextdatei je Halbjahr (siehe
+      <a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a>) – niemals
+      Namen, Geburtsdaten oder Bewertungen.
+    </p>
+
+    <a class="zurueck-zur-app" href="./">Zur Anwendung</a>
+  </main>
+
+  <footer class="seiten-fuss">
+    <p>Zeugnisverwaltung – lokale Zeugnisverwaltung für NRW-Grundschulen. Diese Anleitung beschreibt den Funktionsumfang der aktuellen Version.</p>
+  </footer>
+</body>
+</html>
