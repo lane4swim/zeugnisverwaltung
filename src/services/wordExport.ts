@@ -1,6 +1,6 @@
 import type { Klassendatensatz, KompetenzDatei, Schueler } from '../types';
 import { erzeugeSchuelerFelder } from './textgenerierung';
-import { erzeugeBemerkungstext } from './bemerkungen';
+import { erzeugeBemerkungstext, erzeugeVollstaendigeBausteinListe } from './bemerkungen';
 
 /** Klassenreihenfolge für den Sammeldokument-Export: alphabetisch nach Nachname, dann Vorname. */
 export function sortiereSchuelerFuerExport(schueler: Schueler[]): Schueler[] {
@@ -46,7 +46,7 @@ export function erzeugeDatenkontext(
   const bemerkungEintrag = datensatz.bemerkungen.find((b) => b.schuelerId === schueler.id);
   kontext.Bemerkungen = erzeugeBemerkungstext(
     bemerkungEintrag?.ausgewaehlteBemerkungen ?? [],
-    kompetenzdatei.bemerkungsbausteine,
+    erzeugeVollstaendigeBausteinListe(kompetenzdatei),
     schueler,
   );
 

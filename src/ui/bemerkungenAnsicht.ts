@@ -2,7 +2,7 @@ import { datensatzStore } from '../state/store';
 import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
 import type { Schueler } from '../types';
 import { ersetzePlatzhalter } from '../services/textgenerierung';
-import { erzeugeBemerkungstext } from '../services/bemerkungen';
+import { erzeugeBemerkungstext, erzeugeVollstaendigeBausteinListe, istFachNichtRelevantBemerkungsId } from '../services/bemerkungen';
 import { escapeHtml } from './bestaetigungsDialog';
 
 export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => void): HTMLElement {
@@ -40,18 +40,39 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
       return;
     }
     const bausteine = kdZustand.datei.bemerkungsbausteine;
-    const ausgewaehlt = new Set(ausgewaehlteIds());
+    const alleAusgewaehlt = ausgewaehlteIds();
+    const ausgewaehlt = new Set(alleAusgewaehlt);
+    const automatischeIds = alleAusgewaehlt.filter(istFachNichtRelevantBemerkungsId);
+    const vollstaendigeBausteinliste = erzeugeVollstaendigeBausteinListe(kdZustand.datei);
 
-    if (bausteine.length === 0) {
+    const automatischeEintraegeHtml = automatischeIds
+      .map((id) => vollstaendigeBausteinliste.find((b) => b.id === id))
+      .filter((baustein): baustein is NonNullable<typeof baustein> => baustein !== undefined)
+      .map(
+        (baustein) => `
+          <li class="bemerkung-automatisch">
+            🔒 ${escapeHtml(ersetzePlatzhalter(baustein.text, schueler))}
+            <span class="fach-bemerkung-hinweis"> (automatisch – Fach als „nicht relevant" markiert, siehe Bewertungsansicht)</span>
+          </li>
+        `,
+      )
+      .join('');
+
+    if (bausteine.length === 0 && automatischeIds.length === 0) {
       inhalt.innerHTML = '<p class="leerzustand">Diese Kompetenzdatei enthält keine Bemerkungsbausteine.</p>';
       return;
     }
 
-    const vorschauText = erzeugeBemerkungstext([...ausgewaehlt], bausteine, schueler);
+    const vorschauText = erzeugeBemerkungstext(alleAusgewaehlt, vollstaendigeBausteinliste, schueler);
 
     inhalt.innerHTML = `
       <section class="karte">
         <h2 class="sr-only">Bemerkungsbausteine</h2>
+        ${
+          automatischeEintraegeHtml
+            ? `<ul class="bemerkungen-automatisch-liste">${automatischeEintraegeHtml}</ul>`
+            : ''
+        }
         <div class="bemerkungen-liste">
           ${bausteine
             .map(
@@ -77,10 +98,13 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
 
     inhalt.querySelectorAll<HTMLInputElement>('input[data-bemerkung-id]').forEach((checkbox) => {
       checkbox.addEventListener('change', async () => {
-        const ausgewaehlteJetzt = Array.from(
+        const regulaereAuswahl = Array.from(
           inhalt.querySelectorAll<HTMLInputElement>('input[data-bemerkung-id]:checked'),
         ).map((el) => el.dataset.bemerkungId as string);
-        await datensatzStore.setzeBemerkungen(schuelerId, ausgewaehlteJetzt);
+        // Automatische Fach-Bemerkungen haben hier keine Checkbox und müssen
+        // beim Neuschreiben der Auswahl erhalten bleiben (siehe 3.7) – nur
+        // der Nicht-relevant-Toggle in der Bewertungsansicht steuert sie.
+        await datensatzStore.setzeBemerkungen(schuelerId, [...regulaereAuswahl, ...automatischeIds]);
       });
     });
   }

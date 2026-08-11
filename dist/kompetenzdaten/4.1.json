@@ -71,6 +71,7 @@
       "id": "religion",
       "titel": "Religion",
       "optional": true,
+      "nichtRelevantBemerkung": "{Vorname} nahm nicht am Religionsunterricht teil.",
       "bereiche": [
         {
           "id": "religion_allgemein",

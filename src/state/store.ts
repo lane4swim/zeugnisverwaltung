@@ -1,4 +1,5 @@
 import { ladeAktivenDatensatz, loescheAktivenDatensatz, speichereAktivenDatensatz } from '../db/database';
+import { fachNichtRelevantBemerkungsId } from '../services/bemerkungen';
 import type {
   BemerkungEintrag,
   Bewertung,
@@ -232,8 +233,18 @@ class DatensatzStore {
    * Fach werden bewusst nicht gelöscht (falls die Markierung versehentlich
    * gesetzt wurde, bleiben sie beim Zurücknehmen erhalten), sondern nur in
    * der Bewertungsansicht ausgeblendet und bei Status/Export ignoriert.
+   *
+   * Ist für das Fach eine `nichtRelevantBemerkung` hinterlegt
+   * (`hatAutomatischeBemerkung`), wird die daraus abgeleitete Bemerkung
+   * beim Markieren automatisch in die Bemerkungen (3.6) übernommen und
+   * beim Zurücknehmen wieder entfernt (3.7).
    */
-  async setzeAbschnittNichtRelevant(schuelerId: string, abschnittId: string, nichtRelevant: boolean): Promise<void> {
+  async setzeAbschnittNichtRelevant(
+    schuelerId: string,
+    abschnittId: string,
+    nichtRelevant: boolean,
+    hatAutomatischeBemerkung: boolean,
+  ): Promise<void> {
     if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
     const bisherigeIds =
       this.aktuell.nichtRelevanteAbschnitte.find((e) => e.schuelerId === schuelerId)?.abschnittIds ?? [];
@@ -243,12 +254,29 @@ class DatensatzStore {
         : [...bisherigeIds, abschnittId]
       : bisherigeIds.filter((id) => id !== abschnittId);
     const neuerEintrag: NichtRelevanterAbschnittEintrag = { schuelerId, abschnittIds: neueIds };
+
+    let bemerkungen = this.aktuell.bemerkungen;
+    if (hatAutomatischeBemerkung) {
+      const syntheseId = fachNichtRelevantBemerkungsId(abschnittId);
+      const bisherigeBemerkungen = bemerkungen.find((b) => b.schuelerId === schuelerId)?.ausgewaehlteBemerkungen ?? [];
+      const neueBemerkungen = nichtRelevant
+        ? bisherigeBemerkungen.includes(syntheseId)
+          ? bisherigeBemerkungen
+          : [...bisherigeBemerkungen, syntheseId]
+        : bisherigeBemerkungen.filter((id) => id !== syntheseId);
+      bemerkungen = [
+        ...bemerkungen.filter((b) => b.schuelerId !== schuelerId),
+        { schuelerId, ausgewaehlteBemerkungen: neueBemerkungen },
+      ];
+    }
+
     this.aktuell = {
       ...this.aktuell,
       nichtRelevanteAbschnitte: [
         ...this.aktuell.nichtRelevanteAbschnitte.filter((e) => e.schuelerId !== schuelerId),
         neuerEintrag,
       ],
+      bemerkungen,
     };
     await this.persistMitAenderung();
   }

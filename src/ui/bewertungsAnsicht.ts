@@ -204,8 +204,14 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
         </label>
       `
       : '';
+    const automatischeBemerkung = abschnitt.nichtRelevantBemerkung?.trim();
+    const schuelerFuerVorschau = aktuellerSchueler();
+    const bemerkungsHinweisHtml =
+      nichtRelevant && automatischeBemerkung && schuelerFuerVorschau
+        ? `<p class="fach-bemerkung-hinweis">📝 Automatisch in die Bemerkungen übernommen: „${escapeHtml(ersetzePlatzhalter(automatischeBemerkung, schuelerFuerVorschau))}"</p>`
+        : '';
     const inhaltHtml = nichtRelevant
-      ? '<p class="leerzustand">Als nicht relevant markiert – für dieses Fach ist bei dieser Person keine Bewertung möglich und es fließt nicht in die Vollständigkeitsprüfung ein.</p>'
+      ? `<p class="leerzustand">Als nicht relevant markiert – für dieses Fach ist bei dieser Person keine Bewertung möglich und es fließt nicht in die Vollständigkeitsprüfung ein.</p>${bemerkungsHinweisHtml}`
       : abschnitt.bereiche.map(bereichHtml).join('');
 
     return `
@@ -319,7 +325,9 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
     wurzel.querySelectorAll<HTMLInputElement>('input[data-nicht-relevant-abschnitt-id]').forEach((checkbox) => {
       checkbox.addEventListener('change', async () => {
         const abschnittId = checkbox.dataset.nichtRelevantAbschnittId as string;
-        await datensatzStore.setzeAbschnittNichtRelevant(schuelerId, abschnittId, checkbox.checked);
+        const abschnitt = datei.abschnitte.find((a) => a.id === abschnittId);
+        const hatAutomatischeBemerkung = Boolean(abschnitt?.nichtRelevantBemerkung?.trim());
+        await datensatzStore.setzeAbschnittNichtRelevant(schuelerId, abschnittId, checkbox.checked, hatAutomatischeBemerkung);
       });
     });
   }

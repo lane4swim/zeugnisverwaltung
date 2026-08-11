@@ -328,6 +328,12 @@ details.bereich-block > summary {
   color: #555;
 }
 
+.fach-bemerkung-hinweis {
+  font-size: 0.85rem;
+  color: #444;
+  font-style: italic;
+}
+
 .fach-optional-toggle {
   display: flex;
   align-items: center;
@@ -478,6 +484,22 @@ fieldset.kompetenz-block legend {
   background: #2c8f6e;
   border-radius: 50% 50% 50% 0;
   z-index: 1;
+}
+
+.bemerkungen-automatisch-liste {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bemerkung-automatisch {
+  background: #f5f7fa;
+  border: 1px solid var(--farbe-rand);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.7rem;
 }
 
 .bemerkungen-liste {

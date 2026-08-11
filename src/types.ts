@@ -103,6 +103,14 @@ export interface Abschnitt {
    * verpflichtend (Standardverhalten vor Einführung dieses Merkmals).
    */
   optional?: boolean;
+  /**
+   * Nur bei `optional: true` wirksam: Vorlage für eine Bemerkung (gleiche
+   * Platzhaltersyntax wie Bemerkungsbausteine, siehe 6.1), die automatisch
+   * in die Bemerkungen (3.6) übernommen wird, sobald dieses Fach für eine
+   * Person als „nicht relevant" markiert wird, und beim Zurücknehmen der
+   * Markierung wieder entfernt wird (siehe 3.7, 5.2, 5.3).
+   */
+  nichtRelevantBemerkung?: string;
 }
 
 export interface Bemerkungsbaustein {

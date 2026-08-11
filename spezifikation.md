@@ -145,6 +145,7 @@ Hierarchie: **Abschnitt → Bereich → Kompetenz → Stufe → Satzbausteine**
       "id": "religion",
       "titel": "Religion",
       "optional": true,
+      "nichtRelevantBemerkung": "{Vorname} nahm nicht am Religionsunterricht teil.",
       "bereiche": [ /* wie oben, Struktur Bereich → Kompetenz → Stufe */ ]
     }
   ],
@@ -156,6 +157,7 @@ Hierarchie: **Abschnitt → Bereich → Kompetenz → Stufe → Satzbausteine**
 
 Hinweise:
 - Ein **Abschnitt entspricht einem Schulfach** (z. B. „Deutsch", „Mathematik", „Religion"). Ein Abschnitt kann optional als `"optional": true` markiert werden, wenn das Fach nicht für jede Person zutrifft (z. B. Religion, falls konfessionell gebunden angeboten). Fehlt das Feld, gilt das Fach als für alle Schüler:innen verpflichtend. Die Markierung erfolgt auf Fachebene in der (nicht-personenbezogenen) Kompetenzdatei; welche Person das Fach konkret nicht besucht, wird getrennt davon je Schüler:in im Klassendatensatz vermerkt (siehe 3.7, 5.1, 5.2).
+- Nur bei `optional: true` wirksam: `nichtRelevantBemerkung` hinterlegt eine **benutzerdefinierte Bemerkungsvorlage** (gleiche Platzhaltersyntax wie Bemerkungsbausteine, z. B. `"{Vorname} nahm nicht am Religionsunterricht teil."`), die automatisch in die Bemerkungen (3.6) einer Person übernommen wird, sobald dieses Fach für sie als „nicht relevant" markiert wird, und beim Zurücknehmen der Markierung wieder daraus entfernt wird (siehe 3.7). Ist das Feld nicht gesetzt, wird beim Markieren keine Bemerkung ergänzt.
 - Die **Anzahl der Stufen ist pro Kompetenz variabel** (kein festes Enum, sondern Array beliebiger Länge).
 - Pro Stufe können **mehrere alternative Satzbausteine** hinterlegt sein (zur sprachlichen Variation, damit nicht alle Zeugnisse einer Klasse identisch klingen). Bei Erstgenerierung wählt die App automatisch **zufällig** einen Baustein aus den verfügbaren Alternativen der aktuellen Stufe. Der Anwender kann diese Auswahl über eine „Würfeln"/„Alternative anzeigen"-Steuerung (z. B. Icon-Button neben dem generierten Text) erneut zufällig neu ziehen lassen, solange der Text nicht manuell gesperrt ist (siehe 3.5); der zuletzt gewählte Index wird in `gewaehlterBausteinIndex` (3.4) persistiert, damit derselbe Baustein bei erneutem Öffnen erhalten bleibt.
 - Das Feld `halbjahr` dient der Konsistenzprüfung: Die App lädt beim Öffnen eines Klassendatensatzes automatisch die zum hinterlegten Halbjahr passende Kompetenzdatei.
@@ -205,6 +207,7 @@ Vermerkt je Schüler:in, welche als `optional` markierten Fächer (siehe 3.3) f�
 - Nur für Fächer relevant, die in der Kompetenzdatei als `optional: true` markiert sind; verpflichtende Fächer können nicht als nicht relevant markiert werden.
 - Für als nicht relevant markierte Fächer ist **keine Bewertung möglich** (die Bewertungsansicht blendet die Kompetenzen dieses Fachs für die betroffene Person aus) und sie werden bei der Vollständigkeitsprüfung (5.1, 5.2) **nicht mitgezählt** – weder als offen noch als erledigt.
 - Bereits vorhandene Bewertungen in diesem Fach werden beim Markieren nicht gelöscht, sondern nur ausgeblendet und ignoriert; wird die Markierung zurückgenommen, sind sie wieder sichtbar und nutzbar. So bleibt eine versehentliche Markierung folgenlos rückgängig zu machen.
+- **Automatische Bemerkung:** Ist für das Fach eine `nichtRelevantBemerkung` hinterlegt (siehe 3.3), wird beim Setzen der Markierung automatisch ein entsprechender Eintrag in die Bemerkungen (3.6) der Person übernommen, und beim Zurücknehmen der Markierung wieder daraus entfernt. Dieser Eintrag wird in der Bemerkungenansicht schreibgeschützt dargestellt (kein eigenes Ankreuzfeld) – gesteuert wird er ausschließlich über die Nicht-relevant-Markierung in der Bewertungsansicht (5.2, 5.3).
 
 ### 3.8 Gesamtes lokales Datenmodell (Export-/Import-Format)
 Ein Export entspricht **genau einer Klasse in einem Halbjahr**:
@@ -257,7 +260,7 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
 ### 5.2 Bewertungsansicht
 - Navigierbar über Abschnitt → Bereich → Kompetenz (gemäß der zum Halbjahr gehörenden Kompetenzdatei).
 - Je Kompetenz: Stufenauswahl (z. B. Radio-Buttons/Slider, abhängig von Anzahl der Stufen dieser Kompetenz).
-- **Optionale Fächer:** Ist ein Abschnitt (Fach) in der Kompetenzdatei als `optional` markiert (siehe 3.3, z. B. Religion), zeigt die Bewertungsansicht auf Fachebene eine Markierung „Nicht relevant für diese Person" an. Ist sie gesetzt, werden die Kompetenzen dieses Fachs für die betroffene Person nicht zur Bewertung angeboten (siehe 3.7) und fließen nicht in die Vollständigkeitsprüfung (5.1) ein. Verpflichtende Fächer bieten diese Markierung nicht an.
+- **Optionale Fächer:** Ist ein Abschnitt (Fach) in der Kompetenzdatei als `optional` markiert (siehe 3.3, z. B. Religion), zeigt die Bewertungsansicht auf Fachebene eine Markierung „Nicht relevant für diese Person" an. Ist sie gesetzt, werden die Kompetenzen dieses Fachs für die betroffene Person nicht zur Bewertung angeboten (siehe 3.7) und fließen nicht in die Vollständigkeitsprüfung (5.1) ein. Verpflichtende Fächer bieten diese Markierung nicht an. Ist zusätzlich eine `nichtRelevantBemerkung` hinterlegt, zeigt die Bewertungsansicht eine Vorschau der dadurch automatisch ergänzten Bemerkung an (siehe 3.3, 3.7, 5.3).
 - **Vergleichsfunktion:**
   - Einblendbare Bewertung eines frei wählbaren anderen Schülers (zum direkten Abgleich).
   - Einblendbarer **Klassenmedian** und **Klassendurchschnitt** je Kompetenz (numerisch über die Stufennummern berechnet; Durchschnitt ggf. gerundet/mit Dezimalstelle, Median als tatsächlich vorkommende oder mittlere Stufe ausgewiesen).
@@ -268,6 +271,7 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
 ### 5.3 Bemerkungen
 - Je Schüler: Liste aller Bemerkungsbausteine aus der (halbjahresspezifischen) Kompetenzdatei als Checkboxen.
 - Mehrfachauswahl möglich; ausgewählte Bausteine werden in der finalen Textzusammenstellung berücksichtigt (Reihenfolge editierbar oder fest nach Definitionsreihenfolge).
+- **Automatische Fach-Bemerkungen** (siehe 3.3, 3.7) erscheinen zusätzlich, aber schreibgeschützt (kein eigenes Ankreuzfeld) und deutlich als automatisch gekennzeichnet; sie fließen in dieser Form in die Textzusammenstellung mit ein. Ihre einzige Steuerung ist die Nicht-relevant-Markierung des zugehörigen Fachs in der Bewertungsansicht (5.2).
 
 ### 5.4 Textgenerierungs-Engine
 - Ersetzt Platzhalter in Satzbausteinen anhand der Schülerdaten (siehe 6).
