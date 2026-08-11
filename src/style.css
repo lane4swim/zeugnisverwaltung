@@ -322,6 +322,22 @@ details.bereich-block > summary {
   padding: 0.3rem 0;
 }
 
+.optional-hinweis {
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.fach-optional-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin: 0.3rem 0 0.6rem;
+}
+
 fieldset.kompetenz-block {
   border: 1px solid var(--farbe-rand);
   border-radius: var(--radius);

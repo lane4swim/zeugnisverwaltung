@@ -140,6 +140,12 @@ Hierarchie: **Abschnitt → Bereich → Kompetenz → Stufe → Satzbausteine**
           ]
         }
       ]
+    },
+    {
+      "id": "religion",
+      "titel": "Religion",
+      "optional": true,
+      "bereiche": [ /* wie oben, Struktur Bereich → Kompetenz → Stufe */ ]
     }
   ],
   "bemerkungsbausteine": [
@@ -149,6 +155,7 @@ Hierarchie: **Abschnitt → Bereich → Kompetenz → Stufe → Satzbausteine**
 ```
 
 Hinweise:
+- Ein **Abschnitt entspricht einem Schulfach** (z. B. „Deutsch", „Mathematik", „Religion"). Ein Abschnitt kann optional als `"optional": true` markiert werden, wenn das Fach nicht für jede Person zutrifft (z. B. Religion, falls konfessionell gebunden angeboten). Fehlt das Feld, gilt das Fach als für alle Schüler:innen verpflichtend. Die Markierung erfolgt auf Fachebene in der (nicht-personenbezogenen) Kompetenzdatei; welche Person das Fach konkret nicht besucht, wird getrennt davon je Schüler:in im Klassendatensatz vermerkt (siehe 3.7, 5.1, 5.2).
 - Die **Anzahl der Stufen ist pro Kompetenz variabel** (kein festes Enum, sondern Array beliebiger Länge).
 - Pro Stufe können **mehrere alternative Satzbausteine** hinterlegt sein (zur sprachlichen Variation, damit nicht alle Zeugnisse einer Klasse identisch klingen). Bei Erstgenerierung wählt die App automatisch **zufällig** einen Baustein aus den verfügbaren Alternativen der aktuellen Stufe. Der Anwender kann diese Auswahl über eine „Würfeln"/„Alternative anzeigen"-Steuerung (z. B. Icon-Button neben dem generierten Text) erneut zufällig neu ziehen lassen, solange der Text nicht manuell gesperrt ist (siehe 3.5); der zuletzt gewählte Index wird in `gewaehlterBausteinIndex` (3.4) persistiert, damit derselbe Baustein bei erneutem Öffnen erhalten bleibt.
 - Das Feld `halbjahr` dient der Konsistenzprüfung: Die App lädt beim Öffnen eines Klassendatensatzes automatisch die zum hinterlegten Halbjahr passende Kompetenzdatei.
@@ -187,7 +194,19 @@ Hinweise:
 }
 ```
 
-### 3.7 Gesamtes lokales Datenmodell (Export-/Import-Format)
+### 3.7 Nicht relevante Fächer je Schüler (lokal)
+Vermerkt je Schüler:in, welche als `optional` markierten Fächer (siehe 3.3) für diese Person nicht zutreffen (z. B. Religion):
+```json
+{
+  "schuelerId": "uuid",
+  "abschnittIds": ["religion"]
+}
+```
+- Nur für Fächer relevant, die in der Kompetenzdatei als `optional: true` markiert sind; verpflichtende Fächer können nicht als nicht relevant markiert werden.
+- Für als nicht relevant markierte Fächer ist **keine Bewertung möglich** (die Bewertungsansicht blendet die Kompetenzen dieses Fachs für die betroffene Person aus) und sie werden bei der Vollständigkeitsprüfung (5.1, 5.2) **nicht mitgezählt** – weder als offen noch als erledigt.
+- Bereits vorhandene Bewertungen in diesem Fach werden beim Markieren nicht gelöscht, sondern nur ausgeblendet und ignoriert; wird die Markierung zurückgenommen, sind sie wieder sichtbar und nutzbar. So bleibt eine versehentliche Markierung folgenlos rückgängig zu machen.
+
+### 3.8 Gesamtes lokales Datenmodell (Export-/Import-Format)
 Ein Export entspricht **genau einer Klasse in einem Halbjahr**:
 
 ```json
@@ -200,9 +219,11 @@ Ein Export entspricht **genau einer Klasse in einem Halbjahr**:
   "schueler": [ /* siehe 3.1 */ ],
   "bewertungen": [ /* siehe 3.4 */ ],
   "bewertungstexte": [ /* siehe 3.5 */ ],
-  "bemerkungen": [ /* siehe 3.6 */ ]
+  "bemerkungen": [ /* siehe 3.6 */ ],
+  "nichtRelevanteAbschnitte": [ /* siehe 3.7 */ ]
 }
 ```
+Rückwärtskompatibilität: Datensätze, die vor Einführung dieses Felds exportiert wurden, enthalten `nichtRelevanteAbschnitte` nicht. Beim Import/Laden wird das Feld automatisch mit einem leeren Array ergänzt, ältere Backups bleiben also nutzbar.
 
 ---
 
@@ -229,13 +250,14 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
 - Ein Datensatz = eine Klasse in einem Halbjahr. Beim Neuanlegen wird das Halbjahr (1.1–4.2) festgelegt; dies bestimmt die zu ladende Kompetenzdatei und ist nachträglich nicht änderbar (stattdessen: neuer Datensatz).
 - Anlegen/Bearbeiten/Löschen von Schüler:innen (Name, Vorname, Geburtsdatum, Geschlecht: „w"/„m").
 - Sortierbare/filterbare Klassenliste.
-- **Bewertungsstatus-Ampel je Schüler:in** in der Klassenliste: 🟢 vollständig (alle Kompetenzen der aktuellen Kompetenzdatei gültig bewertet), 🟡 teilweise (mindestens eine, aber nicht alle Kompetenzen bewertet), 🔴 nicht begonnen (keine gültige Bewertung vorhanden). Der Status wird aus den vorhandenen Bewertungen abgeleitet und nicht separat gespeichert; nach 4.1 ungültig gewordene Bewertungen (Stufe außerhalb der aktuellen Stufenzahl) zählen dabei nicht als bewertet. Da der Status ausschließlich der Übersicht dient, ist er kein Blocker für Bearbeitung oder JSON-Export – lediglich der Word-Sammeldokument-Export warnt bei Unvollständigkeit (siehe 5.6).
+- **Bewertungsstatus-Ampel je Schüler:in** in der Klassenliste: 🟢 vollständig (alle Kompetenzen der aktuellen Kompetenzdatei gültig bewertet), 🟡 teilweise (mindestens eine, aber nicht alle Kompetenzen bewertet), 🔴 nicht begonnen (keine gültige Bewertung vorhanden). Der Status wird aus den vorhandenen Bewertungen abgeleitet und nicht separat gespeichert; nach 4.1 ungültig gewordene Bewertungen (Stufe außerhalb der aktuellen Stufenzahl) zählen dabei nicht als bewertet, ebenso wenig als für diese Person „nicht relevant" markierte optionale Fächer (siehe 3.3, 3.7, 5.2). Da der Status ausschließlich der Übersicht dient, ist er kein Blocker für Bearbeitung oder JSON-Export – lediglich der Word-Sammeldokument-Export warnt bei Unvollständigkeit (siehe 5.6).
 - Optionaler „Halbjahreswechsel"-Assistent: übernimmt die Schülerstammdaten in einen neuen Datensatz des Folgehalbjahres (siehe 3.2), ohne Bewertungsdaten zu übertragen.
 - Da jeweils nur ein Datensatz (eine Klasse/ein Halbjahr) aktiv bearbeitet wird, erfolgt das Wechseln zwischen mehreren Klassen/Halbjahren über Export des aktuellen und Import des gewünschten Datensatzes (Drag & Drop, siehe 5.5).
 
 ### 5.2 Bewertungsansicht
 - Navigierbar über Abschnitt → Bereich → Kompetenz (gemäß der zum Halbjahr gehörenden Kompetenzdatei).
 - Je Kompetenz: Stufenauswahl (z. B. Radio-Buttons/Slider, abhängig von Anzahl der Stufen dieser Kompetenz).
+- **Optionale Fächer:** Ist ein Abschnitt (Fach) in der Kompetenzdatei als `optional` markiert (siehe 3.3, z. B. Religion), zeigt die Bewertungsansicht auf Fachebene eine Markierung „Nicht relevant für diese Person" an. Ist sie gesetzt, werden die Kompetenzen dieses Fachs für die betroffene Person nicht zur Bewertung angeboten (siehe 3.7) und fließen nicht in die Vollständigkeitsprüfung (5.1) ein. Verpflichtende Fächer bieten diese Markierung nicht an.
 - **Vergleichsfunktion:**
   - Einblendbare Bewertung eines frei wählbaren anderen Schülers (zum direkten Abgleich).
   - Einblendbarer **Klassenmedian** und **Klassendurchschnitt** je Kompetenz (numerisch über die Stufennummern berechnet; Durchschnitt ggf. gerundet/mit Dezimalstelle, Median als tatsächlich vorkommende oder mittlere Stufe ausgewiesen).
@@ -253,7 +275,7 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
 - Bei mehreren alternativen Satzbausteinen je Stufe: automatische zufällige Erstauswahl, vom Anwender jederzeit über eine explizite „Neu würfeln"-Aktion überschreibbar (siehe 3.3); nicht verfügbar, sobald der Text manuell gesperrt ist (3.5).
 
 ### 5.5 JSON-Import/Export
-- Export des gesamten lokalen Datensatzes (3.7) einer Klasse/eines Halbjahres als Datei-Download.
+- Export des gesamten lokalen Datensatzes (3.8) einer Klasse/eines Halbjahres als Datei-Download.
 - Import per **Drag & Drop** einer JSON-Datei in den Browser; Validierung gegen Schema, Prüfung von `halbjahr` und `kompetenzdateiVersion`, Konfliktbehandlung (z. B. „aktuellen Datensatz ersetzen" – da immer nur eine Klasse/ein Halbjahr aktiv ist, ist ein „Zusammenführen" hier nicht vorgesehen).
 
 ### 5.6 Word-Vorlagen-Merge (Sammeldokument)

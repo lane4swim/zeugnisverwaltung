@@ -1,5 +1,12 @@
 import { ladeAktivenDatensatz, loescheAktivenDatensatz, speichereAktivenDatensatz } from '../db/database';
-import type { BemerkungEintrag, Bewertung, Bewertungstext, Klassendatensatz, Schueler } from '../types';
+import type {
+  BemerkungEintrag,
+  Bewertung,
+  Bewertungstext,
+  Klassendatensatz,
+  NichtRelevanterAbschnittEintrag,
+  Schueler,
+} from '../types';
 
 type Listener = (datensatz: Klassendatensatz | null) => void;
 
@@ -217,6 +224,35 @@ class DatensatzStore {
     await this.persistMitAenderung();
   }
 
+  /**
+   * Markiert ein als `optional` gekennzeichnetes Fach für eine Person als
+   * (nicht) relevant. Für als nicht relevant markierte Fächer ist keine
+   * Bewertung möglich und sie fließen nicht in die Vollständigkeitsprüfung
+   * ein (spezifikation.md 3.3, 5.1, 5.2). Bestehende Bewertungen in diesem
+   * Fach werden bewusst nicht gelöscht (falls die Markierung versehentlich
+   * gesetzt wurde, bleiben sie beim Zurücknehmen erhalten), sondern nur in
+   * der Bewertungsansicht ausgeblendet und bei Status/Export ignoriert.
+   */
+  async setzeAbschnittNichtRelevant(schuelerId: string, abschnittId: string, nichtRelevant: boolean): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    const bisherigeIds =
+      this.aktuell.nichtRelevanteAbschnitte.find((e) => e.schuelerId === schuelerId)?.abschnittIds ?? [];
+    const neueIds = nichtRelevant
+      ? bisherigeIds.includes(abschnittId)
+        ? bisherigeIds
+        : [...bisherigeIds, abschnittId]
+      : bisherigeIds.filter((id) => id !== abschnittId);
+    const neuerEintrag: NichtRelevanterAbschnittEintrag = { schuelerId, abschnittIds: neueIds };
+    this.aktuell = {
+      ...this.aktuell,
+      nichtRelevanteAbschnitte: [
+        ...this.aktuell.nichtRelevanteAbschnitte.filter((e) => e.schuelerId !== schuelerId),
+        neuerEintrag,
+      ],
+    };
+    await this.persistMitAenderung();
+  }
+
   async entferneSchueler(schuelerId: string): Promise<void> {
     if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
     this.aktuell = {
@@ -227,6 +263,7 @@ class DatensatzStore {
       bewertungen: this.aktuell.bewertungen.filter((b) => b.schuelerId !== schuelerId),
       bewertungstexte: this.aktuell.bewertungstexte.filter((b) => b.schuelerId !== schuelerId),
       bemerkungen: this.aktuell.bemerkungen.filter((b) => b.schuelerId !== schuelerId),
+      nichtRelevanteAbschnitte: this.aktuell.nichtRelevanteAbschnitte.filter((e) => e.schuelerId !== schuelerId),
     };
     await this.persistMitAenderung();
   }

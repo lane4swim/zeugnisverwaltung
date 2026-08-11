@@ -37,6 +37,18 @@ export interface BemerkungEintrag {
   ausgewaehlteBemerkungen: string[];
 }
 
+/**
+ * Für ein Fach (Abschnitt), das in der Kompetenzdatei als `optional`
+ * markiert ist, kann je Schüler:in vermerkt werden, dass es nicht
+ * zutrifft (z. B. Religion). Für so markierte Fächer ist keine Bewertung
+ * möglich; sie fließen nicht in die Vollständigkeitsprüfung ein (siehe
+ * spezifikation.md 3.3, 5.1, 5.2).
+ */
+export interface NichtRelevanterAbschnittEintrag {
+  schuelerId: string;
+  abschnittIds: string[];
+}
+
 export interface KlasseInfo {
   name: string;
   schuljahr: string;
@@ -54,6 +66,7 @@ export interface Klassendatensatz {
   bewertungen: Bewertung[];
   bewertungstexte: Bewertungstext[];
   bemerkungen: BemerkungEintrag[];
+  nichtRelevanteAbschnitte: NichtRelevanterAbschnittEintrag[];
 }
 
 // Kompetenzdatei (serverseitig, nicht-personenbezogen, je Halbjahr; siehe
@@ -81,6 +94,15 @@ export interface Abschnitt {
   id: string;
   titel: string;
   bereiche: Bereich[];
+  /**
+   * Fächer, die nicht für jede Person zutreffen (z. B. Religion), können
+   * hier als optional markiert werden. Die Zuständigkeit „nicht relevant"
+   * je Schüler:in wird nicht hier, sondern im Klassendatensatz vermerkt
+   * (siehe NichtRelevanterAbschnittEintrag), da die Kompetenzdatei selbst
+   * nicht personenbezogen ist. Fehlt das Feld, gilt das Fach als
+   * verpflichtend (Standardverhalten vor Einführung dieses Merkmals).
+   */
+  optional?: boolean;
 }
 
 export interface Bemerkungsbaustein {
@@ -110,5 +132,19 @@ export function erzeugeLeerenDatensatz(halbjahr: Halbjahr, klasse: KlasseInfo): 
     bewertungen: [],
     bewertungstexte: [],
     bemerkungen: [],
+    nichtRelevanteAbschnitte: [],
+  };
+}
+
+/**
+ * Füllt bei aus IndexedDB geladenen oder importierten Datensätzen fehlende
+ * Felder auf, die erst nach deren Erstellung eingeführt wurden (hier:
+ * `nichtRelevanteAbschnitte`), damit ältere Backups weiterhin nutzbar
+ * bleiben (Robustheit, spezifikation.md 7).
+ */
+export function normalisiereKlassendatensatz(datensatz: Klassendatensatz): Klassendatensatz {
+  return {
+    ...datensatz,
+    nichtRelevanteAbschnitte: datensatz.nichtRelevanteAbschnitte ?? [],
   };
 }

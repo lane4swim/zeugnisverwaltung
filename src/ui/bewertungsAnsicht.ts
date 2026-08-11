@@ -1,6 +1,6 @@
 import { datensatzStore } from '../state/store';
 import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
-import type { Bewertung, Bewertungstext, Kompetenz, KompetenzDatei, Schueler } from '../types';
+import type { Abschnitt, Bereich, Bewertung, Bewertungstext, Kompetenz, KompetenzDatei, Schueler } from '../types';
 import { findeKompetenz } from '../utils/kompetenzstruktur';
 import { ersetzePlatzhalter, waehleBausteinIndex } from '../services/textgenerierung';
 import { berechneDurchschnitt, berechneMedian, formatiereStufenwert } from '../services/statistik';
@@ -40,6 +40,11 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
     return (
       datensatzStore.get()?.bewertungstexte.find((t) => t.schuelerId === schuelerId && t.kompetenzId === kompetenzId) ?? null
     );
+  }
+
+  function istAbschnittNichtRelevant(abschnittId: string): boolean {
+    const eintrag = datensatzStore.get()?.nichtRelevanteAbschnitte.find((e) => e.schuelerId === schuelerId);
+    return eintrag?.abschnittIds.includes(abschnittId) ?? false;
   }
 
   function renderVergleichsWerkzeuge(): void {
@@ -180,26 +185,40 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
     `;
   }
 
+  function bereichHtml(bereich: Bereich): string {
+    return `
+      <details open class="bereich-block">
+        <summary>${escapeHtml(bereich.titel)}</summary>
+        ${bereich.kompetenzen.map(kompetenzBlockHtml).join('')}
+      </details>
+    `;
+  }
+
+  function abschnittHtml(abschnitt: Abschnitt): string {
+    const nichtRelevant = abschnitt.optional === true && istAbschnittNichtRelevant(abschnitt.id);
+    const toggleHtml = abschnitt.optional
+      ? `
+        <label class="fach-optional-toggle">
+          <input type="checkbox" data-nicht-relevant-abschnitt-id="${escapeHtml(abschnitt.id)}" ${nichtRelevant ? 'checked' : ''} />
+          Nicht relevant für diese Person (keine Bewertung nötig)
+        </label>
+      `
+      : '';
+    const inhaltHtml = nichtRelevant
+      ? '<p class="leerzustand">Als nicht relevant markiert – für dieses Fach ist bei dieser Person keine Bewertung möglich und es fließt nicht in die Vollständigkeitsprüfung ein.</p>'
+      : abschnitt.bereiche.map(bereichHtml).join('');
+
+    return `
+      <details open class="abschnitt-block">
+        <summary>${escapeHtml(abschnitt.titel)}${abschnitt.optional ? ' <span class="optional-hinweis">(optional)</span>' : ''}</summary>
+        ${toggleHtml}
+        ${inhaltHtml}
+      </details>
+    `;
+  }
+
   function baumHtml(datei: KompetenzDatei): string {
-    return datei.abschnitte
-      .map(
-        (abschnitt) => `
-        <details open class="abschnitt-block">
-          <summary>${escapeHtml(abschnitt.titel)}</summary>
-          ${abschnitt.bereiche
-            .map(
-              (bereich) => `
-              <details open class="bereich-block">
-                <summary>${escapeHtml(bereich.titel)}</summary>
-                ${bereich.kompetenzen.map(kompetenzBlockHtml).join('')}
-              </details>
-            `,
-            )
-            .join('')}
-        </details>
-      `,
-      )
-      .join('');
+    return datei.abschnitte.map(abschnittHtml).join('');
   }
 
   function veralteteHtml(datei: KompetenzDatei): string {
@@ -294,6 +313,13 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
     wurzel.querySelectorAll<HTMLButtonElement>('[data-bereinigen]').forEach((knopf) => {
       knopf.addEventListener('click', async () => {
         await datensatzStore.entferneBewertung(schuelerId, knopf.dataset.bereinigen as string);
+      });
+    });
+
+    wurzel.querySelectorAll<HTMLInputElement>('input[data-nicht-relevant-abschnitt-id]').forEach((checkbox) => {
+      checkbox.addEventListener('change', async () => {
+        const abschnittId = checkbox.dataset.nichtRelevantAbschnittId as string;
+        await datensatzStore.setzeAbschnittNichtRelevant(schuelerId, abschnittId, checkbox.checked);
       });
     });
   }

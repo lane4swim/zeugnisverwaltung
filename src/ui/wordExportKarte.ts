@@ -72,10 +72,14 @@ export function erstelleWordExportKarte(): HTMLElement {
     }
 
     const unvollstaendige: UnvollstaendigeBewertung[] = datensatz.schueler
-      .map((schueler) => ({
-        schueler,
-        fortschritt: ermittleBewertungsfortschritt(schueler.id, datensatz.bewertungen, kdZustand.datei!),
-      }))
+      .map((schueler) => {
+        const nichtRelevanteAbschnittIds =
+          datensatz.nichtRelevanteAbschnitte.find((e) => e.schuelerId === schueler.id)?.abschnittIds ?? [];
+        return {
+          schueler,
+          fortschritt: ermittleBewertungsfortschritt(schueler.id, datensatz.bewertungen, kdZustand.datei!, nichtRelevanteAbschnittIds),
+        };
+      })
       .filter(({ fortschritt }) => fortschritt.status !== 'vollstaendig');
     if (unvollstaendige.length > 0) {
       const fortfahren = await unvollstaendigkeitsWarnungOeffnen(unvollstaendige);

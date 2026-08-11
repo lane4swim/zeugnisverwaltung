@@ -66,6 +66,27 @@
           ]
         }
       ]
+    },
+    {
+      "id": "religion",
+      "titel": "Religion",
+      "optional": true,
+      "bereiche": [
+        {
+          "id": "religion_allgemein",
+          "titel": "Religiöse Bildung",
+          "kompetenzen": [
+            {
+              "id": "religion_erzaehlungen",
+              "titel": "Biblische Erzählungen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} hört biblischen Erzählungen aufmerksam zu."] },
+                { "stufe": 2, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} gibt biblische Erzählungen sicher in eigenen Worten wieder."] }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "bemerkungsbausteine": [

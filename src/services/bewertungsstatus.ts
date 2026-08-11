@@ -13,7 +13,9 @@ export interface Bewertungsfortschritt {
  * Ermittelt den Bewertungsfortschritt einer Person anhand der Anzahl
  * gültiger Bewertungen (siehe 4.1: eine nach einem Kompetenzdatei-Update
  * ungültig gewordene Stufe zählt nicht als bewertet) gegenüber der
- * Gesamtzahl an Kompetenzen in der aktuellen Kompetenzdatei. Grundlage für
+ * Gesamtzahl an Kompetenzen in der aktuellen Kompetenzdatei. Als „nicht
+ * relevant" markierte optionale Fächer (siehe 3.3) werden dabei komplett
+ * ausgeklammert – weder als offen noch als erledigt gezählt. Grundlage für
  * die Ampel in der Klassenliste und die Vollständigkeitswarnung vor dem
  * Word-Export.
  */
@@ -21,8 +23,10 @@ export function ermittleBewertungsfortschritt(
   schuelerId: string,
   bewertungen: Bewertung[],
   kompetenzdatei: KompetenzDatei,
+  nichtRelevanteAbschnittIds: string[] = [],
 ): Bewertungsfortschritt {
-  const kompetenzen = alleKompetenzen(kompetenzdatei);
+  const nichtRelevantSet = new Set(nichtRelevanteAbschnittIds);
+  const kompetenzen = alleKompetenzen(kompetenzdatei).filter((k) => !nichtRelevantSet.has(k.abschnitt.id));
   const gesamtAnzahl = kompetenzen.length;
 
   const gueltigBewerteteIds = new Set(

@@ -1,4 +1,4 @@
-import { istHalbjahr, type Klassendatensatz } from '../types';
+import { istHalbjahr, normalisiereKlassendatensatz, type Klassendatensatz } from '../types';
 
 export interface ValidierungsErgebnis {
   gueltig: boolean;
@@ -67,10 +67,15 @@ export function validiereKlassendatensatz(daten: unknown): ValidierungsErgebnis 
       fehler.push(`Feld "${feld}" fehlt oder ist kein Array.`);
     }
   }
+  // Rückwärtskompatibel: Backups von vor Einführung dieses Felds enthalten es
+  // nicht und werden beim Laden automatisch normalisiert (siehe types.ts).
+  if (d.nichtRelevanteAbschnitte !== undefined && !Array.isArray(d.nichtRelevanteAbschnitte)) {
+    fehler.push('Feld "nichtRelevanteAbschnitte" ist vorhanden, aber kein Array.');
+  }
 
   return { gueltig: fehler.length === 0, fehler };
 }
 
 export function alsKlassendatensatz(daten: unknown): Klassendatensatz {
-  return daten as Klassendatensatz;
+  return normalisiereKlassendatensatz(daten as Klassendatensatz);
 }

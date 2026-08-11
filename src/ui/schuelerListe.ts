@@ -52,9 +52,10 @@ export function erstelleSchuelerListe(optionen: {
     const anzeigename = `${escapeHtml(s.vorname)} ${escapeHtml(s.nachname)}`;
     const datensatz = datensatzStore.get();
     const kdZustand = kompetenzdateiStore.get();
+    const nichtRelevanteAbschnittIds = datensatz?.nichtRelevanteAbschnitte.find((e) => e.schuelerId === s.id)?.abschnittIds ?? [];
     const statusHtml =
       datensatz && kdZustand.status === 'geladen' && kdZustand.datei
-        ? erstelleAmpelHtml(ermittleBewertungsfortschritt(s.id, datensatz.bewertungen, kdZustand.datei))
+        ? erstelleAmpelHtml(ermittleBewertungsfortschritt(s.id, datensatz.bewertungen, kdZustand.datei, nichtRelevanteAbschnittIds))
         : '<span class="leerzustand">–</span>';
     return `
       <tr>

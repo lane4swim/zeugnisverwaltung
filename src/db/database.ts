@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
-import type { Halbjahr, KompetenzDatei, Klassendatensatz } from '../types';
+import { normalisiereKlassendatensatz, type Halbjahr, type KompetenzDatei, type Klassendatensatz } from '../types';
 
 const DB_NAME = 'zeugnisverwaltung';
 const DB_VERSION = 2;
@@ -48,7 +48,7 @@ function getDb(): Promise<IDBPDatabase<ZeugnisDBSchema>> {
 export async function ladeAktivenDatensatz(): Promise<Klassendatensatz | null> {
   const db = await getDb();
   const wert = await db.get(STORE, AKTIVER_SCHLUESSEL);
-  return wert ?? null;
+  return wert ? normalisiereKlassendatensatz(wert) : null;
 }
 
 export async function speichereAktivenDatensatz(datensatz: Klassendatensatz): Promise<void> {
