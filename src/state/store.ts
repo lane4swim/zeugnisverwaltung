@@ -90,6 +90,14 @@ class DatensatzStore {
     await this.persistMitAenderung();
   }
 
+  /** Fügt mehrere Schüler:innen in einem Zug hinzu, z. B. beim CSV-Import (spezifikation.md 5.1). */
+  async fuegeSchuelerListeHinzu(neueSchueler: Schueler[]): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    if (neueSchueler.length === 0) return;
+    this.aktuell = { ...this.aktuell, schueler: [...this.aktuell.schueler, ...neueSchueler] };
+    await this.persistMitAenderung();
+  }
+
   async aktualisiereSchueler(schueler: Schueler): Promise<void> {
     if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
     this.aktuell = {

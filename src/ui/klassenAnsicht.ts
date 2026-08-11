@@ -7,6 +7,7 @@ import { erstelleKompetenzdateiStatus } from './kompetenzdateiStatus';
 import { erstelleBewertungsAnsicht } from './bewertungsAnsicht';
 import { erstelleBemerkungenAnsicht } from './bemerkungenAnsicht';
 import { erstelleWordExportKarte } from './wordExportKarte';
+import { erstelleCsvImportKarte } from './csvImportKarte';
 import { erstelleBackupErinnerung } from './backupErinnerung';
 import { exportiereDatensatz, importiereDatei } from '../services/exportImport';
 import { pruefeUndMeldeImportVersionskonflikt } from '../services/importVersionscheck';
@@ -42,6 +43,7 @@ export function erstelleKlassenAnsicht(): HTMLElement {
   importKarte.appendChild(dropzone);
 
   const wordExportKarte = erstelleWordExportKarte();
+  const csvImportKarte = erstelleCsvImportKarte();
 
   type Ansicht = { modus: 'liste' } | { modus: 'bewertung'; schuelerId: string } | { modus: 'bemerkungen'; schuelerId: string };
   let ansicht: Ansicht = { modus: 'liste' };
@@ -71,7 +73,7 @@ export function erstelleKlassenAnsicht(): HTMLElement {
         renderInhalt();
       },
     });
-    inhalt.replaceChildren(schuelerListe, wordExportKarte, importKarte);
+    inhalt.replaceChildren(schuelerListe, wordExportKarte, csvImportKarte, importKarte);
   }
 
   wurzel.append(kopf, toolbar, backupErinnerung, kompetenzdateiStatus, inhalt);
