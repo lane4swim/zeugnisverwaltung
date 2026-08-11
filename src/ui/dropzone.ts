@@ -3,14 +3,18 @@
  * klassischer Datei-Auswahl-Button, da Drag & Drop allein nicht
  * tastaturbedienbar ist (Barrierefreiheit, siehe spezifikation.md 7/8).
  */
-export function erstelleDropzone(optionen: { beschriftung: string; onDatei: (datei: File) => void }): HTMLElement {
+export function erstelleDropzone(optionen: {
+  beschriftung: string;
+  onDatei: (datei: File) => void;
+  akzeptiert?: string;
+}): HTMLElement {
   const wurzel = document.createElement('div');
   wurzel.className = 'dropzone';
   wurzel.innerHTML = `
     <p>${optionen.beschriftung}</p>
     <p>Datei per Drag &amp; Drop hier ablegen oder</p>
     <button type="button" data-aktion="datei-waehlen">Datei auswählen…</button>
-    <input type="file" accept="application/json,.json" class="sr-only" tabindex="-1" aria-hidden="true" />
+    <input type="file" accept="${optionen.akzeptiert ?? 'application/json,.json'}" class="sr-only" tabindex="-1" aria-hidden="true" />
   `;
 
   const dateiEingabe = wurzel.querySelector('input[type="file"]') as HTMLInputElement;

@@ -15,17 +15,32 @@ const PRONOMEN: Record<Geschlecht, Pronomentabelle> = {
   m: { nom: 'er', akk: 'ihn', dat: 'ihm', poss: 'sein' },
 };
 
+/**
+ * Liefert die Schülerstammdaten-Platzhalter aus spezifikation.md 6.1 als
+ * flache Schlüssel/Wert-Tabelle (ohne die geschweiften Klammern) – Basis für
+ * sowohl die Satzbaustein-Ersetzung als auch den Word-Export (Phase 6).
+ */
+export function erzeugeSchuelerFelder(schueler: Schueler): Record<string, string> {
+  const pronomen = PRONOMEN[schueler.geschlecht];
+  return {
+    Vorname: schueler.vorname,
+    Nachname: schueler.nachname,
+    Pronomen_Nom: pronomen.nom,
+    Pronomen_Akk: pronomen.akk,
+    Pronomen_Dat: pronomen.dat,
+    Pronomen_Poss: pronomen.poss,
+    Geburtsdatum: formatiereDatum(schueler.geburtsdatum),
+  };
+}
+
 /** Ersetzt die Platzhalter aus spezifikation.md 6.1, die innerhalb eines Satzbausteins vorkommen können. */
 export function ersetzePlatzhalter(satzbaustein: string, schueler: Schueler): string {
-  const pronomen = PRONOMEN[schueler.geschlecht];
-  return satzbaustein
-    .replaceAll('{Vorname}', schueler.vorname)
-    .replaceAll('{Nachname}', schueler.nachname)
-    .replaceAll('{Pronomen_Nom}', pronomen.nom)
-    .replaceAll('{Pronomen_Akk}', pronomen.akk)
-    .replaceAll('{Pronomen_Dat}', pronomen.dat)
-    .replaceAll('{Pronomen_Poss}', pronomen.poss)
-    .replaceAll('{Geburtsdatum}', formatiereDatum(schueler.geburtsdatum));
+  const felder = erzeugeSchuelerFelder(schueler);
+  let ergebnis = satzbaustein;
+  for (const [platzhalter, wert] of Object.entries(felder)) {
+    ergebnis = ergebnis.replaceAll(`{${platzhalter}}`, wert);
+  }
+  return ergebnis;
 }
 
 /**

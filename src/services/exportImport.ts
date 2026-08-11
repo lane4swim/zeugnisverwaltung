@@ -1,5 +1,6 @@
 import type { Klassendatensatz } from '../types';
 import { alsKlassendatensatz, validiereKlassendatensatz } from '../utils/validation';
+import { loeseDateiDownloadAus } from '../utils/download';
 
 export function dateinameFuer(datensatz: Klassendatensatz): string {
   const heute = new Date().toISOString().slice(0, 10);
@@ -9,15 +10,7 @@ export function dateinameFuer(datensatz: Klassendatensatz): string {
 
 export function exportiereDatensatz(datensatz: Klassendatensatz): void {
   const inhalt = JSON.stringify(datensatz, null, 2);
-  const blob = new Blob([inhalt], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = dateinameFuer(datensatz);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
+  loeseDateiDownloadAus(inhalt, dateinameFuer(datensatz), 'application/json');
 }
 
 export interface ImportErgebnis {
