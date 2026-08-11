@@ -48,7 +48,7 @@ Bemerkungen
 {{Bemerkungen}}</code></pre>
     <p>
       Beim Export wird die Vorlage einmal je Schüler:in befüllt (alle Platzhalter werden durch die
-      jeweiligen Werte dieser Person ersetzt) und die entstandenen Einzelseiten werden zu einem
+      jeweiligen Werte dieser Person ersetzt) und die entstandenen Einzelergebnisse werden zu einem
       Sammeldokument zusammengefügt, siehe <a href="anleitung-word-export.html">Word-Export</a>.
       Die Vorlage selbst bleibt dabei unverändert und wird nirgends gespeichert.
     </p>
@@ -135,11 +135,23 @@ Bemerkungen
       vor dem Export.
     </p>
 
+    <h2 id="abschnittswechsel">Trennung zwischen den Schüler:innen im Sammeldokument</h2>
+    <p>
+      Die App fügt zwischen den Einzelzeugnissen zweier Schüler:innen automatisch einen
+      <strong>Abschnittswechsel mit Seitenumbruch</strong> ein (die reguläre Word-Konstruktion, die
+      auch beim manuellen Einfügen eines „Abschnittswechsel (nächste Seite)" entsteht) – nicht nur
+      einen einfachen Zeilenumbruch. Ein manueller Seitenumbruch am Ende der Vorlage ist daher nicht
+      nötig.
+    </p>
+    <ul>
+      <li>Jede Person steht im Sammeldokument in einem <strong>eigenen Word-Abschnitt</strong>, dessen Seiteneinrichtung (Papierformat, Ränder, Ausrichtung, Kopf-/Fußzeilen-Referenzen) von der Vorlage übernommen und für alle Personen identisch verwendet wird.</li>
+      <li>Enthält die Vorlage in Kopf- oder Fußzeile ein Seitenzahl-Feld mit „Neu beginnen ab" (Seitennummerierung je Abschnitt neu starten), wirkt sich das dank des echten Abschnittswechsels jetzt korrekt je Schüler:in aus – bei einem einfachen Seitenumbruch war das zuvor nicht möglich, da die gesamte Sammeldatei nur aus einem einzigen Abschnitt bestand.</li>
+    </ul>
+
     <h2 id="technische-hinweise">Technische Hinweise</h2>
     <ul>
       <li>Die Vorlage muss eine <strong>regulär mit Word gespeicherte <code>.docx</code>-Datei</strong> sein (kein <code>.doc</code>, kein reines Textdokument, kein PDF).</li>
       <li>Beliebiges Layout, Formatierung, Kopf- und Fußzeilen sowie eingebettete Bilder/Logos der Vorlage bleiben im Sammeldokument erhalten.</li>
-      <li>Zwischen den Einzelzeugnissen der Schüler:innen fügt die App automatisch einen Seitenumbruch ein; ein manueller Seitenumbruch am Ende der Vorlage ist nicht nötig.</li>
       <li>Sonderzeichen und Umlaute in Platzhalterwerten (Namen, Texten) werden korrekt übernommen.</li>
       <li>Wird ein Platzhalter über mehrere Formatierungsabschnitte hinweg eingegeben (z. B. wenn beim Tippen versehentlich die Formatierung mitten im Platzhalter wechselt), kann Word ihn intern in mehrere Textteile zerlegen, sodass er nicht erkannt wird. Im Zweifel den Platzhalter löschen und in einem Zug neu eintippen.</li>
     </ul>

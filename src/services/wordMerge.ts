@@ -3,7 +3,6 @@ import Docxtemplater from 'docxtemplater';
 
 export class WordExportFehler extends Error {}
 
-const SEITENUMBRUCH = '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
 const DOCUMENT_XML_PFAD = 'word/document.xml';
 
 function docxtemplaterFehlerBeschreiben(fehler: unknown): string[] {
@@ -89,13 +88,29 @@ function trenneKoerperUndSectPr(dokumentXml: string): { koerperOhneSectPr: strin
 }
 
 /**
+ * Erzeugt einen Absatz, der ausschließlich Abschnittseigenschaften (sectPr)
+ * in seiner pPr trägt – die reguläre OOXML-Konstruktion für einen
+ * Abschnittswechsel zwischen zwei Schülern (statt eines einfachen
+ * Zeilenumbruchs mit `w:br`). Ohne explizites `<w:type>` innerhalb des
+ * sectPr ist der Standardwert laut ECMA-376 §17.6.22 „nextPage", der
+ * Abschnittswechsel erzwingt also implizit einen Seitenumbruch. Da für jede
+ * Person dasselbe Vorlagen-sectPr verwendet wird, bleiben Seiteneinrichtung
+ * sowie Kopf-/Fußzeilen-Referenzen für alle Abschnitte identisch.
+ */
+function erzeugeAbschnittswechsel(sectPr: string): string {
+  return `<w:p><w:pPr>${sectPr}</w:pPr></w:p>`;
+}
+
+/**
  * Baut das Word-Sammeldokument gemäß spezifikation.md 5.6: Für jeden
  * übergebenen Datenkontext (eine Instanz pro Schüler:in, in der bereits
  * vorgesehenen Klassenreihenfolge) wird die Vorlage einmal gerendert; die
  * Ergebnisse werden per direkter OOXML-Manipulation zu einem gemeinsamen
- * `document.xml` mit Seitenumbrüchen zwischen den Schüler:innen verkettet
- * und in eine Kopie der ursprünglichen Vorlagen-Zip zurückgeschrieben, damit
- * Styles, Kopf-/Fußzeilen und Medien der Vorlage erhalten bleiben.
+ * `document.xml` verkettet, getrennt durch einen Abschnittswechsel mit
+ * Seitenumbruch (siehe `erzeugeAbschnittswechsel`) zwischen den
+ * Schüler:innen, und in eine Kopie der ursprünglichen Vorlagen-Zip
+ * zurückgeschrieben, damit Styles, Kopf-/Fußzeilen und Medien der Vorlage
+ * erhalten bleiben.
  */
 export function baueSammeldokument(templateBuffer: ArrayBuffer, datenkontexte: Record<string, string>[]): Uint8Array {
   if (datenkontexte.length === 0) {
@@ -118,7 +133,7 @@ export function baueSammeldokument(templateBuffer: ArrayBuffer, datenkontexte: R
     );
   }
 
-  const zusammengefuegterKoerper = koerperTeile.join(`\n${SEITENUMBRUCH}\n`);
+  const zusammengefuegterKoerper = koerperTeile.join(`\n${erzeugeAbschnittswechsel(sectPr)}\n`);
   const sammelDokumentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">\n  <w:body>\n    ${zusammengefuegterKoerper}\n    ${sectPr}\n  </w:body>\n</w:document>`;
 
   let ausgabeZip: PizZip;
