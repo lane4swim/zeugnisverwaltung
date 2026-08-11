@@ -1,6 +1,7 @@
 import type { Klassendatensatz } from '../types';
 import { alsKlassendatensatz, validiereKlassendatensatz } from '../utils/validation';
 import { loeseDateiDownloadAus } from '../utils/download';
+import { datensatzStore } from '../state/store';
 
 export function dateinameFuer(datensatz: Klassendatensatz): string {
   const heute = new Date().toISOString().slice(0, 10);
@@ -8,9 +9,13 @@ export function dateinameFuer(datensatz: Klassendatensatz): string {
   return `zeugnisdaten_${klasse}_${datensatz.halbjahr}_${heute}.json`;
 }
 
+/** Löst den JSON-Download aus und vermerkt ihn als Backup für die Erinnerungs-Anzeige (spezifikation.md 7). */
 export function exportiereDatensatz(datensatz: Klassendatensatz): void {
   const inhalt = JSON.stringify(datensatz, null, 2);
   loeseDateiDownloadAus(inhalt, dateinameFuer(datensatz), 'application/json');
+  if (datensatzStore.get() === datensatz) {
+    datensatzStore.vermerkeExport();
+  }
 }
 
 export interface ImportErgebnis {

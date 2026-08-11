@@ -74,3 +74,17 @@ export function ermittleVersionskonflikte(
 function alleKompetenzenMitStufenzahl(datei: KompetenzDatei) {
   return datei.abschnitte.flatMap((a) => a.bereiche.flatMap((b) => b.kompetenzen.map((kompetenz) => ({ kompetenz }))));
 }
+
+/** Reine Textzeilen für einen Hinweisdialog (z. B. nach einem JSON-Import, siehe 7). */
+export function formatiereKonfliktZeilenAlsText(konflikte: Versionskonflikte): string[] {
+  const zeilen: string[] = [];
+  for (const e of konflikte.entfalleneKompetenzen) {
+    const namen = e.betroffeneSchueler.map((s) => `${s.vorname} ${s.nachname}`).join(', ');
+    zeilen.push(`Kompetenz "${e.kompetenzId}" gibt es in der aktuell geladenen Version nicht mehr. Betroffen: ${namen}.`);
+  }
+  for (const g of konflikte.geaenderteStufenanzahl) {
+    const namen = g.betroffeneSchueler.map((b) => `${b.schueler.vorname} ${b.schueler.nachname} (bisher Stufe ${b.bisherigeStufe})`).join(', ');
+    zeilen.push(`Kompetenz "${g.kompetenzId}" hat jetzt nur noch ${g.neueStufenanzahl} Stufe(n). Betroffen: ${namen}.`);
+  }
+  return zeilen;
+}

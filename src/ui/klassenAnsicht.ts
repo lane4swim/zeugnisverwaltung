@@ -7,7 +7,9 @@ import { erstelleKompetenzdateiStatus } from './kompetenzdateiStatus';
 import { erstelleBewertungsAnsicht } from './bewertungsAnsicht';
 import { erstelleBemerkungenAnsicht } from './bemerkungenAnsicht';
 import { erstelleWordExportKarte } from './wordExportKarte';
+import { erstelleBackupErinnerung } from './backupErinnerung';
 import { exportiereDatensatz, importiereDatei } from '../services/exportImport';
+import { pruefeUndMeldeImportVersionskonflikt } from '../services/importVersionscheck';
 import { bestaetigen, escapeHtml } from './bestaetigungsDialog';
 import { meldungAnzeigen } from './meldungDialog';
 import { halbjahreswechselDialogOeffnen } from './halbjahreswechselDialog';
@@ -27,6 +29,7 @@ export function erstelleKlassenAnsicht(): HTMLElement {
   `;
 
   const kompetenzdateiStatus = erstelleKompetenzdateiStatus();
+  const backupErinnerung = erstelleBackupErinnerung();
 
   const importKarte = document.createElement('section');
   importKarte.className = 'karte';
@@ -71,7 +74,7 @@ export function erstelleKlassenAnsicht(): HTMLElement {
     inhalt.replaceChildren(schuelerListe, wordExportKarte, importKarte);
   }
 
-  wurzel.append(kopf, toolbar, kompetenzdateiStatus, inhalt);
+  wurzel.append(kopf, toolbar, backupErinnerung, kompetenzdateiStatus, inhalt);
   renderInhalt();
 
   function renderKopf(datensatz: Klassendatensatz): void {
@@ -96,6 +99,7 @@ export function erstelleKlassenAnsicht(): HTMLElement {
     if (bestaetigt) {
       ansicht = { modus: 'liste' };
       await datensatzStore.setzeDatensatz(ergebnis.datensatz);
+      await pruefeUndMeldeImportVersionskonflikt(ergebnis.datensatz);
     }
   }
 

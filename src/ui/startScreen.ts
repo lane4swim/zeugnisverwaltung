@@ -2,6 +2,7 @@ import { datensatzStore } from '../state/store';
 import { HALBJAHRE, type Halbjahr, erzeugeLeerenDatensatz } from '../types';
 import { erstelleDropzone } from './dropzone';
 import { importiereDatei } from '../services/exportImport';
+import { pruefeUndMeldeImportVersionskonflikt } from '../services/importVersionscheck';
 import { meldungAnzeigen } from './meldungDialog';
 
 function aktuellesSchuljahr(): string {
@@ -54,6 +55,7 @@ export function erstelleStartScreen(): HTMLElement {
         return;
       }
       await datensatzStore.setzeDatensatz(ergebnis.datensatz);
+      await pruefeUndMeldeImportVersionskonflikt(ergebnis.datensatz);
     },
   });
   importKarte.appendChild(dropzone);

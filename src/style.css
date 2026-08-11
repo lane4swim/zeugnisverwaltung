@@ -8,6 +8,10 @@
   --farbe-rand: #c7cfd8;
   --farbe-gefahr: #a3241f;
   --farbe-gesperrt: #8a5a00;
+  /* Kontrastverhältnis ≥ 3:1 (WCAG 1.4.11) gegen die hellen Hintergründe der
+     App geprüft (siehe spezifikation.md 7 Barrierefreiheit); #ffb300 (ein
+     früherer Entwurf) erreichte auf Weiß nur 1,79:1 und wurde ersetzt. */
+  --farbe-fokus: #0b5fff;
   --radius: 8px;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
@@ -27,6 +31,61 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 1.5rem 1rem 4rem;
+}
+
+.uebersprung-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -3rem;
+  z-index: 100;
+  background: var(--farbe-primaer);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: top 0.15s;
+}
+
+.uebersprung-link:focus {
+  top: 0.5rem;
+}
+
+main:focus-visible {
+  outline: none;
+}
+
+.pwa-banner-bereich {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.pwa-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #eaf0f7;
+  border: 1px solid #b7c9dd;
+  border-radius: var(--radius);
+  padding: 0.65rem 1rem;
+}
+
+.pwa-banner p {
+  margin: 0;
+}
+
+.pwa-banner--info {
+  background: #eaf2ea;
+  border-color: #b6d4b6;
+}
+
+.backup-erinnerung-aktionen {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 a,
@@ -80,7 +139,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 [tabindex]:focus-visible {
-  outline: 3px solid #ffb300;
+  outline: 3px solid var(--farbe-fokus);
   outline-offset: 2px;
 }
 

@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['icons/icon.svg'],
+      includeAssets: ['icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-512-maskable.png'],
       manifest: {
         id: '/',
         name: 'Zeugnisverwaltung',
@@ -22,18 +22,17 @@ export default defineConfig({
         theme_color: '#2b4a6f',
         lang: 'de',
         icons: [
-          {
-            src: 'icons/icon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any maskable',
-          },
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icons/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
         ],
       },
       workbox: {
-        // App-Shell cache-first; die Kompetenzdatei wird ab Phase 2 eingebunden
-        // (stale-while-revalidate, siehe spezifikation.md Abschnitt 2/4).
-        globPatterns: ['**/*.{js,css,html,svg}'],
+        // App-Shell cache-first; die Kompetenzdatei wird über eine eigene
+        // Netzwerk-zuerst/IndexedDB-Fallback-Logik behandelt (siehe
+        // src/services/kompetenzdatei.ts), nicht über Workbox-Precaching.
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
         navigateFallback: '/index.html',
       },
       devOptions: {

@@ -12,6 +12,12 @@ class DatensatzStore {
   private aktuell: Klassendatensatz | null = null;
   private listeners = new Set<Listener>();
   private geladen = false;
+  /**
+   * Anzahl inhaltlicher Änderungen (Schüler:innen, Bewertungen, Texte,
+   * Bemerkungen) seit dem letzten JSON-Export – Grundlage für die
+   * Backup-Erinnerung (spezifikation.md 7 Robustheit).
+   */
+  private aenderungenSeitExport = 0;
 
   async init(): Promise<void> {
     if (this.geladen) return;
@@ -22,6 +28,16 @@ class DatensatzStore {
 
   get(): Klassendatensatz | null {
     return this.aktuell;
+  }
+
+  anzahlAenderungenSeitExport(): number {
+    return this.aenderungenSeitExport;
+  }
+
+  /** Vom Export-Flow aufzurufen, sobald ein JSON-Backup erfolgreich erstellt wurde. */
+  vermerkeExport(): void {
+    this.aenderungenSeitExport = 0;
+    this.notify();
   }
 
   subscribe(listener: Listener): () => void {
@@ -41,13 +57,21 @@ class DatensatzStore {
     this.notify();
   }
 
+  /** Wie persist(), zusätzlich als „inhaltliche Änderung" für die Backup-Erinnerung gezählt. */
+  private async persistMitAenderung(): Promise<void> {
+    this.aenderungenSeitExport += 1;
+    await this.persist();
+  }
+
   async setzeDatensatz(datensatz: Klassendatensatz): Promise<void> {
     this.aktuell = datensatz;
+    this.aenderungenSeitExport = 0;
     await this.persist();
   }
 
   async schliesseDatensatz(): Promise<void> {
     this.aktuell = null;
+    this.aenderungenSeitExport = 0;
     await loescheAktivenDatensatz();
     this.notify();
   }
@@ -55,7 +79,7 @@ class DatensatzStore {
   async fuegeSchuelerHinzu(schueler: Schueler): Promise<void> {
     if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
     this.aktuell = { ...this.aktuell, schueler: [...this.aktuell.schueler, schueler] };
-    await this.persist();
+    await this.persistMitAenderung();
   }
 
   async aktualisiereSchueler(schueler: Schueler): Promise<void> {
@@ -64,7 +88,7 @@ class DatensatzStore {
       ...this.aktuell,
       schueler: this.aktuell.schueler.map((s) => (s.id === schueler.id ? schueler : s)),
     };
-    await this.persist();
+    await this.persistMitAenderung();
   }
 
   /** Setzt die Version der zuletzt geladenen Kompetenzdatei (spezifikation.md 3.7, 4). */
@@ -121,7 +145,7 @@ class DatensatzStore {
         neuerText,
       ],
     };
-    await this.persist();
+    await this.persistMitAenderung();
   }
 
   /** Manuelle Textbearbeitung sperrt die Stufenauswahl (spezifikation.md 3.5). */
@@ -144,7 +168,7 @@ class DatensatzStore {
         neuerText,
       ],
     };
-    await this.persist();
+    await this.persistMitAenderung();
   }
 
   /** „Zurücksetzen": entsperrt und ersetzt den Text durch eine frische, automatische Generierung (3.5). */
@@ -164,7 +188,7 @@ class DatensatzStore {
         neuerText,
       ],
     };
-    await this.persist();
+    await this.persistMitAenderung();
   }
 
   /** Entfernt eine einzelne Bewertung samt zugehörigem Text, z. B. beim Bereinigen veralteter/ungültiger Einträge (4.1). */
@@ -179,7 +203,7 @@ class DatensatzStore {
         (t) => !(t.schuelerId === schuelerId && t.kompetenzId === kompetenzId),
       ),
     };
-    await this.persist();
+    await this.persistMitAenderung();
   }
 
   /** Ersetzt die ausgewählten Bemerkungsbausteine eines Schülers (spezifikation.md 3.6/5.3). */
@@ -190,7 +214,7 @@ class DatensatzStore {
       ...this.aktuell,
       bemerkungen: [...this.aktuell.bemerkungen.filter((b) => b.schuelerId !== schuelerId), neuerEintrag],
     };
-    await this.persist();
+    await this.persistMitAenderung();
   }
 
   async entferneSchueler(schuelerId: string): Promise<void> {
@@ -204,7 +228,7 @@ class DatensatzStore {
       bewertungstexte: this.aktuell.bewertungstexte.filter((b) => b.schuelerId !== schuelerId),
       bemerkungen: this.aktuell.bemerkungen.filter((b) => b.schuelerId !== schuelerId),
     };
-    await this.persist();
+    await this.persistMitAenderung();
   }
 }
 
