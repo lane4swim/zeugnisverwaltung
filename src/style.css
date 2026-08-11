@@ -405,6 +405,32 @@ fieldset.kompetenz-block legend {
   z-index: 1;
 }
 
+.bemerkungen-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.bemerkung-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.bemerkung-option input {
+  margin-top: 0.25rem;
+}
+
+.bemerkungen-vorschau {
+  background: #f5f7fa;
+  border: 1px solid var(--farbe-rand);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  white-space: pre-wrap;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

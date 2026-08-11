@@ -5,6 +5,7 @@ import { erstelleSchuelerListe } from './schuelerListe';
 import { erstelleDropzone } from './dropzone';
 import { erstelleKompetenzdateiStatus } from './kompetenzdateiStatus';
 import { erstelleBewertungsAnsicht } from './bewertungsAnsicht';
+import { erstelleBemerkungenAnsicht } from './bemerkungenAnsicht';
 import { exportiereDatensatz, importiereDatei } from '../services/exportImport';
 import { bestaetigen, escapeHtml } from './bestaetigungsDialog';
 import { meldungAnzeigen } from './meldungDialog';
@@ -36,22 +37,31 @@ export function erstelleKlassenAnsicht(): HTMLElement {
   });
   importKarte.appendChild(dropzone);
 
-  let ausgewaehlterSchuelerId: string | null = null;
+  type Ansicht = { modus: 'liste' } | { modus: 'bewertung'; schuelerId: string } | { modus: 'bemerkungen'; schuelerId: string };
+  let ansicht: Ansicht = { modus: 'liste' };
   const inhalt = document.createElement('div');
 
+  function zurZurListe(): void {
+    ansicht = { modus: 'liste' };
+    renderInhalt();
+  }
+
   function renderInhalt(): void {
-    if (ausgewaehlterSchuelerId) {
-      inhalt.replaceChildren(
-        erstelleBewertungsAnsicht(ausgewaehlterSchuelerId, () => {
-          ausgewaehlterSchuelerId = null;
-          renderInhalt();
-        }),
-      );
+    if (ansicht.modus === 'bewertung') {
+      inhalt.replaceChildren(erstelleBewertungsAnsicht(ansicht.schuelerId, zurZurListe));
+      return;
+    }
+    if (ansicht.modus === 'bemerkungen') {
+      inhalt.replaceChildren(erstelleBemerkungenAnsicht(ansicht.schuelerId, zurZurListe));
       return;
     }
     const schuelerListe = erstelleSchuelerListe({
       onBewerten: (schuelerId) => {
-        ausgewaehlterSchuelerId = schuelerId;
+        ansicht = { modus: 'bewertung', schuelerId };
+        renderInhalt();
+      },
+      onBemerkungen: (schuelerId) => {
+        ansicht = { modus: 'bemerkungen', schuelerId };
         renderInhalt();
       },
     });
@@ -81,7 +91,7 @@ export function erstelleKlassenAnsicht(): HTMLElement {
       gefahr: true,
     });
     if (bestaetigt) {
-      ausgewaehlterSchuelerId = null;
+      ansicht = { modus: 'liste' };
       await datensatzStore.setzeDatensatz(ergebnis.datensatz);
     }
   }
@@ -103,7 +113,7 @@ export function erstelleKlassenAnsicht(): HTMLElement {
     if (!aktuell) return;
     const neuerDatensatz = await halbjahreswechselDialogOeffnen(aktuell);
     if (neuerDatensatz) {
-      ausgewaehlterSchuelerId = null;
+      ansicht = { modus: 'liste' };
       await datensatzStore.setzeDatensatz(neuerDatensatz);
     }
   });

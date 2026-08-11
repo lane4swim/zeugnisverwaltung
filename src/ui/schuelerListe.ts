@@ -13,7 +13,10 @@ const SPALTEN: { schluessel: SortSpalte; label: string }[] = [
   { schluessel: 'geschlecht', label: 'Geschlecht' },
 ];
 
-export function erstelleSchuelerListe(optionen: { onBewerten: (schuelerId: string) => void }): HTMLElement {
+export function erstelleSchuelerListe(optionen: {
+  onBewerten: (schuelerId: string) => void;
+  onBemerkungen: (schuelerId: string) => void;
+}): HTMLElement {
   const wurzel = document.createElement('section');
   wurzel.className = 'karte';
   wurzel.setAttribute('aria-labelledby', 'klassenliste-titel');
@@ -52,6 +55,7 @@ export function erstelleSchuelerListe(optionen: { onBewerten: (schuelerId: strin
         <td>${s.geschlecht === 'w' ? 'weiblich' : 'männlich'}</td>
         <td>
           <button type="button" data-bewerten="${s.id}">Bewerten<span class="sr-only"> ${anzeigename}</span></button>
+          <button type="button" class="sekundaer" data-bemerkungen="${s.id}">Bemerkungen<span class="sr-only"> ${anzeigename}</span></button>
           <button type="button" class="sekundaer" data-bearbeiten="${s.id}">Bearbeiten<span class="sr-only"> ${anzeigename}</span></button>
           <button type="button" class="gefahr" data-loeschen="${s.id}">Löschen<span class="sr-only"> ${anzeigename}</span></button>
         </td>
@@ -114,6 +118,11 @@ export function erstelleSchuelerListe(optionen: { onBewerten: (schuelerId: strin
     tabellenBereich.querySelectorAll<HTMLButtonElement>('button[data-bewerten]').forEach((knopf) => {
       knopf.addEventListener('click', () => {
         optionen.onBewerten(knopf.dataset.bewerten as string);
+      });
+    });
+    tabellenBereich.querySelectorAll<HTMLButtonElement>('button[data-bemerkungen]').forEach((knopf) => {
+      knopf.addEventListener('click', () => {
+        optionen.onBemerkungen(knopf.dataset.bemerkungen as string);
       });
     });
     tabellenBereich.querySelectorAll<HTMLButtonElement>('button[data-bearbeiten]').forEach((knopf) => {

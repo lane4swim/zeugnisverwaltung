@@ -1,5 +1,5 @@
 import { ladeAktivenDatensatz, loescheAktivenDatensatz, speichereAktivenDatensatz } from '../db/database';
-import type { Bewertung, Bewertungstext, Klassendatensatz, Schueler } from '../types';
+import type { BemerkungEintrag, Bewertung, Bewertungstext, Klassendatensatz, Schueler } from '../types';
 
 type Listener = (datensatz: Klassendatensatz | null) => void;
 
@@ -178,6 +178,17 @@ class DatensatzStore {
       bewertungstexte: this.aktuell.bewertungstexte.filter(
         (t) => !(t.schuelerId === schuelerId && t.kompetenzId === kompetenzId),
       ),
+    };
+    await this.persist();
+  }
+
+  /** Ersetzt die ausgewählten Bemerkungsbausteine eines Schülers (spezifikation.md 3.6/5.3). */
+  async setzeBemerkungen(schuelerId: string, ausgewaehlteBemerkungen: string[]): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    const neuerEintrag: BemerkungEintrag = { schuelerId, ausgewaehlteBemerkungen };
+    this.aktuell = {
+      ...this.aktuell,
+      bemerkungen: [...this.aktuell.bemerkungen.filter((b) => b.schuelerId !== schuelerId), neuerEintrag],
     };
     await this.persist();
   }
