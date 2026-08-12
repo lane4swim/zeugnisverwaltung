@@ -62,29 +62,39 @@ function rendereEinzelDokumentXml(templateBuffer: ArrayBuffer, datenkontext: Rec
 
 /**
  * Trennt den Body-Inhalt vom abschließenden `<w:sectPr>` (Seiteneinrichtung,
- * inkl. Kopf-/Fußzeilen-Referenzen). Das sectPr wird beim Sammeldokument nur
- * einmal am Ende benötigt (spezifikation.md 5.6); da wir dieselbe
- * Original-Vorlagen-Zip (inkl. word/_rels, Header-/Footer-Teilen)
+ * inkl. Kopf-/Fußzeilen-Referenzen) und liefert zusätzlich das originale
+ * `<w:document ...>`-Öffnungstag der Vorlage mit allen dort deklarierten
+ * XML-Namespaces (z. B. `xmlns:w14` für die von Word automatisch vergebenen
+ * `w14:paraId`/`w14:textId`-Absatzattribute). Das sectPr wird beim
+ * Sammeldokument nur einmal am Ende benötigt (spezifikation.md 5.6); da wir
+ * dieselbe Original-Vorlagen-Zip (inkl. word/_rels, Header-/Footer-Teilen)
  * weiterverwenden, bleiben referenzierte Kopf-/Fußzeilen gültig.
  */
-function trenneKoerperUndSectPr(dokumentXml: string): { koerperOhneSectPr: string; sectPr: string | null } {
+function trenneKoerperUndSectPr(
+  dokumentXml: string,
+): { koerperOhneSectPr: string; sectPr: string | null; wurzelOeffnendesTag: string } {
+  const wurzelMatch = dokumentXml.match(/<w:document\b[^>]*>/);
+  if (!wurzelMatch) {
+    throw new WordExportFehler('Kein <w:document>-Wurzelelement im gerenderten Dokument gefunden – ist die Datei eine gültige .docx-Vorlage?');
+  }
   const bodyMatch = dokumentXml.match(/<w:body>([\s\S]*)<\/w:body>/);
   if (!bodyMatch) {
     throw new WordExportFehler('Kein <w:body> im gerenderten Dokument gefunden – ist die Datei eine gültige .docx-Vorlage?');
   }
+  const wurzelOeffnendesTag = wurzelMatch[0];
   const bodyInhalt = bodyMatch[1];
   const startIndex = bodyInhalt.lastIndexOf('<w:sectPr');
   if (startIndex === -1) {
-    return { koerperOhneSectPr: bodyInhalt.trim(), sectPr: null };
+    return { koerperOhneSectPr: bodyInhalt.trim(), sectPr: null, wurzelOeffnendesTag };
   }
   const endeMarker = '</w:sectPr>';
   const endeIndex = bodyInhalt.indexOf(endeMarker, startIndex);
   if (endeIndex === -1) {
-    return { koerperOhneSectPr: bodyInhalt.slice(0, startIndex).trim(), sectPr: null };
+    return { koerperOhneSectPr: bodyInhalt.slice(0, startIndex).trim(), sectPr: null, wurzelOeffnendesTag };
   }
   const sectPr = bodyInhalt.slice(startIndex, endeIndex + endeMarker.length);
   const koerperOhneSectPr = (bodyInhalt.slice(0, startIndex) + bodyInhalt.slice(endeIndex + endeMarker.length)).trim();
-  return { koerperOhneSectPr, sectPr };
+  return { koerperOhneSectPr, sectPr, wurzelOeffnendesTag };
 }
 
 /**
@@ -119,22 +129,30 @@ export function baueSammeldokument(templateBuffer: ArrayBuffer, datenkontexte: R
 
   const koerperTeile: string[] = [];
   let sectPr: string | null = null;
+  let wurzelOeffnendesTag: string | null = null;
 
   datenkontexte.forEach((kontext, index) => {
     const dokumentXml = rendereEinzelDokumentXml(templateBuffer, kontext);
-    const { koerperOhneSectPr, sectPr: gefundenesSectPr } = trenneKoerperUndSectPr(dokumentXml);
+    const {
+      koerperOhneSectPr,
+      sectPr: gefundenesSectPr,
+      wurzelOeffnendesTag: gefundenesWurzelTag,
+    } = trenneKoerperUndSectPr(dokumentXml);
     koerperTeile.push(koerperOhneSectPr);
-    if (index === 0) sectPr = gefundenesSectPr;
+    if (index === 0) {
+      sectPr = gefundenesSectPr;
+      wurzelOeffnendesTag = gefundenesWurzelTag;
+    }
   });
 
-  if (!sectPr) {
+  if (!sectPr || !wurzelOeffnendesTag) {
     throw new WordExportFehler(
       'Die Vorlage enthält keine gültige Abschnitts-/Seiteneinrichtung (sectPr). Bitte eine reguläre, in Word gespeicherte .docx-Datei als Vorlage verwenden.',
     );
   }
 
   const zusammengefuegterKoerper = koerperTeile.join(`\n${erzeugeAbschnittswechsel(sectPr)}\n`);
-  const sammelDokumentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">\n  <w:body>\n    ${zusammengefuegterKoerper}\n    ${sectPr}\n  </w:body>\n</w:document>`;
+  const sammelDokumentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n${wurzelOeffnendesTag}\n  <w:body>\n    ${zusammengefuegterKoerper}\n    ${sectPr}\n  </w:body>\n</w:document>`;
 
   let ausgabeZip: PizZip;
   try {
