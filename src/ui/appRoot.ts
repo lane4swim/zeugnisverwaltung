@@ -23,12 +23,15 @@ export function erstelleAppRoot(): HTMLElement {
     'Alle Schülerdaten verbleiben ausschließlich in deinem Browser (IndexedDB). Es findet keine Übertragung an einen Server statt. Exportiere regelmäßig als JSON, um ein Backup zu haben.';
 
   const pwaBanner = erstellePwaBanner();
+  // Innerhalb des <header> (statt lose zwischen den Landmarks), damit jeglicher
+  // Seiteninhalt in einer Landmark-Region liegt (WCAG/axe-core Regel "region").
+  kopf.append(pwaBanner, hinweis);
 
   const inhalt = document.createElement('main');
   inhalt.id = 'hauptinhalt';
   inhalt.tabIndex = -1;
 
-  wurzel.append(uebersprungLink, kopf, pwaBanner, hinweis, inhalt);
+  wurzel.append(uebersprungLink, kopf, inhalt);
 
   let aktuelleAnsicht: 'start' | 'klasse' | null = null;
 
