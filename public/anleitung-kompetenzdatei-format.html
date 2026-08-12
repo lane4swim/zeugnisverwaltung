@@ -181,7 +181,7 @@ kompetenzdaten/4.2.json</code></pre>
       </thead>
       <tbody>
         <tr><td><code>id</code></td><td>Text, eindeutig innerhalb der Datei</td><td>Technischer Bezeichner, z. B. <code>"bem_hilfsbereit"</code>.</td></tr>
-        <tr><td><code>text</code></td><td>Text</td><td>Der auswählbare Bemerkungssatz (Platzhaltersyntax siehe unten), z. B. <code>"{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit."</code></td></tr>
+        <tr><td><code>text</code></td><td>Text</td><td>Der auswählbare Bemerkungssatz (Platzhaltersyntax siehe unten, inkl. optionaler Auswahlgruppen), z. B. <code>"{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit."</code> oder mit Auswahlgruppen <code>"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."</code></td></tr>
       </tbody>
     </table>
     <p>
@@ -214,6 +214,25 @@ kompetenzdaten/4.2.json</code></pre>
       Ausführliche Erläuterung der Pronomenlogik und der Platzhalter, die stattdessen in der
       Word-Vorlage selbst verwendet werden (<code>{{Bereich_…}}</code>, <code>{{Kompetenz_…}}</code>,
       <code>{{Bemerkungen}}</code>), siehe <a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a>.
+    </p>
+
+    <h3 id="auswahlgruppen">Auswahlgruppen in Bemerkungsbausteinen</h3>
+    <p>
+      Zusätzlich zu den obigen Platzhaltern kann der Text eines <strong>Bemerkungsbausteins</strong>
+      (nicht: <code>satzbausteine</code>) Auswahlgruppen enthalten, mit denen die Lehrkraft in der
+      App zwischen mehreren Textvarianten wählt. Die Syntax listet die Varianten getrennt durch
+      <code>|</code> innerhalb der geschweiften Klammern auf:
+    </p>
+    <pre><code>{Option A|Option B|Option C}</code></pre>
+    <p>
+      Beispiel: <code>"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."</code>
+      Eine <code>{…}</code>-Gruppe gilt genau dann als Auswahlgruppe, wenn ihr Inhalt mindestens
+      ein <code>|</code>-Zeichen enthält – ansonsten wird sie wie ein regulärer Platzhalter
+      behandelt, sodass sich beide Syntaxen wie im Beispiel beliebig mischen lassen. In der App
+      erscheint für jede Auswahlgruppe automatisch ein Dropdown, sobald der Baustein angehakt
+      wird; ohne bewusste Auswahl gilt die erste Option (siehe
+      <a href="anleitung-bemerkungen.html#auswahlgruppen">Bemerkungen: Unterschiedliche
+      Ausprägungen</a>).
     </p>
 
     <h2 id="vollstaendiges-beispiel">Vollständiges Beispiel</h2>

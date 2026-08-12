@@ -55,3 +55,62 @@ export function waehleBausteinIndex(anzahlBausteine: number, ausschluss: number 
   if (index >= ausschluss) index += 1;
   return index;
 }
+
+export interface Auswahlgruppe {
+  start: number;
+  ende: number;
+  optionen: string[];
+}
+
+/**
+ * Findet Auswahlgruppen der Form `{Option A|Option B|Option C}` in einem
+ * Bemerkungstext (spezifikation.md 3.6/5.3), z. B.
+ * `{schulisch|außerschulisch}`. Unterscheidet sich von einem regulären
+ * Platzhalter wie `{Vorname}` durch das Trennzeichen `|`, sodass beide
+ * Syntaxen im selben Text nebeneinander vorkommen können. Die
+ * zurückgegebene Reihenfolge entspricht der Fundstelle im Text.
+ */
+export function ermittleAuswahlgruppen(text: string): Auswahlgruppe[] {
+  const gruppen: Auswahlgruppe[] = [];
+  const regex = /\{([^{}]*)\}/g;
+  let treffer: RegExpExecArray | null;
+  while ((treffer = regex.exec(text))) {
+    const inhalt = treffer[1];
+    if (inhalt.includes('|')) {
+      gruppen.push({
+        start: treffer.index,
+        ende: treffer.index + treffer[0].length,
+        optionen: inhalt.split('|').map((option) => option.trim()),
+      });
+    }
+  }
+  return gruppen;
+}
+
+/**
+ * Löst Auswahlgruppen im Text anhand gewählter Options-Indizes auf (in
+ * Fundreihenfolge); reguläre Platzhalter wie `{Vorname}` bleiben
+ * unverändert stehen und werden separat über ersetzePlatzhalter ersetzt.
+ * Fehlt für eine Gruppe ein gewählter Index (z. B. noch keine bewusste
+ * Auswahl getroffen) oder liegt er außerhalb des gültigen Bereichs, gilt
+ * die jeweils erste Option als Voreinstellung.
+ */
+export function loeseAuswahlgruppenAuf(text: string, gewaehlteIndizes: number[] | undefined): string {
+  const gruppen = ermittleAuswahlgruppen(text);
+  if (gruppen.length === 0) return text;
+
+  let ergebnis = '';
+  let cursor = 0;
+  gruppen.forEach((gruppe, index) => {
+    ergebnis += text.slice(cursor, gruppe.start);
+    const gewaehlterIndex = gewaehlteIndizes?.[index];
+    const gueltigerIndex =
+      gewaehlterIndex !== undefined && gewaehlterIndex >= 0 && gewaehlterIndex < gruppe.optionen.length
+        ? gewaehlterIndex
+        : 0;
+    ergebnis += gruppe.optionen[gueltigerIndex];
+    cursor = gruppe.ende;
+  });
+  ergebnis += text.slice(cursor);
+  return ergebnis;
+}

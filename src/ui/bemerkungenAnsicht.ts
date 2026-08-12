@@ -1,7 +1,7 @@
 import { datensatzStore } from '../state/store';
 import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
-import type { Schueler } from '../types';
-import { ersetzePlatzhalter } from '../services/textgenerierung';
+import type { Bemerkungsbaustein, Schueler } from '../types';
+import { ermittleAuswahlgruppen, ersetzePlatzhalter, loeseAuswahlgruppenAuf } from '../services/textgenerierung';
 import { erzeugeBemerkungstext, erzeugeVollstaendigeBausteinListe, istFachNichtRelevantBemerkungsId } from '../services/bemerkungen';
 import { escapeHtml } from './bestaetigungsDialog';
 
@@ -24,6 +24,57 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
 
   function ausgewaehlteIds(): string[] {
     return datensatzStore.get()?.bemerkungen.find((b) => b.schuelerId === schuelerId)?.ausgewaehlteBemerkungen ?? [];
+  }
+
+  function auspraegungen(): Record<string, number[]> {
+    return datensatzStore.get()?.bemerkungen.find((b) => b.schuelerId === schuelerId)?.auspraegungen ?? {};
+  }
+
+  /**
+   * Baustein-Text inkl. aktuell gewählter (oder mangels Auswahl erster)
+   * Ausprägung aufgelöst, gefolgt von der regulären Platzhalter-Ersetzung
+   * (spezifikation.md 3.6).
+   */
+  function aufgeloesterText(baustein: Bemerkungsbaustein, schueler: Schueler): string {
+    const textMitAufgeloesterAuswahl = loeseAuswahlgruppenAuf(baustein.text, auspraegungen()[baustein.id]);
+    return ersetzePlatzhalter(textMitAufgeloesterAuswahl, schueler);
+  }
+
+  function bausteinHtml(baustein: Bemerkungsbaustein, schueler: Schueler, istAusgewaehlt: boolean): string {
+    const gruppen = ermittleAuswahlgruppen(baustein.text);
+    const gespeicherteIndizes = auspraegungen()[baustein.id] ?? [];
+    const auswahlHtml =
+      istAusgewaehlt && gruppen.length > 0
+        ? `<div class="bemerkung-auspraegungen">
+            ${gruppen
+              .map((gruppe, index) => {
+                const gewaehlterIndex = gespeicherteIndizes[index] ?? 0;
+                return `
+                  <label class="bemerkung-auspraegung">
+                    Auswahl ${index + 1}
+                    <select data-auspraegung-bemerkung-id="${escapeHtml(baustein.id)}" data-auspraegung-gruppen-index="${index}">
+                      ${gruppe.optionen
+                        .map(
+                          (option, optionsIndex) =>
+                            `<option value="${optionsIndex}" ${optionsIndex === gewaehlterIndex ? 'selected' : ''}>${escapeHtml(option)}</option>`,
+                        )
+                        .join('')}
+                    </select>
+                  </label>
+                `;
+              })
+              .join('')}
+          </div>`
+        : '';
+    return `
+      <div class="bemerkung-eintrag">
+        <label class="bemerkung-option">
+          <input type="checkbox" data-bemerkung-id="${escapeHtml(baustein.id)}" ${istAusgewaehlt ? 'checked' : ''} />
+          <span>${escapeHtml(aufgeloesterText(baustein, schueler))}</span>
+        </label>
+        ${auswahlHtml}
+      </div>
+    `;
   }
 
   function render(): void {
@@ -51,7 +102,7 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
       .map(
         (baustein) => `
           <li class="bemerkung-automatisch">
-            🔒 ${escapeHtml(ersetzePlatzhalter(baustein.text, schueler))}
+            🔒 ${escapeHtml(aufgeloesterText(baustein, schueler))}
             <span class="fach-bemerkung-hinweis"> (automatisch – Fach als „nicht relevant" markiert, siehe Bewertungsansicht)</span>
           </li>
         `,
@@ -63,7 +114,7 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
       return;
     }
 
-    const vorschauText = erzeugeBemerkungstext(alleAusgewaehlt, vollstaendigeBausteinliste, schueler);
+    const vorschauText = erzeugeBemerkungstext(alleAusgewaehlt, vollstaendigeBausteinliste, schueler, auspraegungen());
 
     inhalt.innerHTML = `
       <section class="karte">
@@ -74,16 +125,7 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
             : ''
         }
         <div class="bemerkungen-liste">
-          ${bausteine
-            .map(
-              (baustein) => `
-              <label class="bemerkung-option">
-                <input type="checkbox" data-bemerkung-id="${escapeHtml(baustein.id)}" ${ausgewaehlt.has(baustein.id) ? 'checked' : ''} />
-                <span>${escapeHtml(ersetzePlatzhalter(baustein.text, schueler))}</span>
-              </label>
-            `,
-            )
-            .join('')}
+          ${bausteine.map((baustein) => bausteinHtml(baustein, schueler, ausgewaehlt.has(baustein.id))).join('')}
         </div>
       </section>
       <section class="karte" aria-labelledby="bemerkungen-vorschau-titel">
@@ -105,6 +147,15 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
         // beim Neuschreiben der Auswahl erhalten bleiben (siehe 3.7) – nur
         // der Nicht-relevant-Toggle in der Bewertungsansicht steuert sie.
         await datensatzStore.setzeBemerkungen(schuelerId, [...regulaereAuswahl, ...automatischeIds]);
+      });
+    });
+
+    inhalt.querySelectorAll<HTMLSelectElement>('select[data-auspraegung-bemerkung-id]').forEach((auswahl) => {
+      auswahl.addEventListener('change', async () => {
+        const bausteinId = auswahl.dataset.auspraegungBemerkungId as string;
+        const gruppenIndex = Number(auswahl.dataset.auspraegungGruppenIndex);
+        const optionsIndex = Number(auswahl.value);
+        await datensatzStore.setzeBemerkungAuspraegung(schuelerId, bausteinId, gruppenIndex, optionsIndex);
       });
     });
   }

@@ -35,6 +35,15 @@ export interface Bewertungstext {
 export interface BemerkungEintrag {
   schuelerId: string;
   ausgewaehlteBemerkungen: string[];
+  /**
+   * Für Bemerkungsbausteine mit Auswahlgruppen (z. B.
+   * `"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in
+   * {Bronze|Silber|Gold}."`) die je Baustein-ID gewählten Options-Indizes,
+   * in der Reihenfolge der Auswahlgruppen im Text (siehe
+   * spezifikation.md 3.6). Fehlt ein Eintrag oder ein Index für eine
+   * Gruppe, gilt automatisch deren erste Option.
+   */
+  auspraegungen: Record<string, number[]>;
 }
 
 /**
@@ -147,12 +156,16 @@ export function erzeugeLeerenDatensatz(halbjahr: Halbjahr, klasse: KlasseInfo): 
 /**
  * Füllt bei aus IndexedDB geladenen oder importierten Datensätzen fehlende
  * Felder auf, die erst nach deren Erstellung eingeführt wurden (hier:
- * `nichtRelevanteAbschnitte`), damit ältere Backups weiterhin nutzbar
- * bleiben (Robustheit, spezifikation.md 7).
+ * `nichtRelevanteAbschnitte`, `BemerkungEintrag.auspraegungen`), damit
+ * ältere Backups weiterhin nutzbar bleiben (Robustheit, spezifikation.md 7).
  */
 export function normalisiereKlassendatensatz(datensatz: Klassendatensatz): Klassendatensatz {
   return {
     ...datensatz,
     nichtRelevanteAbschnitte: datensatz.nichtRelevanteAbschnitte ?? [],
+    bemerkungen: (datensatz.bemerkungen ?? []).map((eintrag) => ({
+      ...eintrag,
+      auspraegungen: eintrag.auspraegungen ?? {},
+    })),
   };
 }

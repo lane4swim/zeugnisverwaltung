@@ -68,6 +68,7 @@ export function erzeugeDatenkontext(
     bemerkungEintrag?.ausgewaehlteBemerkungen ?? [],
     erzeugeVollstaendigeBausteinListe(kompetenzdatei),
     schueler,
+    bemerkungEintrag?.auspraegungen ?? {},
   );
 
   return kontext;

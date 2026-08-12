@@ -192,9 +192,11 @@ Hinweise:
 ```json
 {
   "schuelerId": "uuid",
-  "ausgewaehlteBemerkungen": ["bem_hilfsbereit", "bem_konzentriert"]
+  "ausgewaehlteBemerkungen": ["bem_hilfsbereit", "bem_konzentriert"],
+  "auspraegungen": { "bem_schwimmabzeichen": [0, 2] }
 }
 ```
+- `auspraegungen`: Für Bemerkungsbausteine, deren Text Auswahlgruppen enthält (siehe 6.3, z. B. `"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."`), je Baustein-ID die gewählten Options-Indizes, in der Reihenfolge der Auswahlgruppen im Text (im Beispiel: Index 0 → „schulisch", Index 2 → „Gold"). Fehlt ein Eintrag oder ein Index für eine Gruppe, gilt automatisch deren erste Option. Bausteine ohne Auswahlgruppen benötigen keinen Eintrag.
 
 ### 3.7 Nicht relevante Fächer je Schüler (lokal)
 Vermerkt je Schüler:in, welche als `optional` markierten Fächer (siehe 3.3) für diese Person nicht zutreffen (z. B. Religion):
@@ -274,6 +276,7 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
 - Je Schüler: Liste aller Bemerkungsbausteine aus der (halbjahresspezifischen) Kompetenzdatei als Checkboxen.
 - Mehrfachauswahl möglich; ausgewählte Bausteine werden in der finalen Textzusammenstellung berücksichtigt (Reihenfolge editierbar oder fest nach Definitionsreihenfolge).
 - **Automatische Fach-Bemerkungen** (siehe 3.3, 3.7) erscheinen zusätzlich, aber schreibgeschützt (kein eigenes Ankreuzfeld) und deutlich als automatisch gekennzeichnet; sie fließen in dieser Form in die Textzusammenstellung mit ein. Ihre einzige Steuerung ist die Nicht-relevant-Markierung des zugehörigen Fachs in der Bewertungsansicht (5.2).
+- **Auswahlgruppen (unterschiedliche Ausprägungen):** Enthält der Text eines Bemerkungsbausteins Auswahlgruppen (Syntax `{Option A|Option B|…}`, siehe 6.3), z. B. `"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."`, blendet die Bemerkungenansicht bei angewähltem Baustein zusätzlich je Auswahlgruppe ein einfaches Auswahlfeld (Dropdown) mit den definierten Optionen ein. Die getroffene Auswahl wird sofort in der Vorschau sowie im späteren Word-Export berücksichtigt (siehe 3.6) und bleibt auch bei kurzzeitigem Ab-/Wiederanwählen des Bausteins erhalten. Ohne bewusste Auswahl gilt automatisch die jeweils erste Option, sodass der Text stets vollständig und ohne sichtbare Platzhalter bleibt.
 
 ### 5.4 Textgenerierungs-Engine
 - Ersetzt Platzhalter in Satzbausteinen anhand der Schülerdaten (siehe 6).
@@ -320,6 +323,20 @@ In der Word-Datei werden dieselben Bezeichner in doppelten geschweiften Klammern
 
 ### 6.2 Hinweis zur Pronomenlogik
 Da „Geschlecht divers" gemäß Vorgabe nicht berücksichtigt wird, basiert die Pronomenersetzung ausschließlich auf einer binären Zuordnung (`w`/`m`). Eine Erweiterung ist architektonisch möglich (zusätzliche Spalte in der Ersetzungstabelle, zusätzlicher Wert im `geschlecht`-Feld), ist aber **nicht** Teil des aktuellen Funktionsumfangs.
+
+### 6.3 Auswahlgruppen in Bemerkungsbausteinen
+Zusätzlich zu den benannten Platzhaltern aus 6.1 kann der Text eines **Bemerkungsbausteins** (nicht: Satzbausteine der Kompetenzstufen) sogenannte Auswahlgruppen enthalten, mit denen eine Lehrkraft zwischen mehreren Textvarianten wählt:
+
+```
+{Option A|Option B|Option C}
+```
+
+Beispiel: `"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."`
+
+- **Erkennung:** Eine `{…}`-Gruppe gilt als Auswahlgruppe, sobald ihr Inhalt mindestens ein `|`-Zeichen enthält; ansonsten wird sie wie ein regulärer Platzhalter aus 6.1 behandelt. Beide Syntaxen können im selben Bausteintext gemischt vorkommen, wie im Beispiel oben (`{Vorname}` als Platzhalter, `{schulisch|außerschulisch}` und `{Bronze|Silber|Gold}` als Auswahlgruppen).
+- **Reihenfolge:** Auswahlgruppen werden zuerst aufgelöst (reine Textersetzung anhand ihrer Position im Baustein), erst danach werden die verbleibenden benannten Platzhalter ersetzt.
+- **Bedienung:** Wird ein Bemerkungsbaustein mit Auswahlgruppen in der Bemerkungenansicht angewählt, erscheint je Auswahlgruppe ein Dropdown mit den definierten Optionen (siehe 5.3). Die Auswahl wird je Schüler:in und Baustein gespeichert (siehe 3.6) und in Vorschau sowie Word-Export berücksichtigt.
+- **Standardverhalten:** Ohne bewusste Auswahl – oder bei fehlerhaftem/veraltetem gespeicherten Index – gilt automatisch die erste Option der jeweiligen Gruppe, sodass der erzeugte Text stets vollständig ist und niemals unaufgelöste `{…|…}`-Syntax sichtbar wird.
 
 ---
 

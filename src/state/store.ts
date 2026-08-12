@@ -222,10 +222,45 @@ class DatensatzStore {
     await this.persistMitAenderung();
   }
 
-  /** Ersetzt die ausgewählten Bemerkungsbausteine eines Schülers (spezifikation.md 3.6/5.3). */
+  /**
+   * Ersetzt die ausgewählten Bemerkungsbausteine eines Schülers
+   * (spezifikation.md 3.6/5.3). Bereits getroffene Ausprägungs-Auswahlen
+   * (z. B. „Silber" statt „Bronze") bleiben dabei erhalten, auch wenn der
+   * betreffende Baustein kurzzeitig ab-/wieder angewählt wird.
+   */
   async setzeBemerkungen(schuelerId: string, ausgewaehlteBemerkungen: string[]): Promise<void> {
     if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
-    const neuerEintrag: BemerkungEintrag = { schuelerId, ausgewaehlteBemerkungen };
+    const bisherigeAuspraegungen = this.aktuell.bemerkungen.find((b) => b.schuelerId === schuelerId)?.auspraegungen ?? {};
+    const neuerEintrag: BemerkungEintrag = { schuelerId, ausgewaehlteBemerkungen, auspraegungen: bisherigeAuspraegungen };
+    this.aktuell = {
+      ...this.aktuell,
+      bemerkungen: [...this.aktuell.bemerkungen.filter((b) => b.schuelerId !== schuelerId), neuerEintrag],
+    };
+    await this.persistMitAenderung();
+  }
+
+  /**
+   * Setzt die gewählte Ausprägung (Options-Index) einer Auswahlgruppe
+   * innerhalb eines Bemerkungsbausteins, z. B. „Gold" statt „Bronze" bei
+   * `{Bronze|Silber|Gold}` (spezifikation.md 3.6/5.3).
+   */
+  async setzeBemerkungAuspraegung(
+    schuelerId: string,
+    bausteinId: string,
+    gruppenIndex: number,
+    optionsIndex: number,
+  ): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    const bestehenderEintrag = this.aktuell.bemerkungen.find((b) => b.schuelerId === schuelerId);
+    const ausgewaehlteBemerkungen = bestehenderEintrag?.ausgewaehlteBemerkungen ?? [];
+    const bisherigeAuspraegungen = bestehenderEintrag?.auspraegungen ?? {};
+    const neueIndizes = [...(bisherigeAuspraegungen[bausteinId] ?? [])];
+    neueIndizes[gruppenIndex] = optionsIndex;
+    const neuerEintrag: BemerkungEintrag = {
+      schuelerId,
+      ausgewaehlteBemerkungen,
+      auspraegungen: { ...bisherigeAuspraegungen, [bausteinId]: neueIndizes },
+    };
     this.aktuell = {
       ...this.aktuell,
       bemerkungen: [...this.aktuell.bemerkungen.filter((b) => b.schuelerId !== schuelerId), neuerEintrag],
@@ -266,7 +301,9 @@ class DatensatzStore {
     let bemerkungen = this.aktuell.bemerkungen;
     if (hatAutomatischeBemerkung) {
       const syntheseId = fachNichtRelevantBemerkungsId(abschnittId);
-      const bisherigeBemerkungen = bemerkungen.find((b) => b.schuelerId === schuelerId)?.ausgewaehlteBemerkungen ?? [];
+      const bestehenderEintrag = bemerkungen.find((b) => b.schuelerId === schuelerId);
+      const bisherigeBemerkungen = bestehenderEintrag?.ausgewaehlteBemerkungen ?? [];
+      const bisherigeAuspraegungen = bestehenderEintrag?.auspraegungen ?? {};
       const neueBemerkungen = nichtRelevant
         ? bisherigeBemerkungen.includes(syntheseId)
           ? bisherigeBemerkungen
@@ -274,7 +311,7 @@ class DatensatzStore {
         : bisherigeBemerkungen.filter((id) => id !== syntheseId);
       bemerkungen = [
         ...bemerkungen.filter((b) => b.schuelerId !== schuelerId),
-        { schuelerId, ausgewaehlteBemerkungen: neueBemerkungen },
+        { schuelerId, ausgewaehlteBemerkungen: neueBemerkungen, auspraegungen: bisherigeAuspraegungen },
       ];
     }
 

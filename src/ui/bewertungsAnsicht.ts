@@ -2,7 +2,7 @@ import { datensatzStore } from '../state/store';
 import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
 import type { Abschnitt, Bereich, Bewertung, Bewertungstext, Kompetenz, KompetenzDatei, Schueler } from '../types';
 import { findeKompetenz } from '../utils/kompetenzstruktur';
-import { ersetzePlatzhalter, waehleBausteinIndex } from '../services/textgenerierung';
+import { ersetzePlatzhalter, loeseAuswahlgruppenAuf, waehleBausteinIndex } from '../services/textgenerierung';
 import { berechneDurchschnitt, berechneMedian, formatiereStufenwert } from '../services/statistik';
 import { erzeugeAbschnittGesamttext } from '../services/wordExport';
 import { erstelleSkalaHtml, type SkalaMarker } from './vergleichsSkala';
@@ -239,7 +239,7 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
     const schuelerFuerVorschau = aktuellerSchueler();
     const bemerkungsHinweisHtml =
       nichtRelevant && automatischeBemerkung && schuelerFuerVorschau
-        ? `<p class="fach-bemerkung-hinweis">📝 Automatisch in die Bemerkungen übernommen: „${escapeHtml(ersetzePlatzhalter(automatischeBemerkung, schuelerFuerVorschau))}"</p>`
+        ? `<p class="fach-bemerkung-hinweis">📝 Automatisch in die Bemerkungen übernommen: „${escapeHtml(ersetzePlatzhalter(loeseAuswahlgruppenAuf(automatischeBemerkung, undefined), schuelerFuerVorschau))}"</p>`
         : '';
     const inhaltHtml = nichtRelevant
       ? `<p class="leerzustand">Als nicht relevant markiert – für dieses Fach ist bei dieser Person keine Bewertung möglich und es fließt nicht in die Vollständigkeitsprüfung ein.</p>${bemerkungsHinweisHtml}`

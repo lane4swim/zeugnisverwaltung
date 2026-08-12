@@ -1,5 +1,5 @@
 import type { Bemerkungsbaustein, KompetenzDatei, Schueler } from '../types';
-import { ersetzePlatzhalter } from './textgenerierung';
+import { ersetzePlatzhalter, loeseAuswahlgruppenAuf } from './textgenerierung';
 
 /**
  * Führt die ausgewählten Bemerkungsbausteine zu einem Text zusammen
@@ -7,16 +7,25 @@ import { ersetzePlatzhalter } from './textgenerierung';
  * folgt bewusst fest der Definitionsreihenfolge in der Kompetenzdatei
  * (spezifikation.md 5.3 nennt dies als zulässige Alternative zu einer frei
  * editierbaren Reihenfolge), unbekannte/veraltete IDs werden ignoriert.
+ * Enthält ein Baustein Auswahlgruppen (z. B. `{Bronze|Silber|Gold}`, siehe
+ * 3.6), werden diese anhand der je Person/Baustein gewählten
+ * `auspraegungen` aufgelöst (fehlt eine Auswahl, gilt die erste Option) –
+ * dies gilt gleichermaßen für regulär ausgewählte wie für automatische
+ * Fach-Bemerkungen (3.7), da beide über dieselbe Baustein-Liste laufen.
  */
 export function erzeugeBemerkungstext(
   ausgewaehlteIds: string[],
   alleBausteine: Bemerkungsbaustein[],
   schueler: Schueler,
+  auspraegungen: Record<string, number[]> = {},
 ): string {
   const ausgewaehlt = new Set(ausgewaehlteIds);
   return alleBausteine
     .filter((baustein) => ausgewaehlt.has(baustein.id))
-    .map((baustein) => ersetzePlatzhalter(baustein.text, schueler))
+    .map((baustein) => {
+      const textMitAufgeloesterAuswahl = loeseAuswahlgruppenAuf(baustein.text, auspraegungen[baustein.id]);
+      return ersetzePlatzhalter(textMitAufgeloesterAuswahl, schueler);
+    })
     .join(' ');
 }
 

@@ -526,6 +526,33 @@ fieldset.kompetenz-block legend {
   margin-top: 0.25rem;
 }
 
+.bemerkung-eintrag {
+  padding-bottom: 0.2rem;
+}
+
+.bemerkung-auspraegungen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.4rem 0 0 1.6rem;
+}
+
+.bemerkung-auspraegung {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.bemerkung-auspraegung select {
+  font: inherit;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--farbe-rand);
+  border-radius: 4px;
+  background: #fff;
+}
+
 .ampel {
   display: inline-flex;
   align-items: center;

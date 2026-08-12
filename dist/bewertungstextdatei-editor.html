@@ -596,7 +596,8 @@
         '<button type="button" class="knopf gefahr klein" data-aktion="bemerkung-loeschen" data-key="' + baustein._key + '">✕ Entfernen</button>';
       var inhalt =
         '<div class="editor-formularzeile"><label for="id-' + baustein._key + '">ID</label><input type="text" id="id-' + baustein._key + '" data-feld="id" data-bemerkung-key="' + baustein._key + '" value="' + escapeHtml(baustein.id) + '" placeholder="z. B. bem_hilfsbereit" /></div>' +
-        '<div class="editor-formularzeile"><label for="' + feldId + '">Text</label><textarea id="' + feldId + '" data-feld="text" data-bemerkung-key="' + baustein._key + '" rows="2" placeholder="{Vorname} …">' + escapeHtml(baustein.text) + '</textarea>' + platzhalterLeisteHtml('#' + feldId) + '</div>';
+        '<div class="editor-formularzeile"><label for="' + feldId + '">Text</label><textarea id="' + feldId + '" data-feld="text" data-bemerkung-key="' + baustein._key + '" rows="2" placeholder="{Vorname} …">' + escapeHtml(baustein.text) + '</textarea>' + platzhalterLeisteHtml('#' + feldId) +
+        '<p class="editor-hinweistext">Tipp: Für unterschiedliche Ausprägungen mehrere Varianten durch „|" getrennt in geschweifte Klammern setzen, z. B. <code>{Bronze|Silber|Gold}</code> – die Lehrkraft erhält dann in der App ein Auswahlfeld.</p></div>';
       return eintragHtml(baustein._key, titel, aktionen, inhalt);
     }
 

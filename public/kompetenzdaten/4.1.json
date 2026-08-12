@@ -92,6 +92,7 @@
   ],
   "bemerkungsbausteine": [
     { "id": "bem_hilfsbereit", "text": "{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit." },
-    { "id": "bem_konzentriert", "text": "{Vorname} arbeitet konzentriert und ausdauernd." }
+    { "id": "bem_konzentriert", "text": "{Vorname} arbeitet konzentriert und ausdauernd." },
+    { "id": "bem_schwimmabzeichen", "text": "{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}." }
   ]
 }
