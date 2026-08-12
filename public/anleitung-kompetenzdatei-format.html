@@ -169,7 +169,7 @@ kompetenzdaten/4.2.json</code></pre>
       <tbody>
         <tr><td><code>stufe</code></td><td>Zahl</td><td>Fortlaufende Nummer beginnend bei 1, z. B. <code>1</code>, <code>2</code>, <code>3</code>. Bestimmt die Reihenfolge in der Bewertungsansicht sowie in Vergleichs-/Statistikanzeigen.</td></tr>
         <tr><td><code>bezeichnung</code></td><td>Text</td><td>Kurzbezeichnung der Stufe, z. B. <code>"beginnend"</code>, <code>"grundlegend"</code>, <code>"sicher"</code>, <code>"vertieft"</code>.</td></tr>
-        <tr><td><code>satzbausteine</code></td><td>Liste von Texten, mind. 1 Eintrag</td><td>Ein oder mehrere alternative Formulierungen für diese Stufe (Platzhaltersyntax siehe unten). Bei mehreren Alternativen wählt die App bei Erstbewertung zufällig eine aus; über „Neu würfeln" lässt sich erneut zufällig ziehen (siehe <a href="anleitung-bewertung.html#stufenauswahl">Stufe auswählen</a>).</td></tr>
+        <tr><td><code>satzbausteine</code></td><td>Liste von Texten, mind. 1 Eintrag</td><td>Ein oder mehrere alternative Formulierungen für diese Stufe (Platzhaltersyntax siehe unten, inkl. optionaler Auswahlgruppen). Bei mehreren Alternativen wählt die App bei Erstbewertung zufällig eine aus; über „Neu würfeln" lässt sich erneut zufällig ziehen (siehe <a href="anleitung-bewertung.html#stufenauswahl">Stufe auswählen</a>).</td></tr>
       </tbody>
     </table>
 
@@ -216,23 +216,32 @@ kompetenzdaten/4.2.json</code></pre>
       <code>{{Bemerkungen}}</code>), siehe <a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a>.
     </p>
 
-    <h3 id="auswahlgruppen">Auswahlgruppen in Bemerkungsbausteinen</h3>
+    <h3 id="auswahlgruppen">Auswahlgruppen in Bemerkungs- und Satzbausteinen</h3>
     <p>
       Zusätzlich zu den obigen Platzhaltern kann der Text eines <strong>Bemerkungsbausteins</strong>
-      (nicht: <code>satzbausteine</code>) Auswahlgruppen enthalten, mit denen die Lehrkraft in der
-      App zwischen mehreren Textvarianten wählt. Die Syntax listet die Varianten getrennt durch
-      <code>|</code> innerhalb der geschweiften Klammern auf:
+      oder eines <strong>Satzbausteins</strong> (<code>satzbausteine</code>) Auswahlgruppen
+      enthalten, mit denen die Lehrkraft in der App zwischen mehreren Textvarianten wählt. Die
+      Syntax listet die Varianten getrennt durch <code>|</code> innerhalb der geschweiften Klammern
+      auf:
     </p>
     <pre><code>{Option A|Option B|Option C}</code></pre>
     <p>
-      Beispiel: <code>"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."</code>
+      Beispiel Bemerkungsbaustein: <code>"{Vorname} erwarb {schulisch|außerschulisch} das
+      Schwimmabzeichen in {Bronze|Silber|Gold}."</code><br />
+      Beispiel Satzbaustein: <code>"{Vorname} erfasst den Inhalt altersgemäßer Texte {weitgehend
+      sicher|sicher|sehr sicher}."</code>
+    </p>
+    <p>
       Eine <code>{…}</code>-Gruppe gilt genau dann als Auswahlgruppe, wenn ihr Inhalt mindestens
       ein <code>|</code>-Zeichen enthält – ansonsten wird sie wie ein regulärer Platzhalter
-      behandelt, sodass sich beide Syntaxen wie im Beispiel beliebig mischen lassen. In der App
-      erscheint für jede Auswahlgruppe automatisch ein Dropdown, sobald der Baustein angehakt
-      wird; ohne bewusste Auswahl gilt die erste Option (siehe
+      behandelt, sodass sich beide Syntaxen wie im ersten Beispiel beliebig mischen lassen. In der
+      App erscheint für jede Auswahlgruppe automatisch ein Dropdown – bei Bemerkungsbausteinen,
+      sobald der Baustein angehakt wird (siehe
       <a href="anleitung-bemerkungen.html#auswahlgruppen">Bemerkungen: Unterschiedliche
-      Ausprägungen</a>).
+      Ausprägungen</a>), bei Satzbausteinen, sobald der jeweilige Baustein durch Stufenauswahl oder
+      „Neu würfeln" aktiv ist (siehe
+      <a href="anleitung-bewertung.html#auswahlgruppen">Bewerten: Unterschiedliche
+      Ausprägungen</a>). Ohne bewusste Auswahl gilt jeweils die erste Option.
     </p>
 
     <h2 id="vollstaendiges-beispiel">Vollständiges Beispiel</h2>

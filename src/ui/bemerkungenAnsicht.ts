@@ -45,12 +45,12 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
     const gespeicherteIndizes = auspraegungen()[baustein.id] ?? [];
     const auswahlHtml =
       istAusgewaehlt && gruppen.length > 0
-        ? `<div class="bemerkung-auspraegungen">
+        ? `<div class="auspraegungen-liste">
             ${gruppen
               .map((gruppe, index) => {
                 const gewaehlterIndex = gespeicherteIndizes[index] ?? 0;
                 return `
-                  <label class="bemerkung-auspraegung">
+                  <label class="auspraegung-feld">
                     Auswahl ${index + 1}
                     <select data-auspraegung-bemerkung-id="${escapeHtml(baustein.id)}" data-auspraegung-gruppen-index="${index}">
                       ${gruppe.optionen

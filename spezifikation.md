@@ -170,9 +170,11 @@ Hinweise:
   "kompetenzId": "lesen_sinnentnehmend",
   "stufe": 2,
   "bewertetAm": "2026-06-10T10:00:00",
-  "gewaehlterBausteinIndex": 0
+  "gewaehlterBausteinIndex": 0,
+  "auspraegungen": [2]
 }
 ```
+- `auspraegungen`: Enthält der Text des per `gewaehlterBausteinIndex` referenzierten Satzbausteins Auswahlgruppen (siehe 6.3, z. B. `"{Vorname} erfasst den Inhalt altersgemäßer Texte {weitgehend sicher|sicher|sehr sicher}."`), die je Auswahlgruppe gewählten Options-Indizes, in der Reihenfolge der Auswahlgruppen im Text (im Beispiel: Index 2 → „sehr sicher"). Fehlt ein Index für eine Gruppe, gilt automatisch deren erste Option. Satzbausteine ohne Auswahlgruppen benötigen ein leeres Array. Da sich `gewaehlterBausteinIndex` bei „Neu würfeln" oder einer neuen Stufenauswahl ändert, wird `auspraegungen` in diesen Fällen zurückgesetzt (siehe 6.3).
 
 ### 3.5 Bewertungstext je Schüler je Kompetenz/Bereich (lokal)
 ```json
@@ -269,6 +271,7 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
   - Einblendbarer **Klassenmedian** und **Klassendurchschnitt** je Kompetenz (numerisch über die Stufennummern berechnet; Durchschnitt ggf. gerundet/mit Dezimalstelle, Median als tatsächlich vorkommende oder mittlere Stufe ausgewiesen).
   - Darstellung z. B. als kleine Balken-/Skalenanzeige neben der eigenen Bewertung.
 - Anzeige des generierten Bewertungstexts in Echtzeit bei Stufenauswahl.
+- **Auswahlgruppen (unterschiedliche Ausprägungen):** Enthält der aktuell gewählte Satzbaustein einer Kompetenz Auswahlgruppen (Syntax `{Option A|Option B|…}`, siehe 6.3), z. B. `"{Vorname} erfasst den Inhalt altersgemäßer Texte {weitgehend sicher|sicher|sehr sicher}."`, blendet die Bewertungsansicht unterhalb des generierten Textes zusätzlich je Auswahlgruppe ein einfaches Auswahlfeld (Dropdown) mit den definierten Optionen ein. Die getroffene Auswahl wirkt sich sofort auf den angezeigten Text sowie den späteren Word-Export aus (siehe 3.4). Da ein anderer Baustein (z. B. durch „Neu würfeln" oder eine neue Stufenauswahl) andere oder keine Auswahlgruppen enthalten kann, werden getroffene Ausprägungen dabei verworfen; „Zurücksetzen" ändert den gewählten Baustein hingegen nicht und erhält sie deshalb. Solange der Text manuell gesperrt ist (siehe unten), werden keine Auswahlfelder angeboten.
 - **Gesamttextvorschau je Fach:** Je Abschnitt (Fach) lässt sich eine Vorschau des zusammengeführten Gesamttextes ein-/ausblenden (standardmäßig eingeklappt), der sich aus allen Bereichstexten dieses Fachs in Definitionsreihenfolge zusammensetzt – identisch zu dem Text, der entstünde, würden in der Word-Vorlage alle `{{Bereich_*}}`-Platzhalter dieses Fachs hintereinander verwendet (siehe 6.1). So lässt sich der spätere Zeugnistext eines Fachs bereits vor dem Word-Export im Zusammenhang lesen und prüfen, ohne die Einzeltexte je Kompetenz mental zusammensetzen zu müssen. Für als „nicht relevant" markierte optionale Fächer (siehe 3.7) entfällt die Vorschau, da dort keine Bewertung erfolgt.
 - Sperr-/Entsperrmechanismus gemäß 3.5.
 
@@ -324,18 +327,20 @@ In der Word-Datei werden dieselben Bezeichner in doppelten geschweiften Klammern
 ### 6.2 Hinweis zur Pronomenlogik
 Da „Geschlecht divers" gemäß Vorgabe nicht berücksichtigt wird, basiert die Pronomenersetzung ausschließlich auf einer binären Zuordnung (`w`/`m`). Eine Erweiterung ist architektonisch möglich (zusätzliche Spalte in der Ersetzungstabelle, zusätzlicher Wert im `geschlecht`-Feld), ist aber **nicht** Teil des aktuellen Funktionsumfangs.
 
-### 6.3 Auswahlgruppen in Bemerkungsbausteinen
-Zusätzlich zu den benannten Platzhaltern aus 6.1 kann der Text eines **Bemerkungsbausteins** (nicht: Satzbausteine der Kompetenzstufen) sogenannte Auswahlgruppen enthalten, mit denen eine Lehrkraft zwischen mehreren Textvarianten wählt:
+### 6.3 Auswahlgruppen in Bemerkungs- und Satzbausteinen
+Zusätzlich zu den benannten Platzhaltern aus 6.1 kann der Text eines **Bemerkungsbausteins** (3.3) oder eines **Satzbausteins** einer Kompetenzstufe (3.3) sogenannte Auswahlgruppen enthalten, mit denen eine Lehrkraft zwischen mehreren Textvarianten wählt:
 
 ```
 {Option A|Option B|Option C}
 ```
 
-Beispiel: `"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."`
+Beispiel Bemerkungsbaustein: `"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."`
+Beispiel Satzbaustein: `"{Vorname} erfasst den Inhalt altersgemäßer Texte {weitgehend sicher|sicher|sehr sicher}."`
 
-- **Erkennung:** Eine `{…}`-Gruppe gilt als Auswahlgruppe, sobald ihr Inhalt mindestens ein `|`-Zeichen enthält; ansonsten wird sie wie ein regulärer Platzhalter aus 6.1 behandelt. Beide Syntaxen können im selben Bausteintext gemischt vorkommen, wie im Beispiel oben (`{Vorname}` als Platzhalter, `{schulisch|außerschulisch}` und `{Bronze|Silber|Gold}` als Auswahlgruppen).
+- **Erkennung:** Eine `{…}`-Gruppe gilt als Auswahlgruppe, sobald ihr Inhalt mindestens ein `|`-Zeichen enthält; ansonsten wird sie wie ein regulärer Platzhalter aus 6.1 behandelt. Beide Syntaxen können im selben Bausteintext gemischt vorkommen, wie im ersten Beispiel oben (`{Vorname}` als Platzhalter, `{schulisch|außerschulisch}` und `{Bronze|Silber|Gold}` als Auswahlgruppen).
 - **Reihenfolge:** Auswahlgruppen werden zuerst aufgelöst (reine Textersetzung anhand ihrer Position im Baustein), erst danach werden die verbleibenden benannten Platzhalter ersetzt.
-- **Bedienung:** Wird ein Bemerkungsbaustein mit Auswahlgruppen in der Bemerkungenansicht angewählt, erscheint je Auswahlgruppe ein Dropdown mit den definierten Optionen (siehe 5.3). Die Auswahl wird je Schüler:in und Baustein gespeichert (siehe 3.6) und in Vorschau sowie Word-Export berücksichtigt.
+- **Bedienung bei Bemerkungsbausteinen:** Wird ein Bemerkungsbaustein mit Auswahlgruppen in der Bemerkungenansicht angewählt, erscheint je Auswahlgruppe ein Dropdown mit den definierten Optionen (siehe 5.3). Die Auswahl wird je Schüler:in und Baustein gespeichert (siehe 3.6) und in Vorschau sowie Word-Export berücksichtigt.
+- **Bedienung bei Satzbausteinen:** Enthält der aktuell gewählte Satzbaustein einer Kompetenzstufe Auswahlgruppen, erscheint in der Bewertungsansicht unterhalb des generierten Textes je Auswahlgruppe ein Dropdown (siehe 5.2/5.4). Die Auswahl wird je Schüler:in und Kompetenz gespeichert (siehe 3.4) und wirkt sich sofort auf den angezeigten sowie später exportierten Text aus. Da sich ein Satzbaustein bei „Neu würfeln" oder einer neuen Stufenauswahl ändern kann, beziehen sich gespeicherte Ausprägungen stets auf den aktuell gewählten Baustein und werden bei dessen Wechsel verworfen; „Zurücksetzen" (3.5) hingegen ändert den gewählten Baustein nicht und erhält daher bereits getroffene Ausprägungen. Ist der Text manuell bearbeitet und damit gesperrt (3.5), werden keine Auswahlfelder mehr angeboten, da der Text dann nicht mehr aus dem Baustein hergeleitet wird.
 - **Standardverhalten:** Ohne bewusste Auswahl – oder bei fehlerhaftem/veraltetem gespeicherten Index – gilt automatisch die erste Option der jeweiligen Gruppe, sodass der erzeugte Text stets vollständig ist und niemals unaufgelöste `{…|…}`-Syntax sichtbar wird.
 
 ---

@@ -22,6 +22,17 @@ export interface Bewertung {
   stufe: number;
   bewertetAm: string; // ISO-Zeitstempel
   gewaehlterBausteinIndex: number;
+  /**
+   * Für Satzbausteine, deren Text Auswahlgruppen enthält (siehe 6.3, z. B.
+   * `"{Vorname} löst Kopfrechenaufgaben {weitgehend sicher|sicher|sehr
+   * sicher}."`), die je Auswahlgruppe gewählten Options-Indizes, in der
+   * Reihenfolge der Auswahlgruppen im Text des aktuell gewählten Bausteins
+   * (`gewaehlterBausteinIndex`). Fehlt ein Index für eine Gruppe, gilt
+   * automatisch deren erste Option. Wird bei „Neu würfeln" oder einer neuen
+   * Stufenauswahl verworfen, da sich dabei der referenzierte Baustein
+   * ändert (siehe 3.5).
+   */
+  auspraegungen: number[];
 }
 
 export interface Bewertungstext {
@@ -156,13 +167,18 @@ export function erzeugeLeerenDatensatz(halbjahr: Halbjahr, klasse: KlasseInfo): 
 /**
  * Füllt bei aus IndexedDB geladenen oder importierten Datensätzen fehlende
  * Felder auf, die erst nach deren Erstellung eingeführt wurden (hier:
- * `nichtRelevanteAbschnitte`, `BemerkungEintrag.auspraegungen`), damit
- * ältere Backups weiterhin nutzbar bleiben (Robustheit, spezifikation.md 7).
+ * `nichtRelevanteAbschnitte`, `BemerkungEintrag.auspraegungen`,
+ * `Bewertung.auspraegungen`), damit ältere Backups weiterhin nutzbar
+ * bleiben (Robustheit, spezifikation.md 7).
  */
 export function normalisiereKlassendatensatz(datensatz: Klassendatensatz): Klassendatensatz {
   return {
     ...datensatz,
     nichtRelevanteAbschnitte: datensatz.nichtRelevanteAbschnitte ?? [],
+    bewertungen: (datensatz.bewertungen ?? []).map((bewertung) => ({
+      ...bewertung,
+      auspraegungen: bewertung.auspraegungen ?? [],
+    })),
     bemerkungen: (datensatz.bemerkungen ?? []).map((eintrag) => ({
       ...eintrag,
       auspraegungen: eintrag.auspraegungen ?? {},

@@ -530,14 +530,18 @@ fieldset.kompetenz-block legend {
   padding-bottom: 0.2rem;
 }
 
-.bemerkung-auspraegungen {
+.auspraegungen-liste {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   margin: 0.4rem 0 0 1.6rem;
 }
 
-.bemerkung-auspraegung {
+.bewertungstext-block .auspraegungen-liste {
+  margin-left: 0;
+}
+
+.auspraegung-feld {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -545,7 +549,7 @@ fieldset.kompetenz-block legend {
   color: #444;
 }
 
-.bemerkung-auspraegung select {
+.auspraegung-feld select {
   font: inherit;
   padding: 0.2rem 0.4rem;
   border: 1px solid var(--farbe-rand);

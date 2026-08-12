@@ -471,6 +471,7 @@
         '<input type="text" id="bez-' + stufe._key + '" data-feld="bezeichnung" data-stufe-key="' + stufe._key + '" value="' + escapeHtml(stufe.bezeichnung) + '" placeholder="z. B. beginnend, grundlegend, sicher" />' +
         '</div>' +
         '<div class="editor-formularzeile"><label>Satzbausteine <span class="editor-hinweistext">(bei mehreren wird zufällig einer gewählt)</span></label>' +
+        '<p class="editor-hinweistext">Tipp: Für unterschiedliche Ausprägungen mehrere Varianten durch „|" getrennt in geschweifte Klammern setzen, z. B. <code>{weitgehend sicher|sicher|sehr sicher}</code> – die Lehrkraft erhält dann in der App ein Auswahlfeld.</p>' +
         stufe.satzbausteine.map(function (baustein, bi) {
           var feldId = 'baustein-' + stufe._key + '-' + bi;
           return (

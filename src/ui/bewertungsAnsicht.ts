@@ -2,7 +2,7 @@ import { datensatzStore } from '../state/store';
 import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
 import type { Abschnitt, Bereich, Bewertung, Bewertungstext, Kompetenz, KompetenzDatei, Schueler } from '../types';
 import { findeKompetenz } from '../utils/kompetenzstruktur';
-import { ersetzePlatzhalter, loeseAuswahlgruppenAuf, waehleBausteinIndex } from '../services/textgenerierung';
+import { ermittleAuswahlgruppen, ersetzePlatzhalter, loeseAuswahlgruppenAuf, waehleBausteinIndex } from '../services/textgenerierung';
 import { berechneDurchschnitt, berechneMedian, formatiereStufenwert } from '../services/statistik';
 import { erzeugeAbschnittGesamttext } from '../services/wordExport';
 import { erstelleSkalaHtml, type SkalaMarker } from './vergleichsSkala';
@@ -163,6 +163,35 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
       const aktuelleStufe = kompetenz.stufen.find((s) => s.stufe === bewertung.stufe);
       const anzahlBausteine = aktuelleStufe?.satzbausteine.length ?? 0;
       const anzeigeText = text?.manuellerText ?? text?.generierterText ?? '';
+      // Auswahlgruppen (spezifikation.md 6.3) nur anbieten, solange der Text
+      // nicht manuell gesperrt ist – ein gesperrter Text ist bewusst vom
+      // ursprünglichen Baustein losgelöst und wird nicht mehr aus ihm
+      // hergeleitet.
+      const rohSatzbaustein = aktuelleStufe?.satzbausteine[bewertung.gewaehlterBausteinIndex] ?? '';
+      const gruppen = !gesperrt ? ermittleAuswahlgruppen(rohSatzbaustein) : [];
+      const auswahlHtml =
+        gruppen.length > 0
+          ? `<div class="auspraegungen-liste">
+              ${gruppen
+                .map((gruppe, index) => {
+                  const gewaehlterIndex = bewertung.auspraegungen[index] ?? 0;
+                  return `
+                    <label class="auspraegung-feld">
+                      Auswahl ${index + 1}
+                      <select data-satzbaustein-auspraegung-kompetenz-id="${escapeHtml(kompetenz.id)}" data-satzbaustein-auspraegung-gruppen-index="${index}">
+                        ${gruppe.optionen
+                          .map(
+                            (option, optionsIndex) =>
+                              `<option value="${optionsIndex}" ${optionsIndex === gewaehlterIndex ? 'selected' : ''}>${escapeHtml(option)}</option>`,
+                          )
+                          .join('')}
+                      </select>
+                    </label>
+                  `;
+                })
+                .join('')}
+            </div>`
+          : '';
       textBereichHtml = `
         <div class="bewertungstext-block">
           <label class="sr-only" for="text-${escapeHtml(kompetenz.id)}">Zeugnistext für ${escapeHtml(kompetenz.titel)}</label>
@@ -176,6 +205,7 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
             }
             ${gesperrt ? `<button type="button" class="sekundaer" data-zuruecksetzen="${escapeHtml(kompetenz.id)}">Zurücksetzen</button>` : ''}
           </div>
+          ${auswahlHtml}
         </div>
       `;
     }
@@ -307,8 +337,11 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
         const aktuellerSchuelerWert = aktuellerSchueler();
         if (!stufenDefinition || !aktuellerSchuelerWert) return;
         const index = waehleBausteinIndex(stufenDefinition.satzbausteine.length);
-        const text = ersetzePlatzhalter(stufenDefinition.satzbausteine[index], aktuellerSchuelerWert);
-        await datensatzStore.setzeBewertungMitGeneriertemText(schuelerId, kompetenzId, stufe, index, text);
+        // Neue Stufenauswahl ⇒ neuer (zufälliger) Baustein, daher werden
+        // etwaige Auswahlgruppen-Ausprägungen des vorigen Bausteins verworfen
+        // (spezifikation.md 3.4).
+        const text = ersetzePlatzhalter(loeseAuswahlgruppenAuf(stufenDefinition.satzbausteine[index], undefined), aktuellerSchuelerWert);
+        await datensatzStore.setzeBewertungMitGeneriertemText(schuelerId, kompetenzId, stufe, index, text, []);
       });
     });
 
@@ -321,8 +354,11 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
         const stufenDefinition = kompetenz?.stufen.find((s) => s.stufe === bewertung?.stufe);
         if (!kompetenz || !bewertung || !stufenDefinition || !aktuellerSchuelerWert) return;
         const index = waehleBausteinIndex(stufenDefinition.satzbausteine.length, bewertung.gewaehlterBausteinIndex);
-        const text = ersetzePlatzhalter(stufenDefinition.satzbausteine[index], aktuellerSchuelerWert);
-        await datensatzStore.setzeBewertungMitGeneriertemText(schuelerId, kompetenzId, bewertung.stufe, index, text);
+        // Neu gewürfelter Baustein ⇒ Auswahlgruppen-Ausprägungen des vorigen
+        // Bausteins werden verworfen, da sie sich auf einen anderen Text
+        // beziehen können.
+        const text = ersetzePlatzhalter(loeseAuswahlgruppenAuf(stufenDefinition.satzbausteine[index], undefined), aktuellerSchuelerWert);
+        await datensatzStore.setzeBewertungMitGeneriertemText(schuelerId, kompetenzId, bewertung.stufe, index, text, []);
       });
     });
 
@@ -334,8 +370,34 @@ export function erstelleBewertungsAnsicht(schuelerId: string, onZurueck: () => v
         const aktuellerSchuelerWert = aktuellerSchueler();
         const stufenDefinition = kompetenz?.stufen.find((s) => s.stufe === bewertung?.stufe);
         if (!bewertung || !stufenDefinition || !aktuellerSchuelerWert) return;
-        const text = ersetzePlatzhalter(stufenDefinition.satzbausteine[bewertung.gewaehlterBausteinIndex], aktuellerSchuelerWert);
+        // „Zurücksetzen" verwirft nur die manuelle Bearbeitung, nicht den
+        // gewählten Baustein selbst – zuvor getroffene Auswahlgruppen-
+        // Ausprägungen bleiben daher erhalten.
+        const text = ersetzePlatzhalter(
+          loeseAuswahlgruppenAuf(stufenDefinition.satzbausteine[bewertung.gewaehlterBausteinIndex], bewertung.auspraegungen),
+          aktuellerSchuelerWert,
+        );
         await datensatzStore.setzeTextZurueck(schuelerId, kompetenzId, text);
+      });
+    });
+
+    wurzel.querySelectorAll<HTMLSelectElement>('select[data-satzbaustein-auspraegung-kompetenz-id]').forEach((auswahl) => {
+      auswahl.addEventListener('change', async () => {
+        const kompetenzId = auswahl.dataset.satzbausteinAuspraegungKompetenzId as string;
+        const gruppenIndex = Number(auswahl.dataset.satzbausteinAuspraegungGruppenIndex);
+        const optionsIndex = Number(auswahl.value);
+        const kompetenz = findeKompetenz(datei, kompetenzId)?.kompetenz;
+        const bewertung = bewertungFuer(kompetenzId);
+        const aktuellerSchuelerWert = aktuellerSchueler();
+        const stufenDefinition = kompetenz?.stufen.find((s) => s.stufe === bewertung?.stufe);
+        if (!bewertung || !stufenDefinition || !aktuellerSchuelerWert) return;
+        const neueIndizes = [...bewertung.auspraegungen];
+        neueIndizes[gruppenIndex] = optionsIndex;
+        const text = ersetzePlatzhalter(
+          loeseAuswahlgruppenAuf(stufenDefinition.satzbausteine[bewertung.gewaehlterBausteinIndex], neueIndizes),
+          aktuellerSchuelerWert,
+        );
+        await datensatzStore.setzeBewertungAuspraegung(schuelerId, kompetenzId, gruppenIndex, optionsIndex, text);
       });
     });
 

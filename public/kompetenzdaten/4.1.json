@@ -15,7 +15,7 @@
               "titel": "Sinnentnehmendes Lesen",
               "stufen": [
                 { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} entnimmt einfachen Texten erste Informationen."] },
-                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} entnimmt altersgemäßen Texten die wesentlichen Informationen.", "{Vorname} erfasst den Inhalt altersgemäßer Texte sicher."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} entnimmt altersgemäßen Texten die wesentlichen Informationen.", "{Vorname} erfasst den Inhalt altersgemäßer Texte {weitgehend sicher|sicher|sehr sicher}."] },
                 { "stufe": 3, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} entnimmt auch komplexeren Texten gezielt Informationen."] }
               ]
             },

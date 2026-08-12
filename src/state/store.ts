@@ -129,6 +129,7 @@ class DatensatzStore {
     stufe: number,
     gewaehlterBausteinIndex: number,
     generierterText: string,
+    auspraegungen: number[] = [],
   ): Promise<void> {
     if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
     const bestehenderText = this.aktuell.bewertungstexte.find(
@@ -142,11 +143,63 @@ class DatensatzStore {
       stufe,
       bewertetAm: new Date().toISOString(),
       gewaehlterBausteinIndex,
+      auspraegungen,
     };
     const neuerText: Bewertungstext = {
       schuelerId,
       kompetenzId,
       generierterText,
+      manuellerText: null,
+      gesperrt: false,
+    };
+    this.aktuell = {
+      ...this.aktuell,
+      bewertungen: [
+        ...this.aktuell.bewertungen.filter((b) => !(b.schuelerId === schuelerId && b.kompetenzId === kompetenzId)),
+        neueBewertung,
+      ],
+      bewertungstexte: [
+        ...this.aktuell.bewertungstexte.filter((t) => !(t.schuelerId === schuelerId && t.kompetenzId === kompetenzId)),
+        neuerText,
+      ],
+    };
+    await this.persistMitAenderung();
+  }
+
+  /**
+   * Setzt die gewählte Ausprägung (Options-Index) einer Auswahlgruppe
+   * innerhalb des aktuell gewählten Satzbausteins einer Kompetenz, z. B.
+   * „sehr sicher" statt „sicher" (spezifikation.md 3.4/5.4). Der bereits neu
+   * aufgelöste Gesamttext wird von der aufrufenden UI übergeben (dieselbe
+   * Vorgehensweise wie bei Stufenauswahl/Würfeln), da nur sie Zugriff auf
+   * die Rohvorlage aus der Kompetenzdatei hat. Nicht aufrufbar, solange der
+   * Text manuell gesperrt ist – die UI blendet die Auswahlfelder dann gar
+   * nicht erst ein.
+   */
+  async setzeBewertungAuspraegung(
+    schuelerId: string,
+    kompetenzId: string,
+    gruppenIndex: number,
+    optionsIndex: number,
+    neuGenerierterText: string,
+  ): Promise<void> {
+    if (!this.aktuell) throw new Error('Kein aktiver Datensatz');
+    const bestehendeBewertung = this.aktuell.bewertungen.find(
+      (b) => b.schuelerId === schuelerId && b.kompetenzId === kompetenzId,
+    );
+    if (!bestehendeBewertung) return;
+    const bestehenderText = this.aktuell.bewertungstexte.find(
+      (t) => t.schuelerId === schuelerId && t.kompetenzId === kompetenzId,
+    );
+    if (bestehenderText?.gesperrt) return;
+
+    const neueIndizes = [...bestehendeBewertung.auspraegungen];
+    neueIndizes[gruppenIndex] = optionsIndex;
+    const neueBewertung: Bewertung = { ...bestehendeBewertung, auspraegungen: neueIndizes };
+    const neuerText: Bewertungstext = {
+      schuelerId,
+      kompetenzId,
+      generierterText: neuGenerierterText,
       manuellerText: null,
       gesperrt: false,
     };

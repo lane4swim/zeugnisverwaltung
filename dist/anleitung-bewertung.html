@@ -73,6 +73,25 @@
       bedienbar.
     </p>
 
+    <h2 id="auswahlgruppen">Unterschiedliche Ausprägungen (Auswahlgruppen)</h2>
+    <p>
+      Manche Satzbausteine bieten mehrere Textvarianten zur Auswahl an, erkennbar an mehreren
+      durch <code>|</code> getrennten Optionen innerhalb geschweifter Klammern, z. B.:
+    </p>
+    <blockquote>„{Vorname} erfasst den Inhalt altersgemäßer Texte {weitgehend sicher|sicher|sehr sicher}."</blockquote>
+    <p>
+      Enthält der aktuell angezeigte Text einen solchen Baustein, erscheint unterhalb des
+      Textfelds für jede dieser Auswahlgruppen ein eigenes Auswahlfeld („Auswahl 1", „Auswahl 2",
+      …) mit den definierten Optionen.
+    </p>
+    <ul>
+      <li>Die getroffene Auswahl wirkt sich sofort auf den angezeigten Text aus und fließt genauso in den späteren Word-Export ein.</li>
+      <li>Ohne bewusste Auswahl gilt automatisch die jeweils erste Option, sodass der Text auch ohne Interaktion stets vollständig ist.</li>
+      <li>Wird über „🎲 Neu würfeln" oder eine neue Stufenauswahl ein anderer Baustein gezogen, werden die Auswahlfelder auf dessen (ggf. andere) Auswahlgruppen zurückgesetzt – zuvor getroffene Auswahlen für den vorigen Baustein gelten dann nicht mehr.</li>
+      <li>„Zurücksetzen" (siehe unten) ändert dagegen nicht den gewählten Baustein, sondern nur die manuelle Bearbeitung – zuvor getroffene Auswahlen bleiben hier erhalten.</li>
+      <li>Ist der Text manuell bearbeitet und damit gesperrt, werden keine Auswahlfelder mehr angeboten, da der Text dann nicht mehr aus dem Baustein hergeleitet wird.</li>
+    </ul>
+
     <h2 id="veraltete-bewertungen">Veraltete Bewertungen</h2>
     <p>
       Wurde die Bewertungstextdatei eines Halbjahres zwischenzeitlich aktualisiert (siehe
