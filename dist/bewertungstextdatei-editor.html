@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editor: Bewertungstextdatei – Anleitung Zeugnisverwaltung</title>
+  <meta name="description" content="Bewertungstextdateien (Kompetenzdateien) komfortabel im Browser bearbeiten und ergänzen. Speicherung erfolgt als Download." />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="anleitung.css" />
+</head>
+<body class="editor-seite">
+  <a class="uebersprung-link" href="#hauptinhalt">Zum Inhalt springen</a>
+
+  <header class="seiten-kopf">
+    <div class="seiten-kopf-inner">
+      <h1>Editor: Bewertungstextdatei</h1>
+      <p>Fächer, Bereiche, Kompetenzen, Stufen, Satzbausteine und Bemerkungsbausteine komfortabel bearbeiten.</p>
+    </div>
+  </header>
+
+  <nav class="anleitung-nav" aria-label="Anleitungsseiten">
+    <ol>
+      <li><a href="anleitung.html">Übersicht</a></li>
+      <li><a href="anleitung-klassenverwaltung.html">Klassenverwaltung</a></li>
+      <li><a href="anleitung-bewertung.html">Bewerten</a></li>
+      <li><a href="anleitung-bemerkungen.html">Bemerkungen</a></li>
+      <li><a href="anleitung-word-export.html">Word-Export</a></li>
+      <li><a href="anleitung-datensicherung.html">Datensicherung &amp; Offline</a></li>
+      <li><a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a></li>
+      <li><a href="anleitung-kompetenzdatei-format.html">Format: Bewertungstextdatei</a></li>
+      <li><a href="bewertungstextdatei-editor.html" aria-current="page">Editor: Bewertungstextdatei</a></li>
+    </ol>
+  </nav>
+
+  <main id="hauptinhalt" tabindex="-1">
+    <div class="hinweis">
+      <p>
+        Dieses Werkzeug läuft <strong>vollständig in deinem Browser</strong> – es findet keine
+        Übertragung an einen Server statt (außer wenn du bewusst „Vom Server laden" nutzt, was nur
+        die nicht-personenbezogene Bewertungstextdatei selbst lädt). Es gibt keine automatische
+        Speicherung: Sobald du fertig bist, lädst du das Ergebnis über <strong>„Als JSON
+        herunterladen"</strong> herunter und legst die Datei manuell auf dem Server unter
+        <code>kompetenzdaten/&lt;halbjahr&gt;.json</code> ab (siehe
+        <a href="anleitung-kompetenzdatei-format.html#ablage">Format: Bewertungstextdatei</a>).
+        Verlässt du diese Seite vorher, gehen nicht heruntergeladene Änderungen verloren.
+      </p>
+    </div>
+
+    <section class="karte" aria-labelledby="datei-titel">
+      <h2 id="datei-titel">Datei laden oder neu erstellen</h2>
+
+      <h3>Vorhandene Datei hochladen</h3>
+      <div id="dropzone-bereich"></div>
+
+      <h3>Vom Server laden</h3>
+      <p class="editor-hinweistext">Lädt <code>kompetenzdaten/&lt;halbjahr&gt;.json</code> direkt von diesem Server, sofern dort bereits eine Datei liegt.</p>
+      <div class="editor-zeile">
+        <div class="editor-formularzeile">
+          <label for="server-halbjahr-auswahl">Halbjahr</label>
+          <select id="server-halbjahr-auswahl"></select>
+        </div>
+      </div>
+      <div class="editor-knopfleiste">
+        <button type="button" class="knopf sekundaer" id="vom-server-laden-knopf">Vom Server laden</button>
+      </div>
+      <p id="server-laden-status" role="status"></p>
+
+      <h3>Neue Datei erstellen</h3>
+      <div class="editor-zeile">
+        <div class="editor-formularzeile">
+          <label for="neu-halbjahr-auswahl">Halbjahr</label>
+          <select id="neu-halbjahr-auswahl"></select>
+        </div>
+        <div class="editor-formularzeile">
+          <label for="neu-version-eingabe">Version</label>
+          <input type="text" id="neu-version-eingabe" placeholder="z. B. 2026-1" />
+        </div>
+      </div>
+      <div class="editor-knopfleiste">
+        <button type="button" class="knopf sekundaer" id="neu-erstellen-knopf">Neue Datei erstellen</button>
+      </div>
+    </section>
+
+    <section class="karte" id="kopfdaten-abschnitt" aria-labelledby="kopfdaten-titel" hidden>
+      <div class="editor-statuszeile">
+        <h2 id="kopfdaten-titel" style="margin:0; border:none; padding:0;">Aktuelle Datei</h2>
+        <button type="button" class="knopf sekundaer klein" id="datei-schliessen-knopf">Datei schließen</button>
+      </div>
+      <div class="editor-zeile">
+        <div class="editor-formularzeile">
+          <label for="halbjahr-auswahl">Halbjahr</label>
+          <select id="halbjahr-auswahl"></select>
+        </div>
+        <div class="editor-formularzeile">
+          <label for="version-eingabe">Version <span class="editor-hinweistext">(bei jeder inhaltlichen Änderung erhöhen)</span></label>
+          <input type="text" id="version-eingabe" placeholder="z. B. 2026-1" />
+        </div>
+      </div>
+    </section>
+
+    <section class="karte" id="abschnitte-abschnitt" aria-labelledby="abschnitte-titel" hidden>
+      <h2 id="abschnitte-titel">Fächer (Abschnitte)</h2>
+      <div id="abschnitte-liste"></div>
+      <div class="editor-knopfleiste">
+        <button type="button" class="knopf" id="fach-hinzufuegen-knopf">+ Fach hinzufügen</button>
+      </div>
+    </section>
+
+    <section class="karte" id="bemerkungsbausteine-abschnitt" aria-labelledby="bemerkungsbausteine-titel" hidden>
+      <h2 id="bemerkungsbausteine-titel">Bemerkungsbausteine</h2>
+      <div id="bemerkungsbausteine-liste"></div>
+      <div class="editor-knopfleiste">
+        <button type="button" class="knopf" id="bemerkungsbaustein-hinzufuegen-knopf">+ Bemerkungsbaustein hinzufügen</button>
+      </div>
+    </section>
+
+    <section class="karte" id="validierung-abschnitt" aria-labelledby="validierung-titel" hidden>
+      <h2 id="validierung-titel">Prüfung</h2>
+      <div id="validierung-inhalt" aria-live="polite"></div>
+    </section>
+
+    <section class="karte" id="vorschau-abschnitt" aria-labelledby="vorschau-titel" hidden>
+      <details>
+        <summary id="vorschau-titel" style="cursor:pointer; font-weight:700; font-size:1.15rem;">JSON-Vorschau</summary>
+        <pre class="editor-vorschau"><code id="json-vorschau"></code></pre>
+      </details>
+    </section>
+
+    <section class="karte" id="speichern-abschnitt" aria-labelledby="speichern-titel" hidden>
+      <h2 id="speichern-titel">Speichern</h2>
+      <p>
+        Erzeugt eine Datei namens <code id="speichern-dateiname">&lt;halbjahr&gt;.json</code> und
+        bietet sie zum Download an. Diese Datei danach unter
+        <code>kompetenzdaten/&lt;halbjahr&gt;.json</code> auf dem Server ablegen bzw. eine
+        vorhandene Datei damit ersetzen.
+      </p>
+      <div class="editor-knopfleiste">
+        <button type="button" class="knopf" id="herunterladen-knopf">Als JSON herunterladen</button>
+      </div>
+      <p id="herunterladen-status" role="status"></p>
+    </section>
+
+    <a class="zurueck-zur-app" href="./">Zur Anwendung</a>
+  </main>
+
+  <footer class="seiten-fuss">
+    <p><a href="anleitung.html">← Zurück zur Übersicht</a></p>
+  </footer>
+
+  <script>
+    'use strict';
+
+    // Dieser Editor ist bewusst ein einziges, eigenständiges HTML/JS-Dokument
+    // (kein Build-Schritt, keine Abhängigkeit von den TypeScript-Quellen der
+    // App), damit er wie die übrigen Anleitungsseiten unverändert neben
+    // index.html ausgeliefert werden kann. Architektur folgt demselben Muster
+    // wie die App selbst: ein zentrales Zustandsobjekt, bei jeder Änderung
+    // wird die betroffene HTML-Struktur aus dem Zustand neu aufgebaut.
+
+    var HALBJAHRE = ['1.1', '1.2', '2.1', '2.2', '3.1', '3.2', '4.1', '4.2'];
+    var PLATZHALTER = ['Vorname', 'Nachname', 'Pronomen_Nom', 'Pronomen_Akk', 'Pronomen_Dat', 'Pronomen_Poss', 'Geburtsdatum'];
+    var ID_MUSTER = /^[A-Za-z][A-Za-z0-9_]*$/;
+
+    var datei = null; // { halbjahr, version, abschnitte: [...], bemerkungsbausteine: [...] }
+    var geschlossenSet = new Set(); // _key-Werte eingeklappter <details>
+    var naechsterSchluessel = 1;
+    var fokusZielNachRender = null; // CSS-Selektor, der nach dem nächsten render() fokussiert werden soll
+
+    function neuerSchluessel() {
+      return 'k' + naechsterSchluessel++;
+    }
+
+    function escapeHtml(text) {
+      return String(text == null ? '' : text).replace(/[&<>"']/g, function (zeichen) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[zeichen];
+      });
+    }
+
+    function schlageIdVor(text) {
+      return String(text || '')
+        .toLowerCase()
+        .replace(/ß/g, 'ss')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .replace(/_{2,}/g, '_');
+    }
+
+    /* ---------------- Zustandsmodell: Erzeugen/Laden ---------------- */
+
+    function leereDatei(halbjahr, version) {
+      return { halbjahr: halbjahr, version: version || '', abschnitte: [], bemerkungsbausteine: [] };
+    }
+
+    function neuerAbschnitt() {
+      return { _key: neuerSchluessel(), id: '', titel: '', optional: false, nichtRelevantBemerkung: '', bereiche: [] };
+    }
+    function neuerBereich() {
+      return { _key: neuerSchluessel(), id: '', titel: '', kompetenzen: [] };
+    }
+    function neueKompetenz() {
+      return { _key: neuerSchluessel(), id: '', titel: '', stufen: [] };
+    }
+    function neueStufe() {
+      return { _key: neuerSchluessel(), bezeichnung: '', satzbausteine: [''] };
+    }
+    function neuerBemerkungsbaustein() {
+      return { _key: neuerSchluessel(), id: '', text: '' };
+    }
+
+    /** Wandelt eine geladene/hochgeladene rohe JSON-Struktur in das interne, mit _key versehene Zustandsmodell um. Tolerant gegenüber fehlenden optionalen Feldern. */
+    function uebernehmeRohdaten(roh) {
+      var d = {
+        halbjahr: roh.halbjahr,
+        version: typeof roh.version === 'string' ? roh.version : '',
+        abschnitte: (Array.isArray(roh.abschnitte) ? roh.abschnitte : []).map(function (a) {
+          return {
+            _key: neuerSchluessel(),
+            id: typeof a.id === 'string' ? a.id : '',
+            titel: typeof a.titel === 'string' ? a.titel : '',
+            optional: a.optional === true,
+            nichtRelevantBemerkung: typeof a.nichtRelevantBemerkung === 'string' ? a.nichtRelevantBemerkung : '',
+            bereiche: (Array.isArray(a.bereiche) ? a.bereiche : []).map(function (b) {
+              return {
+                _key: neuerSchluessel(),
+                id: typeof b.id === 'string' ? b.id : '',
+                titel: typeof b.titel === 'string' ? b.titel : '',
+                kompetenzen: (Array.isArray(b.kompetenzen) ? b.kompetenzen : []).map(function (k) {
+                  return {
+                    _key: neuerSchluessel(),
+                    id: typeof k.id === 'string' ? k.id : '',
+                    titel: typeof k.titel === 'string' ? k.titel : '',
+                    stufen: (Array.isArray(k.stufen) ? k.stufen : [])
+                      // Reihenfolge im Array bestimmt die spätere Stufennummer (1..N), siehe schreibeExportJson().
+                      .slice()
+                      .sort(function (x, y) { return (Number(x.stufe) || 0) - (Number(y.stufe) || 0); })
+                      .map(function (s) {
+                        return {
+                          _key: neuerSchluessel(),
+                          bezeichnung: typeof s.bezeichnung === 'string' ? s.bezeichnung : '',
+                          satzbausteine: Array.isArray(s.satzbausteine) && s.satzbausteine.length > 0 ? s.satzbausteine.slice() : [''],
+                        };
+                      }),
+                  };
+                }),
+              };
+            }),
+          };
+        }),
+        bemerkungsbausteine: (Array.isArray(roh.bemerkungsbausteine) ? roh.bemerkungsbausteine : []).map(function (b) {
+          return { _key: neuerSchluessel(), id: typeof b.id === 'string' ? b.id : '', text: typeof b.text === 'string' ? b.text : '' };
+        }),
+      };
+      return d;
+    }
+
+    /** Kehrt uebernehmeRohdaten() um: internes Zustandsmodell -> exportierbares JSON gemäß spezifikation.md 3.3/4. Die Stufennummer wird bewusst NICHT gespeichert/übernommen, sondern immer aus der Position in der Liste (1, 2, 3, ...) neu vergeben, damit sie nie mit der tatsächlichen Reihenfolge auseinanderlaufen kann. */
+    function alsExportJson(d) {
+      return {
+        halbjahr: d.halbjahr,
+        version: d.version,
+        abschnitte: d.abschnitte.map(function (a) {
+          var ergebnis = { id: a.id, titel: a.titel };
+          if (a.optional) {
+            ergebnis.optional = true;
+            if (a.nichtRelevantBemerkung && a.nichtRelevantBemerkung.trim()) {
+              ergebnis.nichtRelevantBemerkung = a.nichtRelevantBemerkung.trim();
+            }
+          }
+          ergebnis.bereiche = a.bereiche.map(function (b) {
+            return {
+              id: b.id,
+              titel: b.titel,
+              kompetenzen: b.kompetenzen.map(function (k) {
+                return {
+                  id: k.id,
+                  titel: k.titel,
+                  stufen: k.stufen.map(function (s, index) {
+                    return {
+                      stufe: index + 1,
+                      bezeichnung: s.bezeichnung,
+                      satzbausteine: s.satzbausteine.filter(function (t) { return t.trim() !== ''; }),
+                    };
+                  }),
+                };
+              }),
+            };
+          });
+          return ergebnis;
+        }),
+        bemerkungsbausteine: d.bemerkungsbausteine.map(function (b) { return { id: b.id, text: b.text }; }),
+      };
+    }
+
+    /* ---------------- Baum-Suche (für Verschieben/Löschen/Ändern) ---------------- */
+
+    function ergebnis(liste, index) {
+      return index === -1 ? null : { liste: liste, index: index, objekt: liste[index] };
+    }
+    function findeAbschnitt(key) {
+      return ergebnis(datei.abschnitte, datei.abschnitte.findIndex(function (a) { return a._key === key; }));
+    }
+    function findeBereich(key) {
+      for (var i = 0; i < datei.abschnitte.length; i++) {
+        var treffer = ergebnis(datei.abschnitte[i].bereiche, datei.abschnitte[i].bereiche.findIndex(function (b) { return b._key === key; }));
+        if (treffer) return treffer;
+      }
+      return null;
+    }
+    function findeKompetenz(key) {
+      for (var i = 0; i < datei.abschnitte.length; i++) {
+        var bereiche = datei.abschnitte[i].bereiche;
+        for (var j = 0; j < bereiche.length; j++) {
+          var treffer = ergebnis(bereiche[j].kompetenzen, bereiche[j].kompetenzen.findIndex(function (k) { return k._key === key; }));
+          if (treffer) return treffer;
+        }
+      }
+      return null;
+    }
+    function findeStufe(key) {
+      for (var i = 0; i < datei.abschnitte.length; i++) {
+        var bereiche = datei.abschnitte[i].bereiche;
+        for (var j = 0; j < bereiche.length; j++) {
+          var kompetenzen = bereiche[j].kompetenzen;
+          for (var l = 0; l < kompetenzen.length; l++) {
+            var treffer = ergebnis(kompetenzen[l].stufen, kompetenzen[l].stufen.findIndex(function (s) { return s._key === key; }));
+            if (treffer) return treffer;
+          }
+        }
+      }
+      return null;
+    }
+    function findeBemerkungsbaustein(key) {
+      return ergebnis(datei.bemerkungsbausteine, datei.bemerkungsbausteine.findIndex(function (b) { return b._key === key; }));
+    }
+
+    function verschiebe(eintrag, richtung) {
+      if (!eintrag) return;
+      var neuerIndex = eintrag.index + richtung;
+      if (neuerIndex < 0 || neuerIndex >= eintrag.liste.length) return;
+      var entnommen = eintrag.liste.splice(eintrag.index, 1)[0];
+      eintrag.liste.splice(neuerIndex, 0, entnommen);
+    }
+    function loesche(eintrag) {
+      if (!eintrag) return;
+      eintrag.liste.splice(eintrag.index, 1);
+    }
+
+    /* ---------------- Validierung ---------------- */
+
+    function pruefePlatzhalterText(text, kontext, warnungen) {
+      if (text.indexOf('{{') !== -1) {
+        warnungen.push(kontext + ': enthält doppelte geschweifte Klammern ("{{...}}") – das ist nur die Syntax für die Word-Vorlage. Hier bitte einfache Klammern verwenden, z. B. {Vorname}.');
+      }
+      var treffer = text.match(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g) || [];
+      treffer.forEach(function (treff) {
+        var name = treff.slice(1, -1);
+        if (PLATZHALTER.indexOf(name) === -1) {
+          warnungen.push(kontext + ': unbekannter Platzhalter "{' + name + '}" (bekannt sind: ' + PLATZHALTER.map(function (p) { return '{' + p + '}'; }).join(', ') + ').');
+        }
+      });
+    }
+
+    function validiere(d) {
+      var fehler = [];
+      var warnungen = [];
+      var abschnittIds = new Map();
+      var bereichIds = new Map();
+      var kompetenzIds = new Map();
+
+      if (HALBJAHRE.indexOf(d.halbjahr) === -1) fehler.push('Ungültiges Halbjahr.');
+      if (!d.version || !d.version.trim()) fehler.push('Das Feld „Version" darf nicht leer sein.');
+      if (d.abschnitte.length === 0) warnungen.push('Es sind noch keine Fächer (Abschnitte) vorhanden.');
+
+      d.abschnitte.forEach(function (abschnitt, ai) {
+        var bez = abschnitt.titel || abschnitt.id || ('Fach ' + (ai + 1));
+        if (!abschnitt.titel || !abschnitt.titel.trim()) fehler.push('Fach ' + (ai + 1) + ': Titel fehlt.');
+        if (!abschnitt.id || !abschnitt.id.trim()) fehler.push('Fach „' + bez + '": ID fehlt.');
+        else if (!ID_MUSTER.test(abschnitt.id)) fehler.push('Fach „' + bez + '": ID "' + abschnitt.id + '" ist ungültig (nur Buchstaben, Ziffern, Unterstrich; muss mit einem Buchstaben beginnen).');
+        else abschnittIds.set(abschnitt.id, (abschnittIds.get(abschnitt.id) || 0) + 1);
+
+        if (abschnitt.bereiche.length === 0) warnungen.push('Fach „' + bez + '" hat noch keine Bereiche.');
+
+        abschnitt.bereiche.forEach(function (bereich, bi) {
+          var bBez = bereich.titel || bereich.id || ('Bereich ' + (bi + 1));
+          var pfad = bez + ' → ' + bBez;
+          if (!bereich.titel || !bereich.titel.trim()) fehler.push(pfad + ': Titel fehlt.');
+          if (!bereich.id || !bereich.id.trim()) fehler.push(pfad + ': ID fehlt.');
+          else if (!ID_MUSTER.test(bereich.id)) fehler.push(pfad + ': ID "' + bereich.id + '" ist ungültig.');
+          else bereichIds.set(bereich.id, (bereichIds.get(bereich.id) || 0) + 1);
+
+          if (bereich.kompetenzen.length === 0) warnungen.push(pfad + ' hat noch keine Kompetenzen.');
+
+          bereich.kompetenzen.forEach(function (kompetenz, ki) {
+            var kBez = kompetenz.titel || kompetenz.id || ('Kompetenz ' + (ki + 1));
+            var kPfad = pfad + ' → ' + kBez;
+            if (!kompetenz.titel || !kompetenz.titel.trim()) fehler.push(kPfad + ': Titel fehlt.');
+            if (!kompetenz.id || !kompetenz.id.trim()) fehler.push(kPfad + ': ID fehlt.');
+            else if (!ID_MUSTER.test(kompetenz.id)) fehler.push(kPfad + ': ID "' + kompetenz.id + '" ist ungültig.');
+            else kompetenzIds.set(kompetenz.id, (kompetenzIds.get(kompetenz.id) || 0) + 1);
+
+            if (kompetenz.stufen.length === 0) fehler.push(kPfad + ': mindestens eine Stufe wird benötigt.');
+
+            kompetenz.stufen.forEach(function (stufe, si) {
+              var sPfad = kPfad + ' → Stufe ' + (si + 1);
+              var gueltigeBausteine = stufe.satzbausteine.filter(function (t) { return t.trim() !== ''; });
+              if (!stufe.bezeichnung || !stufe.bezeichnung.trim()) fehler.push(sPfad + ': Bezeichnung fehlt.');
+              if (gueltigeBausteine.length === 0) fehler.push(sPfad + ': mindestens ein Satzbaustein wird benötigt.');
+              gueltigeBausteine.forEach(function (text) { pruefePlatzhalterText(text, sPfad, warnungen); });
+            });
+          });
+        });
+
+        if (abschnitt.optional && abschnitt.nichtRelevantBemerkung && abschnitt.nichtRelevantBemerkung.trim()) {
+          pruefePlatzhalterText(abschnitt.nichtRelevantBemerkung, 'Fach „' + bez + '" → Automatische Bemerkung', warnungen);
+        }
+      });
+
+      abschnittIds.forEach(function (anzahl, id) { if (anzahl > 1) fehler.push('Fach-ID "' + id + '" wird mehrfach verwendet.'); });
+      bereichIds.forEach(function (anzahl, id) { if (anzahl > 1) fehler.push('Bereich-ID "' + id + '" wird mehrfach verwendet – Bereich-IDs müssen in der gesamten Datei eindeutig sein (sie ergeben den Word-Platzhalter {{Bereich_' + id + '}}).'); });
+      kompetenzIds.forEach(function (anzahl, id) { if (anzahl > 1) fehler.push('Kompetenz-ID "' + id + '" wird mehrfach verwendet – Kompetenz-IDs müssen in der gesamten Datei eindeutig sein (sie ergeben den Word-Platzhalter {{Kompetenz_' + id + '}}).'); });
+
+      var bemerkungIds = new Map();
+      if (d.bemerkungsbausteine.length === 0) warnungen.push('Es sind noch keine Bemerkungsbausteine vorhanden.');
+      d.bemerkungsbausteine.forEach(function (baustein, bi) {
+        var bez = baustein.id || ('Bemerkungsbaustein ' + (bi + 1));
+        if (!baustein.id || !baustein.id.trim()) fehler.push('Bemerkungsbaustein ' + (bi + 1) + ': ID fehlt.');
+        else if (!ID_MUSTER.test(baustein.id)) fehler.push('Bemerkungsbaustein „' + bez + '": ID ist ungültig.');
+        else bemerkungIds.set(baustein.id, (bemerkungIds.get(baustein.id) || 0) + 1);
+        if (!baustein.text || !baustein.text.trim()) fehler.push('Bemerkungsbaustein „' + bez + '": Text fehlt.');
+        else pruefePlatzhalterText(baustein.text, 'Bemerkungsbaustein „' + bez + '"', warnungen);
+      });
+      bemerkungIds.forEach(function (anzahl, id) { if (anzahl > 1) fehler.push('Bemerkungsbaustein-ID "' + id + '" wird mehrfach verwendet.'); });
+
+      return { fehler: fehler, warnungen: warnungen };
+    }
+
+    /* ---------------- Rendering ---------------- */
+
+    function halbjahrOptionenHtml(ausgewaehlt) {
+      return HALBJAHRE.map(function (hj) {
+        return '<option value="' + hj + '"' + (hj === ausgewaehlt ? ' selected' : '') + '>' + hj + '</option>';
+      }).join('');
+    }
+
+    function platzhalterLeisteHtml(zielSelektor) {
+      return (
+        '<div class="editor-platzhalter-leiste" role="group" aria-label="Platzhalter einfügen">' +
+        PLATZHALTER.map(function (p) {
+          return '<button type="button" data-platzhalter="' + p + '" data-platzhalter-ziel="' + escapeHtml(zielSelektor) + '">{' + p + '}</button>';
+        }).join('') +
+        '</div>'
+      );
+    }
+
+    function stufeHtml(stufe, index) {
+      return (
+        '<li class="editor-eintrag" style="margin-bottom:0.6rem;">' +
+        '<div class="editor-stufe-inhalt">' +
+        '<div class="editor-statuszeile" style="margin-bottom:0.5rem;">' +
+        '<span class="editor-badge">Stufe ' + (index + 1) + '</span>' +
+        '<span class="editor-hinweistext">Die Nummer ergibt sich automatisch aus der Reihenfolge.</span>' +
+        '<span style="flex:1;"></span>' +
+        '<button type="button" class="knopf sekundaer klein" data-aktion="stufe-rauf" data-key="' + stufe._key + '" aria-label="Stufe nach oben verschieben">↑</button>' +
+        '<button type="button" class="knopf sekundaer klein" data-aktion="stufe-runter" data-key="' + stufe._key + '" aria-label="Stufe nach unten verschieben">↓</button>' +
+        '<button type="button" class="knopf gefahr klein" data-aktion="stufe-loeschen" data-key="' + stufe._key + '">✕ Stufe entfernen</button>' +
+        '</div>' +
+        '<div class="editor-formularzeile">' +
+        '<label for="bez-' + stufe._key + '">Bezeichnung</label>' +
+        '<input type="text" id="bez-' + stufe._key + '" data-feld="bezeichnung" data-stufe-key="' + stufe._key + '" value="' + escapeHtml(stufe.bezeichnung) + '" placeholder="z. B. beginnend, grundlegend, sicher" />' +
+        '</div>' +
+        '<div class="editor-formularzeile"><label>Satzbausteine <span class="editor-hinweistext">(bei mehreren wird zufällig einer gewählt)</span></label>' +
+        stufe.satzbausteine.map(function (baustein, bi) {
+          var feldId = 'baustein-' + stufe._key + '-' + bi;
+          return (
+            '<div class="editor-satzbaustein">' +
+            '<textarea id="' + feldId + '" data-feld="satzbaustein" data-stufe-key="' + stufe._key + '" data-baustein-index="' + bi + '" rows="2" placeholder="{Vorname} …">' + escapeHtml(baustein) + '</textarea>' +
+            '<button type="button" class="knopf gefahr klein" data-aktion="satzbaustein-loeschen" data-stufe-key="' + stufe._key + '" data-baustein-index="' + bi + '" aria-label="Diesen Satzbaustein entfernen">✕</button>' +
+            '</div>' +
+            platzhalterLeisteHtml('#' + feldId)
+          );
+        }).join('') +
+        '<div class="editor-knopfleiste"><button type="button" class="knopf sekundaer klein" data-aktion="satzbaustein-hinzufuegen" data-key="' + stufe._key + '">+ Satzbaustein hinzufügen</button></div>' +
+        '</div>' +
+        '</div>' +
+        '</li>'
+      );
+    }
+
+    /**
+     * Gemeinsamer Rahmen für Fach-/Bereich-/Kompetenz-/Bemerkungsbaustein-
+     * Einträge: Umschalt-Knopf (Titel) und Aktions-Knöpfe (verschieben/
+     * entfernen) stehen als Geschwister nebeneinander in einer Kopfzeile,
+     * NICHT ineinander verschachtelt (siehe Kommentar zu .editor-eintrag-kopf
+     * in anleitung.css – vermeidet "nested-interactive"-Verstöße).
+     */
+    function eintragHtml(key, titelInnerHtml, aktionenHtml, inhaltHtml) {
+      var offen = !geschlossenSet.has(key);
+      return (
+        '<div class="editor-eintrag" data-key="' + key + '">' +
+        '<div class="editor-eintrag-kopf">' +
+        '<button type="button" class="editor-eintrag-umschalter" aria-expanded="' + (offen ? 'true' : 'false') + '" aria-controls="inhalt-' + key + '" data-aktion="eintrag-umschalten" data-key="' + key + '">' +
+        '<span class="editor-eintrag-pfeil" aria-hidden="true">▸</span>' +
+        '<span class="editor-eintrag-titel">' + titelInnerHtml + '</span>' +
+        '</button>' +
+        aktionenHtml +
+        '</div>' +
+        '<div class="editor-eintrag-inhalt" id="inhalt-' + key + '"' + (offen ? '' : ' hidden') + '>' +
+        inhaltHtml +
+        '</div>' +
+        '</div>'
+      );
+    }
+
+    function kompetenzHtml(kompetenz) {
+      var titel = (escapeHtml(kompetenz.titel) || '(ohne Titel)') + ' <span class="editor-hinweistext">' + escapeHtml(kompetenz.id) + '</span>';
+      var aktionen =
+        '<button type="button" class="knopf sekundaer klein" data-aktion="kompetenz-rauf" data-key="' + kompetenz._key + '" aria-label="Kompetenz nach oben verschieben">↑</button>' +
+        '<button type="button" class="knopf sekundaer klein" data-aktion="kompetenz-runter" data-key="' + kompetenz._key + '" aria-label="Kompetenz nach unten verschieben">↓</button>' +
+        '<button type="button" class="knopf gefahr klein" data-aktion="kompetenz-loeschen" data-key="' + kompetenz._key + '">✕ Entfernen</button>';
+      var inhalt =
+        '<div class="editor-zeile">' +
+        '<div class="editor-formularzeile"><label for="titel-' + kompetenz._key + '">Titel</label><input type="text" id="titel-' + kompetenz._key + '" data-feld="titel" data-kompetenz-key="' + kompetenz._key + '" value="' + escapeHtml(kompetenz.titel) + '" placeholder="z. B. Sinnentnehmendes Lesen" /></div>' +
+        '<div class="editor-formularzeile"><label for="id-' + kompetenz._key + '">ID</label><input type="text" id="id-' + kompetenz._key + '" data-feld="id" data-kompetenz-key="' + kompetenz._key + '" value="' + escapeHtml(kompetenz.id) + '" placeholder="z. B. lesen_sinnentnehmend" /></div>' +
+        '</div>' +
+        '<h5 style="margin:0.75rem 0 0.4rem;">Stufen</h5>' +
+        (kompetenz.stufen.length === 0
+          ? '<p class="editor-leerzustand">Noch keine Stufen vorhanden.</p>'
+          : '<ol class="editor-liste">' + kompetenz.stufen.map(function (s, i) { return stufeHtml(s, i); }).join('') + '</ol>') +
+        '<div class="editor-knopfleiste"><button type="button" class="knopf sekundaer" data-aktion="stufe-hinzufuegen" data-key="' + kompetenz._key + '">+ Stufe hinzufügen</button></div>';
+      return eintragHtml(kompetenz._key, titel, aktionen, inhalt);
+    }
+
+    function bereichHtml(bereich) {
+      var titel = (escapeHtml(bereich.titel) || '(ohne Titel)') + ' <span class="editor-hinweistext">' + escapeHtml(bereich.id) + '</span>';
+      var aktionen =
+        '<button type="button" class="knopf sekundaer klein" data-aktion="bereich-rauf" data-key="' + bereich._key + '" aria-label="Bereich nach oben verschieben">↑</button>' +
+        '<button type="button" class="knopf sekundaer klein" data-aktion="bereich-runter" data-key="' + bereich._key + '" aria-label="Bereich nach unten verschieben">↓</button>' +
+        '<button type="button" class="knopf gefahr klein" data-aktion="bereich-loeschen" data-key="' + bereich._key + '">✕ Entfernen</button>';
+      var inhalt =
+        '<div class="editor-zeile">' +
+        '<div class="editor-formularzeile"><label for="titel-' + bereich._key + '">Titel</label><input type="text" id="titel-' + bereich._key + '" data-feld="titel" data-bereich-key="' + bereich._key + '" value="' + escapeHtml(bereich.titel) + '" placeholder="z. B. Lesen" /></div>' +
+        '<div class="editor-formularzeile"><label for="id-' + bereich._key + '">ID</label><input type="text" id="id-' + bereich._key + '" data-feld="id" data-bereich-key="' + bereich._key + '" value="' + escapeHtml(bereich.id) + '" placeholder="z. B. lesen" /></div>' +
+        '</div>' +
+        '<div class="editor-verschachtelt">' +
+        '<h4 style="margin:0.5rem 0 0.4rem;">Kompetenzen</h4>' +
+        (bereich.kompetenzen.length === 0
+          ? '<p class="editor-leerzustand">Noch keine Kompetenzen vorhanden.</p>'
+          : '<ul class="editor-liste">' + bereich.kompetenzen.map(function (k) { return '<li>' + kompetenzHtml(k) + '</li>'; }).join('') + '</ul>') +
+        '<div class="editor-knopfleiste"><button type="button" class="knopf sekundaer" data-aktion="kompetenz-hinzufuegen" data-key="' + bereich._key + '">+ Kompetenz hinzufügen</button></div>' +
+        '</div>';
+      return eintragHtml(bereich._key, titel, aktionen, inhalt);
+    }
+
+    function abschnittHtml(abschnitt) {
+      var nichtRelevantFeldId = 'nrb-' + abschnitt._key;
+      var titel =
+        (escapeHtml(abschnitt.titel) || '(ohne Titel)') + ' <span class="editor-hinweistext">' + escapeHtml(abschnitt.id) + '</span>' +
+        (abschnitt.optional ? ' <span class="editor-badge">optional</span>' : '');
+      var aktionen =
+        '<button type="button" class="knopf sekundaer klein" data-aktion="fach-rauf" data-key="' + abschnitt._key + '" aria-label="Fach nach oben verschieben">↑</button>' +
+        '<button type="button" class="knopf sekundaer klein" data-aktion="fach-runter" data-key="' + abschnitt._key + '" aria-label="Fach nach unten verschieben">↓</button>' +
+        '<button type="button" class="knopf gefahr klein" data-aktion="fach-loeschen" data-key="' + abschnitt._key + '">✕ Entfernen</button>';
+      var inhalt =
+        '<div class="editor-zeile">' +
+        '<div class="editor-formularzeile"><label for="titel-' + abschnitt._key + '">Titel</label><input type="text" id="titel-' + abschnitt._key + '" data-feld="titel" data-abschnitt-key="' + abschnitt._key + '" value="' + escapeHtml(abschnitt.titel) + '" placeholder="z. B. Deutsch" /></div>' +
+        '<div class="editor-formularzeile"><label for="id-' + abschnitt._key + '">ID</label><input type="text" id="id-' + abschnitt._key + '" data-feld="id" data-abschnitt-key="' + abschnitt._key + '" value="' + escapeHtml(abschnitt.id) + '" placeholder="z. B. deutsch" /></div>' +
+        '</div>' +
+        '<label style="display:flex; align-items:center; gap:0.4rem; font-weight:600; margin:0.4rem 0;">' +
+        '<input type="checkbox" data-feld="optional" data-abschnitt-key="' + abschnitt._key + '"' + (abschnitt.optional ? ' checked' : '') + ' />' +
+        'Optional (nicht für jede Person verpflichtend, z. B. konfessioneller Religionsunterricht)' +
+        '</label>' +
+        (abschnitt.optional
+          ? '<div class="editor-formularzeile"><label for="' + nichtRelevantFeldId + '">Automatische Bemerkung bei „nicht relevant" <span class="editor-hinweistext">(optional)</span></label>' +
+            '<textarea id="' + nichtRelevantFeldId + '" data-feld="nichtRelevantBemerkung" data-abschnitt-key="' + abschnitt._key + '" rows="2" placeholder="{Vorname} nahm nicht am Religionsunterricht teil.">' + escapeHtml(abschnitt.nichtRelevantBemerkung) + '</textarea>' +
+            platzhalterLeisteHtml('#' + nichtRelevantFeldId) +
+            '</div>'
+          : '') +
+        '<div class="editor-verschachtelt">' +
+        '<h3 style="margin:0.5rem 0 0.4rem; border:none; padding:0; font-size:1rem;">Bereiche</h3>' +
+        (abschnitt.bereiche.length === 0
+          ? '<p class="editor-leerzustand">Noch keine Bereiche vorhanden.</p>'
+          : '<ul class="editor-liste">' + abschnitt.bereiche.map(function (b) { return '<li>' + bereichHtml(b) + '</li>'; }).join('') + '</ul>') +
+        '<div class="editor-knopfleiste"><button type="button" class="knopf sekundaer" data-aktion="bereich-hinzufuegen" data-key="' + abschnitt._key + '">+ Bereich hinzufügen</button></div>' +
+        '</div>';
+      return eintragHtml(abschnitt._key, titel, aktionen, inhalt);
+    }
+
+    function bemerkungsbausteinHtml(baustein) {
+      var feldId = 'bemtext-' + baustein._key;
+      var titel = (escapeHtml(baustein.text.slice(0, 60)) || '(ohne Text)') + ' <span class="editor-hinweistext">' + escapeHtml(baustein.id) + '</span>';
+      var aktionen =
+        '<button type="button" class="knopf sekundaer klein" data-aktion="bemerkung-rauf" data-key="' + baustein._key + '" aria-label="Baustein nach oben verschieben">↑</button>' +
+        '<button type="button" class="knopf sekundaer klein" data-aktion="bemerkung-runter" data-key="' + baustein._key + '" aria-label="Baustein nach unten verschieben">↓</button>' +
+        '<button type="button" class="knopf gefahr klein" data-aktion="bemerkung-loeschen" data-key="' + baustein._key + '">✕ Entfernen</button>';
+      var inhalt =
+        '<div class="editor-formularzeile"><label for="id-' + baustein._key + '">ID</label><input type="text" id="id-' + baustein._key + '" data-feld="id" data-bemerkung-key="' + baustein._key + '" value="' + escapeHtml(baustein.id) + '" placeholder="z. B. bem_hilfsbereit" /></div>' +
+        '<div class="editor-formularzeile"><label for="' + feldId + '">Text</label><textarea id="' + feldId + '" data-feld="text" data-bemerkung-key="' + baustein._key + '" rows="2" placeholder="{Vorname} …">' + escapeHtml(baustein.text) + '</textarea>' + platzhalterLeisteHtml('#' + feldId) + '</div>';
+      return eintragHtml(baustein._key, titel, aktionen, inhalt);
+    }
+
+    function validierungHtml(ergebnisPruefung) {
+      if (ergebnisPruefung.fehler.length === 0 && ergebnisPruefung.warnungen.length === 0) {
+        return '<div class="editor-validierung ok">✓ Keine Probleme gefunden.</div>';
+      }
+      var teile = '';
+      if (ergebnisPruefung.fehler.length > 0) {
+        teile +=
+          '<div class="warnung"><strong>' + ergebnisPruefung.fehler.length + ' Fehler</strong> – muss vor dem Herunterladen behoben werden:' +
+          '<ul>' + ergebnisPruefung.fehler.map(function (f) { return '<li>' + escapeHtml(f) + '</li>'; }).join('') + '</ul></div>';
+      }
+      if (ergebnisPruefung.warnungen.length > 0) {
+        teile +=
+          '<div class="hinweis"><strong>' + ergebnisPruefung.warnungen.length + ' Hinweis(e)</strong> – Download trotzdem möglich:' +
+          '<ul>' + ergebnisPruefung.warnungen.map(function (w) { return '<li>' + escapeHtml(w) + '</li>'; }).join('') + '</ul></div>';
+      }
+      return teile;
+    }
+
+    function render() {
+      var kopfdatenAbschnitt = document.getElementById('kopfdaten-abschnitt');
+      var abschnitteAbschnitt = document.getElementById('abschnitte-abschnitt');
+      var bemerkungenAbschnitt = document.getElementById('bemerkungsbausteine-abschnitt');
+      var validierungAbschnitt = document.getElementById('validierung-abschnitt');
+      var vorschauAbschnitt = document.getElementById('vorschau-abschnitt');
+      var speichernAbschnitt = document.getElementById('speichern-abschnitt');
+
+      if (!datei) {
+        kopfdatenAbschnitt.hidden = true;
+        abschnitteAbschnitt.hidden = true;
+        bemerkungenAbschnitt.hidden = true;
+        validierungAbschnitt.hidden = true;
+        vorschauAbschnitt.hidden = true;
+        speichernAbschnitt.hidden = true;
+        return;
+      }
+
+      kopfdatenAbschnitt.hidden = false;
+      abschnitteAbschnitt.hidden = false;
+      bemerkungenAbschnitt.hidden = false;
+      validierungAbschnitt.hidden = false;
+      vorschauAbschnitt.hidden = false;
+      speichernAbschnitt.hidden = false;
+
+      document.getElementById('halbjahr-auswahl').innerHTML = halbjahrOptionenHtml(datei.halbjahr);
+      document.getElementById('version-eingabe').value = datei.version;
+
+      document.getElementById('abschnitte-liste').innerHTML =
+        datei.abschnitte.length === 0
+          ? '<p class="editor-leerzustand">Noch keine Fächer vorhanden.</p>'
+          : '<ul class="editor-liste">' + datei.abschnitte.map(function (a) { return '<li>' + abschnittHtml(a) + '</li>'; }).join('') + '</ul>';
+
+      document.getElementById('bemerkungsbausteine-liste').innerHTML =
+        datei.bemerkungsbausteine.length === 0
+          ? '<p class="editor-leerzustand">Noch keine Bemerkungsbausteine vorhanden.</p>'
+          : '<ul class="editor-liste">' + datei.bemerkungsbausteine.map(function (b) { return '<li>' + bemerkungsbausteinHtml(b) + '</li>'; }).join('') + '</ul>';
+
+      var pruefung = validiere(datei);
+      document.getElementById('validierung-inhalt').innerHTML = validierungHtml(pruefung);
+
+      var exportJson = alsExportJson(datei);
+      document.getElementById('json-vorschau').textContent = JSON.stringify(exportJson, null, 2);
+      document.getElementById('speichern-dateiname').textContent = datei.halbjahr + '.json';
+
+      var herunterladenKnopf = document.getElementById('herunterladen-knopf');
+      herunterladenKnopf.disabled = pruefung.fehler.length > 0;
+      herunterladenKnopf.title = pruefung.fehler.length > 0 ? 'Behebe zuerst alle Fehler unter "Prüfung".' : '';
+
+      verdrahteEreignisse();
+
+      if (fokusZielNachRender) {
+        var ziel = document.querySelector(fokusZielNachRender);
+        fokusZielNachRender = null;
+        if (ziel) {
+          ziel.focus();
+          if (typeof ziel.setSelectionRange === 'function') {
+            var ende = ziel.value.length;
+            ziel.setSelectionRange(ende, ende);
+          }
+        }
+      }
+    }
+
+    /* ---------------- Ereignisverdrahtung ---------------- */
+
+    function beiAenderungNeuZeichnen() {
+      render();
+    }
+
+    function verdrahteEreignisse() {
+      var wurzel = document.getElementById('hauptinhalt');
+
+      // Textfelder/Selects reagieren auf "change" (Verlassen des Felds), nicht
+      // auf jeden Tastendruck – sonst würde der komplette Baum bei jedem
+      // Zeichen neu aufgebaut und der Cursor/Fokus ginge verloren.
+      wurzel.querySelectorAll('[data-feld]').forEach(function (feld) {
+        feld.addEventListener('change', function () {
+          var wert = feld.type === 'checkbox' ? feld.checked : feld.value;
+          var name = feld.dataset.feld;
+          var eintrag = null;
+          if (feld.dataset.abschnittKey) eintrag = findeAbschnitt(feld.dataset.abschnittKey);
+          else if (feld.dataset.bereichKey) eintrag = findeBereich(feld.dataset.bereichKey);
+          else if (feld.dataset.kompetenzKey) eintrag = findeKompetenz(feld.dataset.kompetenzKey);
+          else if (feld.dataset.stufeKey) eintrag = findeStufe(feld.dataset.stufeKey);
+          else if (feld.dataset.bemerkungKey) eintrag = findeBemerkungsbaustein(feld.dataset.bemerkungKey);
+          if (!eintrag) return;
+          var objekt = eintrag.objekt;
+
+          if (name === 'satzbaustein') {
+            objekt.satzbausteine[Number(feld.dataset.bausteinIndex)] = feld.value;
+          } else if (name === 'titel' && !objekt.id.trim()) {
+            objekt.titel = wert;
+            objekt.id = schlageIdVor(wert);
+          } else if (name === 'text' && !objekt.id.trim()) {
+            objekt.text = wert;
+            objekt.id = schlageIdVor(wert.split(/\s+/).slice(0, 4).join(' '));
+          } else {
+            objekt[name] = wert;
+          }
+          render();
+        });
+      });
+
+      wurzel.querySelectorAll('[data-platzhalter]').forEach(function (knopf) {
+        knopf.addEventListener('click', function () {
+          var ziel = document.querySelector(knopf.dataset.platzhalterZiel);
+          if (!ziel) return;
+          var einfuegung = '{' + knopf.dataset.platzhalter + '}';
+          var bisheriger = ziel.value;
+          var brauchtLeerzeichen = bisheriger.length > 0 && !/\s$/.test(bisheriger);
+          ziel.value = bisheriger + (brauchtLeerzeichen ? ' ' : '') + einfuegung;
+          fokusZielNachRender = knopf.dataset.platzhalterZiel;
+          ziel.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      });
+
+      function aktion(name, fn) {
+        wurzel.querySelectorAll('[data-aktion="' + name + '"]').forEach(function (knopf) {
+          knopf.addEventListener('click', function (ereignis) {
+            ereignis.preventDefault();
+            ereignis.stopPropagation();
+            fn(knopf.dataset.key);
+          });
+        });
+      }
+
+      aktion('eintrag-umschalten', function (key) {
+        if (geschlossenSet.has(key)) geschlossenSet.delete(key);
+        else geschlossenSet.add(key);
+        render();
+      });
+
+      aktion('fach-rauf', function (key) { verschiebe(findeAbschnitt(key), -1); render(); });
+      aktion('fach-runter', function (key) { verschiebe(findeAbschnitt(key), 1); render(); });
+      aktion('fach-loeschen', function (key) {
+        if (confirm('Dieses Fach inklusive aller enthaltenen Bereiche/Kompetenzen/Stufen wirklich entfernen?')) { loesche(findeAbschnitt(key)); render(); }
+      });
+      aktion('bereich-hinzufuegen', function (key) {
+        var abschnitt = findeAbschnitt(key);
+        if (!abschnitt) return;
+        geschlossenSet.delete(key);
+        abschnitt.objekt.bereiche.push(neuerBereich());
+        render();
+      });
+      aktion('bereich-rauf', function (key) { verschiebe(findeBereich(key), -1); render(); });
+      aktion('bereich-runter', function (key) { verschiebe(findeBereich(key), 1); render(); });
+      aktion('bereich-loeschen', function (key) {
+        if (confirm('Diesen Bereich inklusive aller enthaltenen Kompetenzen/Stufen wirklich entfernen?')) { loesche(findeBereich(key)); render(); }
+      });
+      aktion('kompetenz-hinzufuegen', function (key) {
+        var bereich = findeBereich(key);
+        if (!bereich) return;
+        geschlossenSet.delete(key);
+        bereich.objekt.kompetenzen.push(neueKompetenz());
+        render();
+      });
+      aktion('kompetenz-rauf', function (key) { verschiebe(findeKompetenz(key), -1); render(); });
+      aktion('kompetenz-runter', function (key) { verschiebe(findeKompetenz(key), 1); render(); });
+      aktion('kompetenz-loeschen', function (key) {
+        if (confirm('Diese Kompetenz inklusive aller Stufen wirklich entfernen?')) { loesche(findeKompetenz(key)); render(); }
+      });
+      aktion('stufe-hinzufuegen', function (key) {
+        var kompetenz = findeKompetenz(key);
+        if (!kompetenz) return;
+        geschlossenSet.delete(key);
+        kompetenz.objekt.stufen.push(neueStufe());
+        render();
+      });
+      aktion('stufe-rauf', function (key) { verschiebe(findeStufe(key), -1); render(); });
+      aktion('stufe-runter', function (key) { verschiebe(findeStufe(key), 1); render(); });
+      aktion('stufe-loeschen', function (key) {
+        if (confirm('Diese Stufe wirklich entfernen?')) { loesche(findeStufe(key)); render(); }
+      });
+      aktion('satzbaustein-hinzufuegen', function (key) {
+        var stufe = findeStufe(key);
+        if (!stufe) return;
+        stufe.objekt.satzbausteine.push('');
+        render();
+      });
+      aktion('bemerkung-rauf', function (key) { verschiebe(findeBemerkungsbaustein(key), -1); render(); });
+      aktion('bemerkung-runter', function (key) { verschiebe(findeBemerkungsbaustein(key), 1); render(); });
+      aktion('bemerkung-loeschen', function (key) {
+        if (confirm('Diesen Bemerkungsbaustein wirklich entfernen?')) { loesche(findeBemerkungsbaustein(key)); render(); }
+      });
+
+      wurzel.querySelectorAll('[data-aktion="satzbaustein-loeschen"]').forEach(function (knopf) {
+        knopf.addEventListener('click', function (ereignis) {
+          ereignis.preventDefault();
+          ereignis.stopPropagation();
+          var stufe = findeStufe(knopf.dataset.stufeKey);
+          if (!stufe) return;
+          var index = Number(knopf.dataset.bausteinIndex);
+          if (stufe.objekt.satzbausteine.length <= 1) {
+            stufe.objekt.satzbausteine[0] = '';
+          } else {
+            stufe.objekt.satzbausteine.splice(index, 1);
+          }
+          render();
+        });
+      });
+
+    }
+
+    /* ---------------- Datei laden / erstellen / herunterladen ---------------- */
+
+    function versucheDateiZuWechseln(aktion) {
+      if (datei && !confirm('Nicht heruntergeladene Änderungen an der aktuellen Datei gehen dabei verloren. Fortfahren?')) return;
+      aktion();
+    }
+
+    function ladeAusJsonText(text, fehlermeldungFallback) {
+      var roh;
+      try {
+        roh = JSON.parse(text);
+      } catch (e) {
+        alert('Die Datei enthält kein gültiges JSON.');
+        return;
+      }
+      if (typeof roh !== 'object' || roh === null) { alert('Die Datei enthält kein gültiges JSON-Objekt.'); return; }
+      if (HALBJAHRE.indexOf(roh.halbjahr) === -1) { alert('Ungültiges oder fehlendes Feld "halbjahr" (erwartet eines von: ' + HALBJAHRE.join(', ') + ').'); return; }
+      if (!Array.isArray(roh.abschnitte)) { alert('Feld "abschnitte" fehlt oder ist kein Array.'); return; }
+      if (!Array.isArray(roh.bemerkungsbausteine)) { alert('Feld "bemerkungsbausteine" fehlt oder ist kein Array.'); return; }
+      datei = uebernehmeRohdaten(roh);
+      geschlossenSet.clear();
+      render();
+    }
+
+    function initDropzone() {
+      var bereich = document.getElementById('dropzone-bereich');
+      bereich.innerHTML =
+        '<div class="editor-dropzone" id="dropzone">' +
+        '<p>JSON-Datei hier ablegen oder</p>' +
+        '<button type="button" class="knopf sekundaer" id="datei-waehlen-knopf">Datei auswählen…</button>' +
+        '<input type="file" accept="application/json,.json" class="sr-only" id="datei-eingabe" tabindex="-1" aria-hidden="true" />' +
+        '</div>';
+      var dropzone = document.getElementById('dropzone');
+      var eingabe = document.getElementById('datei-eingabe');
+
+      function verarbeite(datei_) {
+        if (!datei_) return;
+        versucheDateiZuWechseln(function () {
+          var reader = new FileReader();
+          reader.onload = function () { ladeAusJsonText(String(reader.result)); };
+          reader.readAsText(datei_, 'utf-8');
+        });
+      }
+
+      document.getElementById('datei-waehlen-knopf').addEventListener('click', function () { eingabe.click(); });
+      eingabe.addEventListener('change', function () {
+        verarbeite(eingabe.files && eingabe.files[0]);
+        eingabe.value = '';
+      });
+      var zaehler = 0;
+      dropzone.addEventListener('dragenter', function (e) { e.preventDefault(); zaehler++; dropzone.classList.add('aktiv'); });
+      dropzone.addEventListener('dragover', function (e) { e.preventDefault(); });
+      dropzone.addEventListener('dragleave', function () { zaehler = Math.max(0, zaehler - 1); if (zaehler === 0) dropzone.classList.remove('aktiv'); });
+      dropzone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        zaehler = 0;
+        dropzone.classList.remove('aktiv');
+        verarbeite(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+      });
+    }
+
+    function initServerLaden() {
+      document.getElementById('server-halbjahr-auswahl').innerHTML = halbjahrOptionenHtml('1.1');
+      document.getElementById('vom-server-laden-knopf').addEventListener('click', function () {
+        var halbjahr = document.getElementById('server-halbjahr-auswahl').value;
+        var status = document.getElementById('server-laden-status');
+        versucheDateiZuWechseln(function () {
+          status.textContent = 'Lade …';
+          fetch('kompetenzdaten/' + halbjahr + '.json', { cache: 'no-store' })
+            .then(function (antwort) {
+              if (!antwort.ok) throw new Error('HTTP ' + antwort.status);
+              return antwort.text();
+            })
+            .then(function (text) {
+              status.textContent = '';
+              ladeAusJsonText(text);
+            })
+            .catch(function () {
+              status.textContent = 'Für Halbjahr ' + halbjahr + ' ist auf diesem Server aktuell keine Datei unter kompetenzdaten/' + halbjahr + '.json abrufbar.';
+            });
+        });
+      });
+    }
+
+    function initNeuErstellen() {
+      document.getElementById('neu-halbjahr-auswahl').innerHTML = halbjahrOptionenHtml('1.1');
+      document.getElementById('neu-erstellen-knopf').addEventListener('click', function () {
+        var halbjahr = document.getElementById('neu-halbjahr-auswahl').value;
+        var version = document.getElementById('neu-version-eingabe').value;
+        versucheDateiZuWechseln(function () {
+          datei = leereDatei(halbjahr, version);
+          geschlossenSet.clear();
+          render();
+        });
+      });
+    }
+
+    function initKopfdaten() {
+      document.getElementById('halbjahr-auswahl').addEventListener('change', function (e) {
+        datei.halbjahr = e.target.value;
+        render();
+      });
+      document.getElementById('version-eingabe').addEventListener('change', function (e) {
+        datei.version = e.target.value;
+        render();
+      });
+      document.getElementById('datei-schliessen-knopf').addEventListener('click', function () {
+        versucheDateiZuWechseln(function () {
+          datei = null;
+          geschlossenSet.clear();
+          render();
+        });
+      });
+    }
+
+    function initHinzufuegenKnoepfe() {
+      document.getElementById('fach-hinzufuegen-knopf').addEventListener('click', function () {
+        datei.abschnitte.push(neuerAbschnitt());
+        render();
+      });
+      document.getElementById('bemerkungsbaustein-hinzufuegen-knopf').addEventListener('click', function () {
+        datei.bemerkungsbausteine.push(neuerBemerkungsbaustein());
+        render();
+      });
+    }
+
+    function initHerunterladen() {
+      document.getElementById('herunterladen-knopf').addEventListener('click', function () {
+        var pruefung = validiere(datei);
+        if (pruefung.fehler.length > 0) return;
+        var inhalt = JSON.stringify(alsExportJson(datei), null, 2);
+        var blob = new Blob([inhalt], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = datei.halbjahr + '.json';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        document.getElementById('herunterladen-status').textContent = '„' + datei.halbjahr + '.json" wurde heruntergeladen.';
+      });
+    }
+
+    initDropzone();
+    initServerLaden();
+    initNeuErstellen();
+    initKopfdaten();
+    initHinzufuegenKnoepfe();
+    initHerunterladen();
+    render();
+  </script>
+</body>
+</html>

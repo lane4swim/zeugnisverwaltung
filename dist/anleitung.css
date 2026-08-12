@@ -280,3 +280,290 @@ pre code {
     background: #fff;
   }
 }
+
+/* ---- Editor: Bewertungstextdatei (interaktives Werkzeug) ---- */
+
+.editor-seite main {
+  max-width: 1100px;
+}
+
+button {
+  font: inherit;
+}
+
+.knopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--farbe-primaer);
+  background: var(--farbe-primaer);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.knopf:hover {
+  background: var(--farbe-primaer-hover);
+  border-color: var(--farbe-primaer-hover);
+}
+
+.knopf.sekundaer {
+  background: var(--farbe-flaeche);
+  color: var(--farbe-text);
+  border-color: var(--farbe-rand);
+}
+
+.knopf.sekundaer:hover {
+  border-color: var(--farbe-primaer);
+}
+
+.knopf.gefahr {
+  background: var(--farbe-flaeche);
+  color: var(--farbe-gefahr);
+  border-color: #e3a29d;
+}
+
+.knopf.gefahr:hover {
+  background: #fbeceb;
+}
+
+.knopf.klein {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+.knopf:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.editor-formularzeile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.85rem;
+}
+
+.editor-formularzeile label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.editor-formularzeile .editor-hinweistext {
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: #5a6472;
+}
+
+.editor-seite input[type='text'],
+.editor-seite input[type='search'],
+.editor-seite select,
+.editor-seite textarea {
+  font: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--farbe-rand);
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  color: var(--farbe-text);
+  width: 100%;
+}
+
+.editor-seite textarea {
+  resize: vertical;
+  min-height: 2.4rem;
+}
+
+.editor-seite input.editor-feld-fehlerhaft,
+.editor-seite textarea.editor-feld-fehlerhaft {
+  border-color: var(--farbe-gefahr);
+}
+
+.editor-zeile {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.editor-zeile > .editor-formularzeile {
+  flex: 1 1 12rem;
+}
+
+.editor-knopfleiste {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.6rem 0;
+}
+
+.editor-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.editor-eintrag {
+  border: 1px solid var(--farbe-rand);
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+}
+
+/* Kopfzeile je Eintrag: Umschalt-Knopf (Titel + Pfeil) und Aktions-Knöpfe
+   (verschieben/entfernen) stehen bewusst als GESCHWISTER nebeneinander,
+   nicht ineinander verschachtelt – zwei interaktive Elemente ineinander
+   (z. B. <button> innerhalb von <summary>) sind nicht barrierefrei
+   bedienbar (WCAG 4.1.2, von axe-core als "nested-interactive" geprüft). */
+.editor-eintrag-kopf {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.6rem;
+}
+
+.editor-eintrag-umschalter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0.2rem;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--farbe-text);
+  min-width: 8rem;
+}
+
+.editor-eintrag-pfeil {
+  display: inline-block;
+  transition: transform 0.1s;
+}
+
+.editor-eintrag-umschalter[aria-expanded='true'] .editor-eintrag-pfeil {
+  transform: rotate(90deg);
+}
+
+.editor-eintrag-titel {
+  flex: 1;
+  font-weight: 600;
+}
+
+.editor-eintrag-titel .editor-hinweistext {
+  font-weight: 400;
+}
+
+.editor-eintrag-inhalt {
+  padding: 0.85rem;
+  border-top: 1px solid var(--farbe-rand);
+}
+
+/* Stufen-Einträge sind schlichte <li> ohne <summary>-Kopf (keine
+   Einklapp-Funktion nötig), daher ohne die für details vorgesehene
+   Trennlinie am Kopf. */
+.editor-stufe-inhalt {
+  padding: 0.85rem;
+}
+
+.editor-verschachtelt {
+  margin-left: 0.5rem;
+  padding-left: 0.85rem;
+  border-left: 3px solid var(--farbe-rand);
+}
+
+.editor-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--farbe-hinweis-hintergrund);
+  color: var(--farbe-primaer);
+  border: 1px solid var(--farbe-hinweis-rand);
+}
+
+.editor-badge.gefahr {
+  background: #fbeceb;
+  color: var(--farbe-gefahr);
+  border-color: #e3a29d;
+}
+
+.editor-satzbaustein {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.editor-satzbaustein textarea {
+  flex: 1;
+}
+
+.editor-platzhalter-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.3rem 0 0.6rem;
+}
+
+.editor-platzhalter-leiste button {
+  font-size: 0.78rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--farbe-rand);
+  background: #eef1f5;
+  color: var(--farbe-text);
+  cursor: pointer;
+}
+
+.editor-platzhalter-leiste button:hover {
+  border-color: var(--farbe-primaer);
+}
+
+.editor-validierung.ok {
+  background: #eaf4ea;
+  border: 1px solid #b6d9b6;
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+
+.editor-validierung ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.3rem;
+}
+
+.editor-dropzone {
+  border: 2px dashed var(--farbe-rand);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.editor-dropzone.aktiv {
+  border-color: var(--farbe-primaer);
+  background: var(--farbe-hinweis-hintergrund);
+}
+
+.editor-leerzustand {
+  color: #666;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.editor-vorschau {
+  max-height: 24rem;
+  overflow: auto;
+}
+
+.editor-statuszeile {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}

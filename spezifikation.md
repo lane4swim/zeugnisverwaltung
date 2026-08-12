@@ -297,6 +297,8 @@ Da bestehende Bewertungen (3.4) per `kompetenzId` auf die zuvor geladene Kompete
 ### 5.7 Statische Anleitung
 Ergänzend zur App selbst liegt im selben Serververzeichnis wie `index.html` eine statische, mehrseitige HTML-Anleitung (`anleitung.html` als Einstieg, verlinkt von der Kopfzeile der App aus) für alle Anwendungsfälle: Klassenverwaltung (inkl. CSV-Import), Bewerten, Bemerkungen, Word-Export, Datensicherung/Offline-Nutzung/Installation sowie – als eigene Referenzseiten – die Dateiformate der Word-Vorlage (Platzhaltersyntax, siehe 6) und der Bewertungstextdatei (siehe 4). Die Seiten sind eigenständig (kein Build-Schritt, kein JavaScript-Router) und daher unabhängig von der App auch offline/ausgedruckt nutzbar.
 
+Zusätzlich steht dort (`bewertungstextdatei-editor.html`) ein interaktives Werkzeug zum komfortablen Bearbeiten und Ergänzen von Bewertungstextdateien zur Verfügung, gedacht für Fachberater:innen/Administration (nicht für den Alltagsgebrauch durch Lehrkräfte). Es bietet Formulare für Fächer/Bereiche/Kompetenzen/Stufen/Satzbausteine/Bemerkungsbausteine samt Verschieben, Hinzufügen, Entfernen und laufender Prüfung (u. a. Eindeutigkeit von IDs, Pflichtfelder), lässt sich mit einer vorhandenen Datei per Upload oder direkt vom Server (`kompetenzdaten/<halbjahr>.json`) befüllen und läuft – analog zur restlichen App – vollständig im Browser ohne Serverkontakt. Da es sich um ein rein clientseitiges, statisches Werkzeug ohne eigene Persistenz handelt, erfolgt die „Speicherung" ausschließlich als JSON-Download; die erzeugte Datei muss die Lehrkraft/Administration anschließend manuell auf dem Server ablegen (siehe 4).
+
 ---
 
 ## 6. Platzhaltersyntax (Vorschlag, konsistent für Satzbausteine & Word-Vorlage)
