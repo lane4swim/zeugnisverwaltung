@@ -2,7 +2,12 @@ import { datensatzStore } from '../state/store';
 import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
 import type { Bemerkungsbaustein, Schueler } from '../types';
 import { ermittleAuswahlgruppen, ersetzePlatzhalter, loeseAuswahlgruppenAuf } from '../services/textgenerierung';
-import { erzeugeBemerkungstext, erzeugeVollstaendigeBausteinListe, istFachNichtRelevantBemerkungsId } from '../services/bemerkungen';
+import {
+  BEMERKUNGEN_ABSATZTRENNER,
+  erzeugeBemerkungstext,
+  erzeugeVollstaendigeBausteinListe,
+  istFachNichtRelevantBemerkungsId,
+} from '../services/bemerkungen';
 import { escapeHtml } from './bestaetigungsDialog';
 
 export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => void): HTMLElement {
@@ -77,6 +82,20 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
     `;
   }
 
+  /**
+   * Zeigt den zusammengeführten Bemerkungstext als eigene Absätze an –
+   * jeder Bemerkungsbaustein bildet dabei einen eigenen `<p>`-Absatz
+   * (spezifikation.md 5.3), analog zur Absatztrennung im späteren
+   * Word-Export (siehe wordMerge.ts).
+   */
+  function vorschauHtml(text: string): string {
+    const absaetze = text
+      .split(BEMERKUNGEN_ABSATZTRENNER)
+      .map((absatz) => `<p>${escapeHtml(absatz)}</p>`)
+      .join('');
+    return `<div class="bemerkungen-vorschau">${absaetze}</div>`;
+  }
+
   function render(): void {
     const schueler = aktuellerSchueler();
     if (!schueler) {
@@ -130,11 +149,7 @@ export function erstelleBemerkungenAnsicht(schuelerId: string, onZurueck: () => 
       </section>
       <section class="karte" aria-labelledby="bemerkungen-vorschau-titel">
         <h2 id="bemerkungen-vorschau-titel">Vorschau: zusammengeführter Bemerkungstext</h2>
-        ${
-          vorschauText
-            ? `<p class="bemerkungen-vorschau">${escapeHtml(vorschauText)}</p>`
-            : '<p class="leerzustand">Noch keine Bemerkung ausgewählt.</p>'
-        }
+        ${vorschauText ? vorschauHtml(vorschauText) : '<p class="leerzustand">Noch keine Bemerkung ausgewählt.</p>'}
       </section>
     `;
 

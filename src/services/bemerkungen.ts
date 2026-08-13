@@ -2,13 +2,28 @@ import type { Bemerkungsbaustein, KompetenzDatei, Schueler } from '../types';
 import { ersetzePlatzhalter, loeseAuswahlgruppenAuf } from './textgenerierung';
 
 /**
+ * Trennzeichen zwischen den einzelnen Bemerkungsbausteinen im von
+ * `erzeugeBemerkungstext` gelieferten Text (spezifikation.md 5.3): jeder
+ * Baustein bildet einen eigenen Absatz statt nur durch ein Leerzeichen von
+ * den übrigen getrennt zu sein. Verwendet bewusst das Unicode-Zeichen
+ * „Paragraph Separator" (U+2029) statt eines einfachen Zeilenumbruchs
+ * (`\n`), damit es sich eindeutig von manuell eingegebenem, mehrzeiligem
+ * Text unterscheiden lässt (der weiterhin als einfacher Zeilenumbruch
+ * behandelt wird) und in der Bemerkungenansicht sowie beim Word-Export
+ * gezielt in echte Absätze umgewandelt werden kann, statt als sichtbares
+ * Zeichen zu erscheinen (siehe bemerkungenAnsicht.ts, wordMerge.ts).
+ */
+export const BEMERKUNGEN_ABSATZTRENNER = ' ';
+
+/**
  * Führt die ausgewählten Bemerkungsbausteine zu einem Text zusammen
- * (spezifikation.md 5.3/6.1, Platzhalter {Bemerkungen}). Die Reihenfolge
- * folgt bewusst fest der Definitionsreihenfolge in der Kompetenzdatei
- * (spezifikation.md 5.3 nennt dies als zulässige Alternative zu einer frei
- * editierbaren Reihenfolge), unbekannte/veraltete IDs werden ignoriert.
- * Enthält ein Baustein Auswahlgruppen (z. B. `{Bronze|Silber|Gold}`, siehe
- * 3.6), werden diese anhand der je Person/Baustein gewählten
+ * (spezifikation.md 5.3/6.1, Platzhalter {Bemerkungen}), wobei jeder
+ * Baustein einen eigenen Absatz bildet (siehe BEMERKUNGEN_ABSATZTRENNER).
+ * Die Reihenfolge folgt bewusst fest der Definitionsreihenfolge in der
+ * Kompetenzdatei (spezifikation.md 5.3 nennt dies als zulässige Alternative
+ * zu einer frei editierbaren Reihenfolge), unbekannte/veraltete IDs werden
+ * ignoriert. Enthält ein Baustein Auswahlgruppen (z. B. `{Bronze|Silber|Gold}`,
+ * siehe 3.6), werden diese anhand der je Person/Baustein gewählten
  * `auspraegungen` aufgelöst (fehlt eine Auswahl, gilt die erste Option) –
  * dies gilt gleichermaßen für regulär ausgewählte wie für automatische
  * Fach-Bemerkungen (3.7), da beide über dieselbe Baustein-Liste laufen.
@@ -26,7 +41,7 @@ export function erzeugeBemerkungstext(
       const textMitAufgeloesterAuswahl = loeseAuswahlgruppenAuf(baustein.text, auspraegungen[baustein.id]);
       return ersetzePlatzhalter(textMitAufgeloesterAuswahl, schueler);
     })
-    .join(' ');
+    .join(BEMERKUNGEN_ABSATZTRENNER);
 }
 
 /**

@@ -1,9 +1,98 @@
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
+import { BEMERKUNGEN_ABSATZTRENNER } from './bemerkungen';
 
 export class WordExportFehler extends Error {}
 
 const DOCUMENT_XML_PFAD = 'word/document.xml';
+
+/**
+ * Wandelt Vorkommen von BEMERKUNGEN_ABSATZTRENNER innerhalb des gerenderten
+ * `document.xml` in echte Word-Absätze um (spezifikation.md 5.3/5.6): Jeder
+ * Bemerkungsbaustein soll im exportierten Zeugnis einen eigenen Absatz
+ * bilden statt nur durch ein Leerzeichen von den übrigen getrennt zu sein.
+ *
+ * Docxtemplater ersetzt den Platzhalter `{{Bemerkungen}}` durch den
+ * kompletten zusammengeführten Text als Inhalt eines einzelnen
+ * `<w:t>`-Elements innerhalb eines `<w:r>` in genau einem `<w:p>`. Um daraus
+ * mehrere Absätze zu machen, wird dieser eine Absatz an jedem Trennzeichen
+ * aufgespalten: Die Absatzeigenschaften (`<w:pPr>`) sowie die
+ * Formatierungseigenschaften des Laufs (`<w:rPr>`), in dem sich das
+ * Trennzeichen befindet, werden für jeden neu entstehenden Absatz
+ * übernommen, sodass Absatz-/Zeichenformatierung der Vorlage erhalten
+ * bleiben. Läufe vor dem betroffenen Lauf verbleiben im ersten, Läufe danach
+ * im letzten neuen Absatz (entspricht dem Verhalten eines manuellen
+ * Zeilenumbruchs mit der Eingabetaste mitten in einem Absatz).
+ *
+ * Entspricht die Struktur des betroffenen Absatzes nicht exakt diesem
+ * einfachen Schema (z. B. weil eine ungewöhnliche Vorlage den Platzhalter
+ * auf mehrere Läufe verteilt), wird sicherheitshalber nicht aufgespalten,
+ * sondern das Trennzeichen durch ein Leerzeichen ersetzt – so bleibt das
+ * Dokument in jedem Fall gültiges OOXML, im ungünstigsten Fall lediglich
+ * ohne Absatztrennung.
+ */
+function absatztrennerInWordAbsaetzeUmwandeln(dokumentXml: string): string {
+  if (!dokumentXml.includes(BEMERKUNGEN_ABSATZTRENNER)) return dokumentXml;
+
+  return dokumentXml.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/g, (absatz) => {
+    if (!absatz.includes(BEMERKUNGEN_ABSATZTRENNER)) return absatz;
+
+    const oeffnendesTagMatch = absatz.match(/^<w:p\b([^>]*)>/);
+    if (!oeffnendesTagMatch) return absatz.split(BEMERKUNGEN_ABSATZTRENNER).join(' ');
+    const pAttrs = oeffnendesTagMatch[1];
+    let inhalt = absatz.slice(oeffnendesTagMatch[0].length, absatz.length - '</w:p>'.length);
+
+    const pPrMatch = inhalt.match(/^<w:pPr>[\s\S]*?<\/w:pPr>/);
+    const pPr = pPrMatch ? pPrMatch[0] : '';
+    inhalt = inhalt.slice(pPr.length);
+
+    // Alle Läufe des Absatzes einsammeln, um denjenigen mit dem
+    // Trennzeichen sowie die Läufe davor/danach zu bestimmen.
+    const laufRegex = /<w:r\b[^>]*>[\s\S]*?<\/w:r>/g;
+    let treffer: RegExpExecArray | null;
+    let betroffenerLauf: { start: number; ende: number; text: string } | null = null;
+    while ((treffer = laufRegex.exec(inhalt))) {
+      if (treffer[0].includes(BEMERKUNGEN_ABSATZTRENNER)) {
+        if (betroffenerLauf) {
+          // Mehr als ein Lauf enthält das Trennzeichen – nicht sicher aufteilbar.
+          betroffenerLauf = null;
+          break;
+        }
+        betroffenerLauf = { start: treffer.index, ende: treffer.index + treffer[0].length, text: treffer[0] };
+      }
+    }
+    if (!betroffenerLauf) return `<w:p${pAttrs}>${pPr}${inhalt}</w:p>`.split(BEMERKUNGEN_ABSATZTRENNER).join(' ');
+
+    const laufOeffnendesTagMatch = betroffenerLauf.text.match(/^<w:r\b([^>]*)>/);
+    if (!laufOeffnendesTagMatch) return absatz.split(BEMERKUNGEN_ABSATZTRENNER).join(' ');
+    const rAttrs = laufOeffnendesTagMatch[1];
+    let laufInhalt = betroffenerLauf.text.slice(laufOeffnendesTagMatch[0].length, betroffenerLauf.text.length - '</w:r>'.length);
+
+    const rPrMatch = laufInhalt.match(/^<w:rPr>[\s\S]*?<\/w:rPr>/);
+    const rPr = rPrMatch ? rPrMatch[0] : '';
+    laufInhalt = laufInhalt.slice(rPr.length);
+
+    const textMatch = laufInhalt.match(/^<w:t\b([^>]*)>([\s\S]*)<\/w:t>$/);
+    if (!textMatch) return absatz.split(BEMERKUNGEN_ABSATZTRENNER).join(' ');
+    const tAttrsRoh = textMatch[1];
+    const tAttrs = /xml:space=/.test(tAttrsRoh) ? tAttrsRoh : `${tAttrsRoh} xml:space="preserve"`;
+    const text = textMatch[2];
+
+    const laeufeVor = inhalt.slice(0, betroffenerLauf.start);
+    const laeufeNach = inhalt.slice(betroffenerLauf.ende);
+
+    const stuecke = text.split(BEMERKUNGEN_ABSATZTRENNER);
+    return stuecke
+      .map((stueck, index) => {
+        const lauf = `<w:r${rAttrs}>${rPr}<w:t${tAttrs}>${stueck}</w:t></w:r>`;
+        let absatzInhalt = lauf;
+        if (index === 0) absatzInhalt = laeufeVor + absatzInhalt;
+        if (index === stuecke.length - 1) absatzInhalt = absatzInhalt + laeufeNach;
+        return `<w:p${pAttrs}>${pPr}${absatzInhalt}</w:p>`;
+      })
+      .join('');
+  });
+}
 
 function docxtemplaterFehlerBeschreiben(fehler: unknown): string[] {
   const basis = fehler instanceof Error ? fehler.message : String(fehler);
@@ -57,7 +146,7 @@ function rendereEinzelDokumentXml(templateBuffer: ArrayBuffer, datenkontext: Rec
 
   const dokumentXml = doc.getZip().file(DOCUMENT_XML_PFAD)?.asText();
   if (!dokumentXml) throw new WordExportFehler('Gerendertes Dokument enthält kein word/document.xml.');
-  return dokumentXml;
+  return absatztrennerInWordAbsaetzeUmwandeln(dokumentXml);
 }
 
 /**
