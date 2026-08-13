@@ -1,0 +1,163 @@
+{
+  "halbjahr": "2.2",
+  "version": "2026-1",
+  "abschnitte": [
+    {
+      "id": "deutsch",
+      "titel": "Deutsch",
+      "bereiche": [
+        {
+          "id": "lesen",
+          "titel": "Lesen",
+          "kompetenzen": [
+            {
+              "id": "lesen_sinnentnehmend",
+              "titel": "Sinnentnehmendes Lesen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} entnimmt einfachen Texten erste Informationen."] },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Vorname} entnimmt altersgemäßen Texten die wesentlichen Informationen.",
+                    "{Vorname} erfasst den Inhalt altersgemäßer Texte {weitgehend sicher|sicher|sehr sicher}."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} entnimmt auch komplexeren Texten {gezielt|selbstständig|sicher und selbstständig} Informationen.",
+                    "{Vorname} erschließt sich {Pronomen_Poss} unbekannte Texte {eigenständig|mit wenig Unterstützung|vollständig eigenständig}.",
+                    "{Vorname} liest {Pronomen_Akk} mit hoher Lesegeschwindigkeit vor."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "lesen_vorlesen",
+              "titel": "Vorlesen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} liest kurze, bekannte Texte laut vor."] },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} liest auch unbekannte Texte sinnbetont vor.",
+                    "{Vorname} liest flüssig und betont vor."
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "schreiben",
+          "titel": "Schreiben",
+          "kompetenzen": [
+            {
+              "id": "schreiben_rechtschreibung",
+              "titel": "Rechtschreibung",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} schreibt lautgetreu."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} wendet grundlegende Rechtschreibstrategien {teilweise|zunehmend sicher|bereits sicher} an."] },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} schreibt {weitgehend|überwiegend|nahezu durchgängig} rechtschreibsicher und nutzt {einzelne|mehrere|verschiedene} Rechtschreibstrategien."
+                  ]
+                },
+                { "stufe": 4, "bezeichnung": "vertieft", "satzbausteine": ["{Vorname} überprüft und korrigiert eigene Texte {mit Hilfe|weitgehend selbstständig|selbstständig}."] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mathematik",
+      "titel": "Mathematik",
+      "bereiche": [
+        {
+          "id": "zahlen_operationen",
+          "titel": "Zahlen und Operationen",
+          "kompetenzen": [
+            {
+              "id": "mathe_kopfrechnen",
+              "titel": "Kopfrechnen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} löst einfache Kopfrechenaufgaben im Zahlenraum bis 100."] },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} löst Kopfrechenaufgaben im Zahlenraum bis 1000 {weitgehend sicher|sicher|sehr sicher}.",
+                    "{Vorname} beherrscht das Kopfrechnen im Zahlenraum bis 1000 {gut|sehr gut} und wendet {Pronomen_Poss} Rechenstrategien flexibel an."
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "religion",
+      "titel": "Religion",
+      "optional": true,
+      "nichtRelevantBemerkung": "{Vorname} nahm {in diesem Halbjahr|während des gesamten Halbjahres} nicht am Religionsunterricht teil.",
+      "bereiche": [
+        {
+          "id": "religion_allgemein",
+          "titel": "Religiöse Bildung",
+          "kompetenzen": [
+            {
+              "id": "religion_erzaehlungen",
+              "titel": "Biblische Erzählungen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} hört biblischen Erzählungen aufmerksam zu."] },
+                { "stufe": 2, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} gibt biblische Erzählungen {sicher|zunehmend sicher} in eigenen Worten wieder."] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sport",
+      "titel": "Sport",
+      "optional": true,
+      "bereiche": [
+        {
+          "id": "sport_schwimmen",
+          "titel": "Schwimmen",
+          "kompetenzen": [
+            {
+              "id": "sport_schwimmen_technik",
+              "titel": "Schwimmtechnik",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} bewegt sich im Wasser mit Unterstützung fort."] },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} schwimmt eine Bahn {mit|ohne} Hilfsmittel {sicher|weitgehend sicher}.",
+                    "{Vorname} zeigt {Pronomen_Poss} Schwimmtechnik {zunehmend|bereits} ausdauernd."
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "bemerkungsbausteine": [
+    { "id": "bem_hilfsbereit", "text": "{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit." },
+    { "id": "bem_konzentriert", "text": "{Vorname} arbeitet {konzentriert|ausdauernd|konzentriert und ausdauernd}." },
+    { "id": "bem_klassendienst", "text": "{Vorname} übernimmt {zuverlässig|gerne|zuverlässig und gerne} Klassendienste." },
+    { "id": "bem_sozial", "text": "{Vorname} geht {Pronomen_Dat} Mitschüler:innen gegenüber {respektvoll|freundlich|respektvoll und freundlich} um." },
+    { "id": "bem_schwimmabzeichen", "text": "{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}." }
+  ]
+}
