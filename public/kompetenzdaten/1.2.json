@@ -1,0 +1,463 @@
+{
+  "halbjahr": "1.2",
+  "version": "2026-01",
+  "abschnitte": [
+    {
+      "id": "sozialverhalten",
+      "titel": "Sozialverhalten",
+      "bereiche": [
+        {
+          "id": "sozialverhalten_allgemein",
+          "titel": "Sozialverhalten",
+          "kompetenzen": [
+            {
+              "id": "orientierung_im_schulalltag",
+              "titel": "Orientierung im Schulalltag",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Vorname} benötigt noch Unterstützung, um sich im Schulalltag zurecht zu finden."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Vorname} findet sich {zunehmend|in der Regel} im Schulalltag zurecht."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} findet sich {gut|mühelos} im Schulalltag zurecht."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "regelumsetzung",
+              "titel": "Regelumsetzung",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "Es gelingt {Pronomen_Dat} {noch nicht zuverlässig|schon besser|zunehmend} schulische Regeln und Vereinbarungen einzuhalten."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "Es gelingt {Pronomen_Dat} einige schulische Regeln und Vereinbarungen einzuhalten."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Zuverlässig|Meistens} gelingt es {Pronomen_Dat} alle schulischen Regeln und Vereinbarungen einzuhalten."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "kontakte",
+              "titel": "Kontakte",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "In der Klasse hat {Pronomen_Nom} bisher kaum engere Kontakte geknüpft."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "In der Klasse hat {Pronomen_Nom} Kontakte geknüpft."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "In der Klasse hat {Pronomen_Dat} {engere|viele} Kontakte geknüpft."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "miteinander",
+              "titel": "Miteinander",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Pronomen_Poss_en} Mitschülern begegnet {Vorname} immer öfter freundlich und hilfsbereit{, sowie zunehmend rücksichtsvoll|und bemüht sich, Grenzen und Regeln einzuhalten}."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Pronomen_Poss_en} Mitschülern begegnet {Vorname} in der Regel freundlich und kann sich {überwiegend|meistens|stets} an Grenzen und Regeln halten."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Pronomen_Poss_en} Mitschülern begegnet {Vorname} stets freundlich und {hält sich zuverlässig an Regeln und Grenzen|hilfsbereit, sowie rücksichtsvoll}."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "zusammenarbeit",
+              "titel": "Zusammenarbeit",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "Gerne arbeitet {Pronomen_Nom} mit ausgewählten Mitschülern zusammen."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "Gerne arbeitet {Pronomen_Nom} mit einigen Mitschülern zusammen."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "Gerne arbeitet {Pronomen_Nom} mit {Pronomen_Poss_en} Mitschülern zusammen."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "interessen",
+              "titel": "Interessen",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Pronomen_Nom} kann {Pronomen_Poss_e} Interessen jedoch noch nicht immer zurückstellen."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Pronomen_Nom} stimmt {Pronomen_Poss_e} eigenen Interessen {zunehmend|meistens} mit den Interessen anderer ab."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Pronomen_Nom} stimmt {Pronomen_Poss_e} eigenen Interessen {zunehmend|meistens} mit den Interessen anderer angemessen ab."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "kompromisse",
+              "titel": "Kompromisse",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "Immer öfter bemüht {Pronomen_Nom} sich, Kompromisse zu finden."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "Immer zuverlässiger kann {Pronomen_Nom} Kompromisse finden."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Pronomen_Nom} ist immer bereit, Kompromisse zu finden."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "hilfe",
+              "titel": "Hilfe",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "Mitschülern bietet {Vorname} Hilfe an, ist aber noch nicht in der Lage, diese selbst anzunehmen."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "Mitschülern bietet {Vorname} Hilfe an, ist aber noch nicht in der Lage, diese selbst anzunehmen."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "Mitschülern bietet {Vorname} Hilfe an und kann diese selbst annehmen."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "losungsvorschlage",
+              "titel": "Lösungsvorschläge",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "Es geling {Pronomen_Dat} noch nicht {immer|}, sich in andere einzufühlen."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "Es gelingt {Pronomen_Dat} {zunehmend|meistens}, sich in andere einzufühlen."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "Es gelingt {Pronomen_Dat} stets, sich in andere einzufühlen, und eigene Lösungsvorschläge zu formulieren."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "losungsakzeptanz",
+              "titel": "Lösungsakzeptanz",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Selten|Zunehmend} akzeptiert {Pronomen_Nom} Lösungsvorschläge."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Meistens|In der Regel} akzeptiert {Pronomen_Nom} Lösungsvorschläge."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "Bereitwillig akzeptiert {Pronomen_Nom} Lösungsvorschläge."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "aufgabenubernahme",
+              "titel": "Aufgabenübernahme",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "Aufgaben und Pflichten für die Gemeinschaft übernimmt {Vorname} gerne und erledigt diese mit Unterstützung zuverlässig."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "Aufgaben und Pflichten für die Gemeinschaft übernimmt {Vorname} gerne und erledigt diese meistens zuverlässig."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "Aufgaben und Pflichten für die Gemeinschaft übernimmt {Vorname} gerne und erledigt diese {in der Regel|stets} zuverlässig."
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mathematik",
+      "titel": "Mathematik",
+      "bereiche": [
+        {
+          "id": "mathematik_allgemein",
+          "titel": "Mathematik",
+          "kompetenzen": [
+            {
+              "id": "zahlenraum",
+              "titel": "Zahlenraum",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "Sich im Zahlenraum bis 20 zu orientieren, fällt {Vorname} noch schwer. {Pronomen_Nom} verfügt über eine Grundvorstellung der Addition und Subtraktion. Beim Lösen {Pronomen_Poss_er} Aufgaben benötigt {Pronomen_Nom} mitunter noch Hilfe. Ohne Material zu benutzen, kann {Pronomen_Nom} die gestellten Aufgaben nur selten lösen. Außerdem braucht {Pronomen_Nom} zur Bewältigung der Aufgaben noch viel Zeit. "
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "Im Zahlenraum bis 20 kann {Vorname} sich weitgehend orientieren und verfügt über eine Grundvorstellung der Addition und Subtraktion. Alle gestellten Aufgaben löst {Pronomen_Nom} nahezu sicher und eigenständig. Wenn es sinnvoll ist, nimmt {Pronomen_Nom} dabei Material zu Hilfe."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "Im Zahlenraum bis 20 {und darüber hinaus |}kann {Vorname} sich ohne Probleme orientieren und verfügt über eine gesicherte Vorstellung der Addition und Subtraktion. Alle gestellten Aufgaben löst {Pronomen_Nom} sicher{, schnell|} und eigenständig."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "zusammenhange",
+              "titel": "Zusammenhänge",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "Um mathematische Zusammenhänge durchschauen zu können, benötigt {Pronomen_Nom} noch {viel Unterstützung|etwas Zeit und gelegentlich einen Denkanstoß}."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Pronomen_Nom} durchschaut mathematische Zusammenhänge und Gesetzmäßigkeiten, nutzt verschiedene Rechenwege und kann diese beschreiben und erklären."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "Mathematische Zusammenhänge und Gesetzmäßigkeiten durchschaut {Pronomen_Nom} rasch, nutzt verschiedene Strategien und Rechenwege und kann diese präzise beschreiben und erklären. "
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "geometrie",
+              "titel": "Geometrie",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Vorname} kennt einige geometrischen Formen und ist noch nicht sicher in der Lage ihre Eigenschaften beschreiben."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Vorname} kennt die wichtigsten geometrischen Formen und kann ihre Eigenschaften {zunehmend|meistens|in der Regel} beschreiben."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} kennt die wichtigsten geometrischen Formen und kann ihre Eigenschaften sicher beschreiben."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "geldwerte",
+              "titel": "Geldwerte",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Pronomen_Nom} hat eine erste Grundvorstellung zu Geldwerten entwickelt, kann Geldbeträge teilweise legen und damit rechnen."
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "{Pronomen_Nom} hat eine Grundvorstellung zu Geldwerten entwickelt, kann Geldbeträge {teilweise|meist sicher} legen und damit rechnen."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Pronomen_Nom} hat eine gesicherte Vorstellung zu Geldwerten entwickelt, kann Geldbeträge legen und damit sicher rechnen."
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "sachaufgaben",
+              "titel": "Sachaufgaben",
+              "stufen": [
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": [
+                    "{Vorname} hat noch Mühe, Sachaufgaben zu durchschauen und in Rechenaufgaben umzusetzen.\n"
+                  ]
+                },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": [
+                    "Es gelingt {Pronomen_Dat}, einfache Sachsituationen und Bildsachaufgaben mathematisch zu erfassen und die richtige Rechenaufgabe zuzuordnen."
+                  ]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "Es fällt {Pronomen_Dat} leicht, Sachsituationen und Bildsachaufgaben mathematisch zu erfassen, zu beschreiben und die richtige Rechenaufgabe zuzuordnen."
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "bemerkungsbausteine": []
+}
