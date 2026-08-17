@@ -1,11 +1,33 @@
 {
   "halbjahr": "2.2",
-  "version": "2026-1",
+  "version": "2026-2",
   "abschnitte": [
     {
       "id": "deutsch",
       "titel": "Deutsch",
       "bereiche": [
+        {
+          "id": "sprechen_zuhoeren",
+          "titel": "Sprechen und Zuhören",
+          "kompetenzen": [
+            {
+              "id": "zuhoeren_gespraeche",
+              "titel": "Zuhören und Gespräche führen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} hört bei Gesprächen im Sitzkreis {noch nicht immer|nur kurze Zeit} aufmerksam zu."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["Es gelingt {Pronomen_Dat} zunehmend, aufmerksam zuzuhören und sich {auf Nachfrage|gelegentlich} an Gesprächen zu beteiligen."] },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} hört aufmerksam zu und beteiligt sich {rege|aktiv|selbstständig} an Gesprächen.",
+                    "{Vorname} hört den Beiträgen anderer aufmerksam zu und geht {darauf ein|angemessen darauf ein}."
+                  ]
+                }
+              ]
+            }
+          ]
+        },
         {
           "id": "lesen",
           "titel": "Lesen",
@@ -14,22 +36,21 @@
               "id": "lesen_sinnentnehmend",
               "titel": "Sinnentnehmendes Lesen",
               "stufen": [
-                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} entnimmt einfachen Texten erste Informationen."] },
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} entnimmt einfachen, kurzen Texten erste Informationen."] },
                 {
                   "stufe": 2,
                   "bezeichnung": "grundlegend",
                   "satzbausteine": [
                     "{Vorname} entnimmt altersgemäßen Texten die wesentlichen Informationen.",
-                    "{Vorname} erfasst den Inhalt altersgemäßer Texte {weitgehend sicher|sicher|sehr sicher}."
+                    "{Vorname} erfasst den Inhalt altersgemäßer Texte {weitgehend sicher|zunehmend sicher}."
                   ]
                 },
                 {
                   "stufe": 3,
                   "bezeichnung": "sicher",
                   "satzbausteine": [
-                    "{Vorname} entnimmt auch komplexeren Texten {gezielt|selbstständig|sicher und selbstständig} Informationen.",
-                    "{Vorname} erschließt sich {Pronomen_Poss_e} unbekannten Texte {eigenständig|mit wenig Unterstützung|vollständig eigenständig}.",
-                    "{Vorname} liest {Pronomen_Akk} mit hoher Lesegeschwindigkeit vor."
+                    "{Vorname} entnimmt altersgemäßen Texten {sicher|selbstständig|sicher und selbstständig} die wesentlichen Informationen.",
+                    "{Vorname} erschließt sich {Pronomen_Poss_e} Texte {zunehmend selbstständig|weitgehend selbstständig}."
                   ]
                 }
               ]
@@ -38,15 +59,16 @@
               "id": "lesen_vorlesen",
               "titel": "Vorlesen",
               "stufen": [
-                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} liest kurze, bekannte Texte laut vor."] },
                 {
-                  "stufe": 2,
-                  "bezeichnung": "sicher",
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
                   "satzbausteine": [
-                    "{Vorname} liest auch unbekannte Texte sinnbetont vor.",
-                    "{Vorname} liest flüssig und betont vor."
+                    "{Vorname} liest kurze, bekannte Texte {Wort für Wort|noch stockend} vor.",
+                    "{Vorname} liest kurze, bekannte Texte mit Unterstützung vor."
                   ]
-                }
+                },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} liest bekannte Texte {zunehmend flüssig|schon recht flüssig} vor."] },
+                { "stufe": 3, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} liest auch unbekannte Texte flüssig und sinnbetont vor."] }
               ]
             }
           ]
@@ -56,19 +78,46 @@
           "titel": "Schreiben",
           "kompetenzen": [
             {
+              "id": "schreiben_texte",
+              "titel": "Texte verfassen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} verfasst {mit Unterstützung|nach Vorgaben} kurze eigene Texte."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} verfasst eigene Texte zu {vorgegebenen|selbst gewählten} Themen."] },
+                { "stufe": 3, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} verfasst eigene Texte {strukturiert und ideenreich|eigenständig und ideenreich}."] }
+              ]
+            },
+            {
               "id": "schreiben_rechtschreibung",
               "titel": "Rechtschreibung",
               "stufen": [
                 { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} schreibt lautgetreu."] },
-                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} wendet grundlegende Rechtschreibstrategien {teilweise|zunehmend sicher|bereits sicher} an."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} wendet grundlegende Rechtschreibstrategien {teilweise|zunehmend sicher} an."] },
                 {
                   "stufe": 3,
                   "bezeichnung": "sicher",
                   "satzbausteine": [
-                    "{Vorname} schreibt {weitgehend|überwiegend|nahezu durchgängig} rechtschreibsicher und nutzt {einzelne|mehrere|verschiedene} Rechtschreibstrategien."
+                    "{Vorname} schreibt {weitgehend|überwiegend} rechtschreibsicher und nutzt {einzelne|mehrere} Rechtschreibstrategien."
                   ]
-                },
-                { "stufe": 4, "bezeichnung": "vertieft", "satzbausteine": ["{Vorname} überprüft und korrigiert eigene Texte {mit Hilfe|weitgehend selbstständig|selbstständig}."] }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sprache_untersuchen",
+          "titel": "Sprache und Sprachgebrauch untersuchen",
+          "kompetenzen": [
+            {
+              "id": "sprache_wortarten",
+              "titel": "Wortarten unterscheiden",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} erkennt Nomen {mit Unterstützung|teilweise}."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} erkennt Nomen und Verben {in einfachen Sätzen|zunehmend sicher}."] },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": ["{Vorname} erkennt Nomen, Verben und Adjektive sicher und wendet die Großschreibung von Nomen {zuverlässig an|sicher an}."]
+                }
               ]
             }
           ]
@@ -84,16 +133,158 @@
           "titel": "Zahlen und Operationen",
           "kompetenzen": [
             {
+              "id": "mathe_zahlenraum",
+              "titel": "Zahlenraumverständnis",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} orientiert sich im Zahlenraum bis 100 {mit Unterstützung|noch unsicher}."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} orientiert sich im Zahlenraum bis 100 {zunehmend sicher|weitgehend sicher}."] },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": ["{Vorname} orientiert sich im Zahlenraum bis 100 sicher und {kann Zahlen zerlegen und ordnen|erkennt Zahlbeziehungen}."]
+                }
+              ]
+            },
+            {
               "id": "mathe_kopfrechnen",
               "titel": "Kopfrechnen",
               "stufen": [
-                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} löst einfache Kopfrechenaufgaben im Zahlenraum bis 100."] },
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} löst einfache Kopfrechenaufgaben im Zahlenraum bis 20."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} löst Kopfrechenaufgaben im Zahlenraum bis 100 {mit Hilfsmitteln|zunehmend sicher}."] },
                 {
-                  "stufe": 2,
+                  "stufe": 3,
                   "bezeichnung": "sicher",
                   "satzbausteine": [
-                    "{Vorname} löst Kopfrechenaufgaben im Zahlenraum bis 1000 {weitgehend sicher|sicher|sehr sicher}.",
-                    "{Vorname} beherrscht das Kopfrechnen im Zahlenraum bis 1000 {gut|sehr gut} und wendet {Pronomen_Poss_e} Rechenstrategien flexibel an."
+                    "{Vorname} löst Kopfrechenaufgaben im Zahlenraum bis 100 {sicher|sicher und zügig} und wendet {Pronomen_Poss_e} Rechenstrategien {flexibel|zunehmend flexibel} an."
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "groessen_messen",
+          "titel": "Größen und Messen",
+          "kompetenzen": [
+            {
+              "id": "mathe_groessen",
+              "titel": "Umgang mit Größen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} kennt {einzelne|erste} Größen wie Geldbeträge, Längen oder Zeitspannen."] },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": ["{Vorname} vergleicht und ordnet Größen wie Geldbeträge, Längen und Zeitspannen {zunehmend sicher|meist sicher}."]
+                },
+                { "stufe": 3, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} rechnet {sicher|zunehmend sicher} mit Größen wie Geldbeträgen, Längen und Zeitspannen."] }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "raum_form",
+          "titel": "Raum und Form",
+          "kompetenzen": [
+            {
+              "id": "mathe_geometrie",
+              "titel": "Geometrische Formen",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} benennt {einzelne|einfache} geometrische Formen."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} benennt geometrische Formen und beschreibt {erste|einige} Eigenschaften."] },
+                { "stufe": 3, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} benennt geometrische Formen sicher und beschreibt ihre Eigenschaften {treffend|selbstständig}."] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sachunterricht",
+      "titel": "Sachunterricht",
+      "bereiche": [
+        {
+          "id": "natur_leben",
+          "titel": "Natur und Leben",
+          "kompetenzen": [
+            {
+              "id": "sachunterricht_pflanzen_tiere",
+              "titel": "Pflanzen und Tiere",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} kennt {einzelne|erste} heimische Pflanzen und Tiere."] },
+                {
+                  "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": ["{Vorname} kennt {viele|mehrere} heimische Pflanzen und Tiere und beschreibt {einfache|erste} Zusammenhänge."]
+                },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} kennt heimische Pflanzen und Tiere und beschreibt ihre Lebensräume {anschaulich|sicher}. {Pronomen_Nom} zeigt dabei großes Interesse an Zusammenhängen in der Natur."
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mensch_gemeinschaft",
+          "titel": "Mensch und Gemeinschaft",
+          "kompetenzen": [
+            {
+              "id": "sachunterricht_regeln",
+              "titel": "Regeln des Zusammenlebens",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} benennt {einzelne|einige} Regeln des Zusammenlebens."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} benennt Regeln des Zusammenlebens und begründet sie {ansatzweise|teilweise}."] },
+                { "stufe": 3, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} benennt Regeln des Zusammenlebens und begründet sie {nachvollziehbar|sicher}."] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sport",
+      "titel": "Sport",
+      "bereiche": [
+        {
+          "id": "spielen",
+          "titel": "Spielen",
+          "kompetenzen": [
+            {
+              "id": "sport_spiele",
+              "titel": "Mannschaftsspiele",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} nimmt an einfachen Bewegungsspielen {mit Freude|teilweise} teil."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} nimmt an Mannschaftsspielen teil und hält sich {meist|überwiegend} an Regeln."] },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} nimmt an Mannschaftsspielen {aktiv und fair|sicher und fair} teil, hält sich zuverlässig an Regeln und hilft {Pronomen_Poss_en} Mitspielern bei Bedarf."
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "bewegen_im_wasser",
+          "titel": "Bewegen im Wasser",
+          "kompetenzen": [
+            {
+              "id": "sport_schwimmen_technik",
+              "titel": "Schwimmtechnik",
+              "stufen": [
+                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} bewegt sich im Wasser mit Unterstützung fort."] },
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} bewegt sich {zunehmend sicher|mit Hilfsmitteln sicher} im Wasser fort."] },
+                {
+                  "stufe": 3,
+                  "bezeichnung": "sicher",
+                  "satzbausteine": [
+                    "{Vorname} schwimmt eine Bahn {mit|ohne} Hilfsmittel {sicher|weitgehend sicher}.",
+                    "{Vorname} zeigt {Pronomen_Poss_e} Schwimmtechnik {zunehmend|bereits} ausdauernd."
                   ]
                 }
               ]
@@ -117,7 +308,8 @@
               "titel": "Biblische Erzählungen",
               "stufen": [
                 { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} hört biblischen Erzählungen aufmerksam zu."] },
-                { "stufe": 2, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} gibt biblische Erzählungen {sicher|zunehmend sicher} in eigenen Worten wieder."] }
+                { "stufe": 2, "bezeichnung": "grundlegend", "satzbausteine": ["{Vorname} hört biblischen Erzählungen aufmerksam zu und gibt {einzelne|erste} Inhalte wieder."] },
+                { "stufe": 3, "bezeichnung": "sicher", "satzbausteine": ["{Vorname} gibt biblische Erzählungen {sicher|zunehmend sicher} in eigenen Worten wieder."] }
               ]
             }
           ]
@@ -125,26 +317,32 @@
       ]
     },
     {
-      "id": "sport",
-      "titel": "Sport",
+      "id": "praktische_philosophie",
+      "titel": "Praktische Philosophie",
       "optional": true,
       "bereiche": [
         {
-          "id": "sport_schwimmen",
-          "titel": "Schwimmen",
+          "id": "praktische_philosophie_allgemein",
+          "titel": "Werte und Zusammenleben",
           "kompetenzen": [
             {
-              "id": "sport_schwimmen_technik",
-              "titel": "Schwimmtechnik",
+              "id": "pp_fragen",
+              "titel": "Über Fragen des Zusammenlebens nachdenken",
               "stufen": [
-                { "stufe": 1, "bezeichnung": "beginnend", "satzbausteine": ["{Vorname} bewegt sich im Wasser mit Unterstützung fort."] },
+                {
+                  "stufe": 1,
+                  "bezeichnung": "beginnend",
+                  "satzbausteine": ["{Vorname} beteiligt sich {vereinzelt|auf Nachfrage} an Gesprächen über Werte und Fragen des Zusammenlebens."]
+                },
                 {
                   "stufe": 2,
+                  "bezeichnung": "grundlegend",
+                  "satzbausteine": ["{Vorname} beteiligt sich an Gesprächen über Werte und Fragen des Zusammenlebens und {äußert eigene Gedanken|bringt eigene Ideen ein}."]
+                },
+                {
+                  "stufe": 3,
                   "bezeichnung": "sicher",
-                  "satzbausteine": [
-                    "{Vorname} schwimmt eine Bahn {mit|ohne} Hilfsmittel {sicher|weitgehend sicher}.",
-                    "{Vorname} zeigt {Pronomen_Poss_e} Schwimmtechnik {zunehmend|bereits} ausdauernd."
-                  ]
+                  "satzbausteine": ["{Vorname} beteiligt sich {aktiv und nachdenklich|rege} an Gesprächen über Werte und Fragen des Zusammenlebens."]
                 }
               ]
             }
@@ -157,7 +355,7 @@
     { "id": "bem_hilfsbereit", "text": "{Vorname} zeigt sich {Pronomen_Poss_en} Mitschüler:innen gegenüber hilfsbereit." },
     { "id": "bem_konzentriert", "text": "{Vorname} arbeitet {konzentriert|ausdauernd|konzentriert und ausdauernd}." },
     { "id": "bem_klassendienst", "text": "{Vorname} übernimmt {zuverlässig|gerne|zuverlässig und gerne} Klassendienste." },
-    { "id": "bem_sozial", "text": "{Vorname} geht {Pronomen_Dat} Mitschüler:innen gegenüber {respektvoll|freundlich|respektvoll und freundlich} um." },
+    { "id": "bem_sozial", "text": "{Vorname} geht mit {Pronomen_Poss_en} Mitschüler:innen {respektvoll|freundlich|respektvoll und freundlich} um." },
     { "id": "bem_schwimmabzeichen", "text": "{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}." }
   ]
 }
