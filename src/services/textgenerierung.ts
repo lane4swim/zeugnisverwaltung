@@ -9,11 +9,39 @@ interface Pronomentabelle {
 }
 
 // Feste Ersetzungstabelle gemäß spezifikation.md 5.4/6.2: ausschließlich
-// binär "w"/"m", "divers" wird bewusst nicht angeboten.
+// binär "w"/"m", "divers" wird bewusst nicht angeboten. `poss` ist bewusst
+// nur der Stamm des Possessivpronomens (die endungslose Form, korrekt für
+// z. B. "sein Arbeitsmaterial") – die übrigen Deklinationsformen (siehe
+// PRONOMEN_POSS_ENDUNGEN) werden daraus abgeleitet.
 const PRONOMEN: Record<Geschlecht, Pronomentabelle> = {
   w: { nom: 'sie', akk: 'sie', dat: 'ihr', poss: 'ihr' },
   m: { nom: 'er', akk: 'ihn', dat: 'ihm', poss: 'sein' },
 };
+
+/**
+ * Possessivpronomen ("ein-Wörter" wie sein/ihr) dekliniert vollständig
+ * regelmäßig durch Anhängen einer Endung an den Stamm – anders als bei
+ * Personalpronomen (Pronomen_Nom/_Akk/_Dat) reicht daher eine einzige feste
+ * Zeichenkette je Geschlecht nicht aus: "sein Arbeitsmaterial" (Neutrum
+ * Singular, endungslos) braucht eine andere Form als "seine
+ * Arbeitsmaterialien" (Plural, Endung „-e"). Diese Tabelle bildet die in
+ * Zeugnistexten vorkommenden Fälle auf ihre Endung ab (spezifikation.md 6.1/
+ * 6.2); der Platzhaltername entspricht jeweils der angehängten Endung.
+ */
+const PRONOMEN_POSS_ENDUNGEN = {
+  /** Maskulinum Nominativ Singular, Neutrum Nominativ/Akkusativ Singular, z. B. "sein Arbeitsmaterial". */
+  Poss: '',
+  /** Femininum Nominativ/Akkusativ Singular, Plural Nominativ/Akkusativ, z. B. "seine Arbeitsmaterialien". */
+  Poss_e: 'e',
+  /** Maskulinum Akkusativ Singular, Plural Dativ, z. B. "seinen Mitschüler:innen". */
+  Poss_en: 'en',
+  /** Maskulinum/Neutrum Dativ Singular, z. B. "seinem Heft". */
+  Poss_em: 'em',
+  /** Maskulinum/Neutrum Genitiv Singular, z. B. "seines Hefts". */
+  Poss_es: 'es',
+  /** Femininum Dativ/Genitiv Singular, Plural Genitiv, z. B. "seiner Mappe". */
+  Poss_er: 'er',
+} satisfies Record<string, string>;
 
 /**
  * Liefert die Schülerstammdaten-Platzhalter aus spezifikation.md 6.1 als
@@ -22,13 +50,19 @@ const PRONOMEN: Record<Geschlecht, Pronomentabelle> = {
  */
 export function erzeugeSchuelerFelder(schueler: Schueler): Record<string, string> {
   const pronomen = PRONOMEN[schueler.geschlecht];
+  const possessivFelder = Object.fromEntries(
+    Object.entries(PRONOMEN_POSS_ENDUNGEN).map(([platzhalter, endung]) => [
+      `Pronomen_${platzhalter}`,
+      `${pronomen.poss}${endung}`,
+    ]),
+  );
   return {
     Vorname: schueler.vorname,
     Nachname: schueler.nachname,
     Pronomen_Nom: pronomen.nom,
     Pronomen_Akk: pronomen.akk,
     Pronomen_Dat: pronomen.dat,
-    Pronomen_Poss: pronomen.poss,
+    ...possessivFelder,
     Geburtsdatum: formatiereDatum(schueler.geburtsdatum),
   };
 }

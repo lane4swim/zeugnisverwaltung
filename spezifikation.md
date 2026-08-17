@@ -150,7 +150,7 @@ Hierarchie: **Abschnitt → Bereich → Kompetenz → Stufe → Satzbausteine**
     }
   ],
   "bemerkungsbausteine": [
-    { "id": "bem_hilfsbereit", "text": "{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit." }
+    { "id": "bem_hilfsbereit", "text": "{Vorname} zeigt sich {Pronomen_Poss_en} Mitschüler:innen gegenüber hilfsbereit." }
   ]
 }
 ```
@@ -318,7 +318,12 @@ Zusätzlich steht dort (`bewertungstextdatei-editor.html`) ein interaktives Werk
 | `{Pronomen_Nom}` | er / sie |
 | `{Pronomen_Akk}` | ihn / sie |
 | `{Pronomen_Dat}` | ihm / ihr |
-| `{Pronomen_Poss}` | sein / ihr |
+| `{Pronomen_Poss}` | sein / ihr (endungslos, siehe 6.2) |
+| `{Pronomen_Poss_e}` | seine / ihre (siehe 6.2) |
+| `{Pronomen_Poss_en}` | seinen / ihren (siehe 6.2) |
+| `{Pronomen_Poss_em}` | seinem / ihrem (siehe 6.2) |
+| `{Pronomen_Poss_es}` | seines / ihres (siehe 6.2) |
+| `{Pronomen_Poss_er}` | seiner / ihrer (siehe 6.2) |
 | `{Geburtsdatum}` | formatiert TT.MM.JJJJ |
 | `{Bereich:lesen}` | eingefügter Bewertungstext des Bereichs „Lesen" |
 | `{Kompetenz:lesen_sinnentnehmend}` | Text der einzelnen Kompetenz |
@@ -328,6 +333,19 @@ In der Word-Datei werden dieselben Bezeichner in doppelten geschweiften Klammern
 
 ### 6.2 Hinweis zur Pronomenlogik
 Da „Geschlecht divers" gemäß Vorgabe nicht berücksichtigt wird, basiert die Pronomenersetzung ausschließlich auf einer binären Zuordnung (`w`/`m`). Eine Erweiterung ist architektonisch möglich (zusätzliche Spalte in der Ersetzungstabelle, zusätzlicher Wert im `geschlecht`-Feld), ist aber **nicht** Teil des aktuellen Funktionsumfangs.
+
+**Deklination des Possessivpronomens:** Anders als die Personalpronomen (`{Pronomen_Nom}`/`{Pronomen_Akk}`/`{Pronomen_Dat}`, die als eigenständiges Wort stehen und daher pro Geschlecht eine einzige feste Form haben) *begleitet* das Possessivpronomen ein Nomen und muss sich in Kasus, Numerus und Genus **nach diesem Nomen** richten – nicht nur nach dem Geschlecht der bewerteten Person. „sein"/„ihr" ist dabei nur die endungslose Form (korrekt z. B. bei „sein Arbeitsmaterial", Neutrum Singular), für andere Fälle braucht es eine andere Endung, z. B. „seine Arbeitsmaterialien" (Plural) oder „seinen Mitschüler:innen" (Dativ Plural). Da Possessivpronomen wie „ein"-Wörter vollständig regelmäßig durch Anhängen einer Endung an den Stamm dekliniert werden, stellt die App sechs Varianten bereit – die endungslose Form sowie je eine Form für die Endungen `-e`, `-en`, `-em`, `-es`, `-er` (siehe 6.1). Beim Verfassen eines Satz- oder Bemerkungsbausteins ist daher die zum jeweiligen Nomen passende Variante zu wählen:
+
+| Verwendung | Platzhalter | Beispiel |
+|---|---|---|
+| Maskulinum/Neutrum Nominativ Singular; Neutrum Akkusativ Singular | `{Pronomen_Poss}` | „sein Arbeitsmaterial" |
+| Femininum Nominativ/Akkusativ Singular; Plural Nominativ/Akkusativ | `{Pronomen_Poss_e}` | „seine Arbeitsmaterialien" |
+| Maskulinum Akkusativ Singular; Plural Dativ | `{Pronomen_Poss_en}` | „seinen Mitschüler:innen" |
+| Maskulinum/Neutrum Dativ Singular | `{Pronomen_Poss_em}` | „seinem Heft" |
+| Maskulinum/Neutrum Genitiv Singular | `{Pronomen_Poss_es}` | „seines Hefts" |
+| Femininum Dativ/Genitiv Singular; Plural Genitiv | `{Pronomen_Poss_er}` | „seiner Mappe" |
+
+Eine automatische Erkennung des richtigen Falls ist nicht möglich, da die App das auf den Platzhalter folgende Nomen inhaltlich nicht kennt (reine Textersetzung ohne Sprachverständnis) – die Wahl der passenden Variante obliegt beim Verfassen eines Bausteins bewusst der Autorin/dem Autor.
 
 ### 6.3 Auswahlgruppen in Bemerkungs- und Satzbausteinen
 Zusätzlich zu den benannten Platzhaltern aus 6.1 kann der Text eines **Bemerkungsbausteins** (3.3) oder eines **Satzbausteins** einer Kompetenzstufe (3.3) sogenannte Auswahlgruppen enthalten, mit denen eine Lehrkraft zwischen mehreren Textvarianten wählt:

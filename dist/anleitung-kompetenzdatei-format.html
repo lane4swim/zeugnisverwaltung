@@ -181,7 +181,7 @@ kompetenzdaten/4.2.json</code></pre>
       </thead>
       <tbody>
         <tr><td><code>id</code></td><td>Text, eindeutig innerhalb der Datei</td><td>Technischer Bezeichner, z. B. <code>"bem_hilfsbereit"</code>.</td></tr>
-        <tr><td><code>text</code></td><td>Text</td><td>Der auswählbare Bemerkungssatz (Platzhaltersyntax siehe unten, inkl. optionaler Auswahlgruppen), z. B. <code>"{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit."</code> oder mit Auswahlgruppen <code>"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."</code></td></tr>
+        <tr><td><code>text</code></td><td>Text</td><td>Der auswählbare Bemerkungssatz (Platzhaltersyntax siehe unten, inkl. optionaler Auswahlgruppen), z. B. <code>"{Vorname} zeigt sich {Pronomen_Poss_en} Mitschüler:innen gegenüber hilfsbereit."</code> oder mit Auswahlgruppen <code>"{Vorname} erwarb {schulisch|außerschulisch} das Schwimmabzeichen in {Bronze|Silber|Gold}."</code></td></tr>
       </tbody>
     </table>
     <p>
@@ -206,7 +206,12 @@ kompetenzdaten/4.2.json</code></pre>
         <tr><td><code>{Pronomen_Nom}</code></td><td>er / sie</td></tr>
         <tr><td><code>{Pronomen_Akk}</code></td><td>ihn / sie</td></tr>
         <tr><td><code>{Pronomen_Dat}</code></td><td>ihm / ihr</td></tr>
-        <tr><td><code>{Pronomen_Poss}</code></td><td>sein / ihr</td></tr>
+        <tr><td><code>{Pronomen_Poss}</code></td><td>sein / ihr (endungslos, siehe unten)</td></tr>
+        <tr><td><code>{Pronomen_Poss_e}</code></td><td>seine / ihre (siehe unten)</td></tr>
+        <tr><td><code>{Pronomen_Poss_en}</code></td><td>seinen / ihren (siehe unten)</td></tr>
+        <tr><td><code>{Pronomen_Poss_em}</code></td><td>seinem / ihrem (siehe unten)</td></tr>
+        <tr><td><code>{Pronomen_Poss_es}</code></td><td>seines / ihres (siehe unten)</td></tr>
+        <tr><td><code>{Pronomen_Poss_er}</code></td><td>seiner / ihrer (siehe unten)</td></tr>
         <tr><td><code>{Geburtsdatum}</code></td><td>formatiert TT.MM.JJJJ</td></tr>
       </tbody>
     </table>
@@ -214,6 +219,41 @@ kompetenzdaten/4.2.json</code></pre>
       Ausführliche Erläuterung der Pronomenlogik und der Platzhalter, die stattdessen in der
       Word-Vorlage selbst verwendet werden (<code>{{Bereich_…}}</code>, <code>{{Kompetenz_…}}</code>,
       <code>{{Bemerkungen}}</code>), siehe <a href="anleitung-wordvorlage-format.html">Format: Word-Vorlage</a>.
+    </p>
+
+    <h3 id="pronomen-possessiv">Die richtige Possessivpronomen-Variante wählen</h3>
+    <p>
+      Anders als <code>{Pronomen_Nom}</code>/<code>{Pronomen_Akk}</code>/<code>{Pronomen_Dat}</code>,
+      die als eigenständiges Wort stehen und daher je Geschlecht der Person nur eine Form haben,
+      <strong>begleitet das Possessivpronomen ein Nomen</strong> und muss sich nach dessen Fall,
+      Zahl und Geschlecht richten – nicht nur nach dem Geschlecht der bewerteten Person. Ein
+      falsch gewählter Platzhalter fällt beim Schreiben nicht auf (er wird anstandslos ersetzt),
+      führt aber zu falschem Deutsch im fertigen Zeugnistext, z. B. <em>„sein
+      Arbeitsmaterialien"</em> statt richtig <em>„seine Arbeitsmaterialien"</em>. Da die App den
+      Text nach dem Platzhalter nicht inhaltlich versteht (reine Textersetzung), kann sie die
+      passende Form nicht automatisch erkennen – beim Verfassen eines Bausteins ist daher anhand
+      des unmittelbar folgenden Nomens die passende Variante auszuwählen:
+    </p>
+    <table>
+      <caption class="sr-only">Auswahlhilfe für die Possessivpronomen-Variante</caption>
+      <thead>
+        <tr><th scope="col">Das folgende Nomen ist…</th><th scope="col">Platzhalter</th><th scope="col">Beispiel</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Maskulinum oder Neutrum, Singular, Nominativ; oder Neutrum Singular Akkusativ</td><td><code>{Pronomen_Poss}</code></td><td>„sein Arbeitsmaterial"</td></tr>
+        <tr><td>Femininum Singular (Nom./Akk.); oder Plural (Nom./Akk.), z. B. bei „…innen"-Formen</td><td><code>{Pronomen_Poss_e}</code></td><td>„seine Arbeitsmaterialien"</td></tr>
+        <tr><td>Maskulinum Singular Akkusativ; oder Plural Dativ (häufig nach „gegenüber", „mit", „bei")</td><td><code>{Pronomen_Poss_en}</code></td><td>„seinen Mitschüler:innen" (gegenüber)</td></tr>
+        <tr><td>Maskulinum oder Neutrum Singular Dativ (häufig nach „mit", „bei", „in")</td><td><code>{Pronomen_Poss_em}</code></td><td>„seinem Heft"</td></tr>
+        <tr><td>Maskulinum oder Neutrum Singular Genitiv (selten in Zeugnistexten)</td><td><code>{Pronomen_Poss_es}</code></td><td>„seines Hefts"</td></tr>
+        <tr><td>Femininum Singular Dativ/Genitiv; oder Plural Genitiv (selten in Zeugnistexten)</td><td><code>{Pronomen_Poss_er}</code></td><td>„seiner Mappe"</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Im Zweifel hilft die Probe mit einem konkreten Namen und beiden Geschlechtern, z. B. „Mia
+      zeigt <strong>ihre</strong> Schwimmtechnik" / „Tom zeigt <strong>seine</strong>
+      Schwimmtechnik" → hier ist <code>{Pronomen_Poss_e}</code> richtig, nicht das endungslose
+      <code>{Pronomen_Poss}</code> (das nur bei „ihr/sein Schwimmabzeichen" – Neutrum Singular –
+      passen würde).
     </p>
 
     <h3 id="auswahlgruppen">Auswahlgruppen in Bemerkungs- und Satzbausteinen</h3>
@@ -327,7 +367,7 @@ kompetenzdaten/4.2.json</code></pre>
   "bemerkungsbausteine": [
     {
       "id": "bem_hilfsbereit",
-      "text": "{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit."
+      "text": "{Vorname} zeigt sich {Pronomen_Poss_en} Mitschüler:innen gegenüber hilfsbereit."
     },
     {
       "id": "bem_konzentriert",

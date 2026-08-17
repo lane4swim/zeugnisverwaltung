@@ -28,7 +28,7 @@
                   "bezeichnung": "sicher",
                   "satzbausteine": [
                     "{Vorname} entnimmt auch komplexeren Texten {gezielt|selbstständig|sicher und selbstständig} Informationen.",
-                    "{Vorname} erschließt sich {Pronomen_Poss} unbekannte Texte {eigenständig|mit wenig Unterstützung|vollständig eigenständig}.",
+                    "{Vorname} erschließt sich {Pronomen_Poss_e} unbekannten Texte {eigenständig|mit wenig Unterstützung|vollständig eigenständig}.",
                     "{Vorname} liest {Pronomen_Akk} mit hoher Lesegeschwindigkeit vor."
                   ]
                 }
@@ -93,7 +93,7 @@
                   "bezeichnung": "sicher",
                   "satzbausteine": [
                     "{Vorname} löst Kopfrechenaufgaben im Zahlenraum bis 1000 {weitgehend sicher|sicher|sehr sicher}.",
-                    "{Vorname} beherrscht das Kopfrechnen im Zahlenraum bis 1000 {gut|sehr gut} und wendet {Pronomen_Poss} Rechenstrategien flexibel an."
+                    "{Vorname} beherrscht das Kopfrechnen im Zahlenraum bis 1000 {gut|sehr gut} und wendet {Pronomen_Poss_e} Rechenstrategien flexibel an."
                   ]
                 }
               ]
@@ -143,7 +143,7 @@
                   "bezeichnung": "sicher",
                   "satzbausteine": [
                     "{Vorname} schwimmt eine Bahn {mit|ohne} Hilfsmittel {sicher|weitgehend sicher}.",
-                    "{Vorname} zeigt {Pronomen_Poss} Schwimmtechnik {zunehmend|bereits} ausdauernd."
+                    "{Vorname} zeigt {Pronomen_Poss_e} Schwimmtechnik {zunehmend|bereits} ausdauernd."
                   ]
                 }
               ]
@@ -154,7 +154,7 @@
     }
   ],
   "bemerkungsbausteine": [
-    { "id": "bem_hilfsbereit", "text": "{Vorname} zeigt sich {Pronomen_Poss} Mitschüler:innen gegenüber hilfsbereit." },
+    { "id": "bem_hilfsbereit", "text": "{Vorname} zeigt sich {Pronomen_Poss_en} Mitschüler:innen gegenüber hilfsbereit." },
     { "id": "bem_konzentriert", "text": "{Vorname} arbeitet {konzentriert|ausdauernd|konzentriert und ausdauernd}." },
     { "id": "bem_klassendienst", "text": "{Vorname} übernimmt {zuverlässig|gerne|zuverlässig und gerne} Klassendienste." },
     { "id": "bem_sozial", "text": "{Vorname} geht {Pronomen_Dat} Mitschüler:innen gegenüber {respektvoll|freundlich|respektvoll und freundlich} um." },
