@@ -1,9 +1,8 @@
 import { datensatzStore } from '../state/store';
 import { kompetenzdateiStore } from '../state/kompetenzdateiStore';
 import type { Bemerkungsbaustein, Schueler } from '../types';
-import { ermittleAuswahlgruppen, ersetzePlatzhalter, loeseAuswahlgruppenAuf } from '../services/textgenerierung';
+import { BEMERKUNGEN_ABSATZTRENNER, ermittleAuswahlgruppen, ersetzePlatzhalter, loeseAuswahlgruppenAuf } from '../services/textgenerierung';
 import {
-  BEMERKUNGEN_ABSATZTRENNER,
   erzeugeBemerkungstext,
   erzeugeVollstaendigeBausteinListe,
   istFachNichtRelevantBemerkungsId,

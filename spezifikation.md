@@ -347,6 +347,8 @@ Da „Geschlecht divers" gemäß Vorgabe nicht berücksichtigt wird, basiert die
 
 Eine automatische Erkennung des richtigen Falls ist nicht möglich, da die App das auf den Platzhalter folgende Nomen inhaltlich nicht kennt (reine Textersetzung ohne Sprachverständnis) – die Wahl der passenden Variante obliegt beim Verfassen eines Bausteins bewusst der Autorin/dem Autor.
 
+**Automatische Großschreibung am Satzanfang:** Alle Pronomen-Platzhalter sind in der Ersetzungstabelle grundsätzlich kleingeschrieben hinterlegt (z. B. „er", „sein"), da sie in aller Regel innerhalb eines Satzes stehen. Damit ein Baustein, der ausnahmsweise mit einem Pronomen statt mit `{Vorname}` beginnt (z. B. `"{Pronomen_Nom} zeigt großes Interesse."`) oder dessen zweiter Satz mit einem Pronomen beginnt (z. B. `"{Vorname} arbeitet konzentriert. {Pronomen_Nom} zeigt dabei Ausdauer."`), trotzdem korrektes Deutsch ergibt, schreibt `ersetzePlatzhalter` (textgenerierung.ts) nach der Platzhalterersetzung automatisch den ersten Buchstaben des Ergebnistextes groß, ebenso nach einem Satzendezeichen (`.`/`!`/`?`) samt folgendem Leerraum sowie nach dem Bemerkungen-Absatztrenner (3.6/6.3), da dort jeweils ein neuer Satz bzw. Absatz beginnt. Bekannte Grenze: Abkürzungen mit Punkt (z. B. „d. h.") werden dabei nicht erkannt, ein direkt folgendes Wort würde fälschlich großgeschrieben – in Zeugnistexten kommen solche Abkürzungen erfahrungsgemäß kaum vor.
+
 ### 6.3 Auswahlgruppen in Bemerkungs- und Satzbausteinen
 Zusätzlich zu den benannten Platzhaltern aus 6.1 kann der Text eines **Bemerkungsbausteins** (3.3) oder eines **Satzbausteins** einer Kompetenzstufe (3.3) sogenannte Auswahlgruppen enthalten, mit denen eine Lehrkraft zwischen mehreren Textvarianten wählt:
 

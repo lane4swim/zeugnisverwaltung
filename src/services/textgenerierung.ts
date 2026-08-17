@@ -67,6 +67,44 @@ export function erzeugeSchuelerFelder(schueler: Schueler): Record<string, string
   };
 }
 
+/**
+ * Trennzeichen zwischen den einzelnen Bemerkungsbausteinen im von
+ * `erzeugeBemerkungstext` (bemerkungen.ts) gelieferten Text (spezifikation.md
+ * 5.3): jeder Baustein bildet einen eigenen Absatz statt nur durch ein
+ * Leerzeichen von den übrigen getrennt zu sein. Verwendet bewusst das
+ * Unicode-Zeichen „Paragraph Separator" (U+2029) statt eines einfachen
+ * Zeilenumbruchs (`\n`), damit es sich eindeutig von manuell eingegebenem,
+ * mehrzeiligem Text unterscheiden lässt (der weiterhin als einfacher
+ * Zeilenumbruch behandelt wird) und in der Bemerkungenansicht sowie beim
+ * Word-Export gezielt in echte Absätze umgewandelt werden kann, statt als
+ * sichtbares Zeichen zu erscheinen (siehe bemerkungenAnsicht.ts,
+ * wordMerge.ts). Hier in textgenerierung.ts definiert (statt in
+ * bemerkungen.ts), damit grossschreibeSatzanfaenge es ebenfalls als
+ * Absatzgrenze erkennen kann, ohne einen Zirkelbezug zwischen den beiden
+ * Modulen zu erzeugen.
+ */
+export const BEMERKUNGEN_ABSATZTRENNER = '\u2029';
+
+/**
+ * Schreibt den ersten Buchstaben eines Satzes groß: direkt am Textanfang,
+ * nach einem Satzendezeichen (. ! ?) samt folgendem Leerraum sowie nach dem
+ * Bemerkungen-Absatztrenner (siehe BEMERKUNGEN_ABSATZTRENNER), da dort in
+ * der Bemerkungenansicht bzw. im Word-Export ein neuer Absatz beginnt.
+ * Notwendig, weil ersetzte Platzhalter grundsätzlich kleingeschrieben sind
+ * (z. B. „er", „sein" – siehe PRONOMEN) und daher an einem Satzanfang ohne
+ * diese Nachbearbeitung eine falsch kleingeschriebene erste Buchstabe
+ * ergäben, z. B. bei einem Baustein wie „{Pronomen_Nom} zeigt Ausdauer."
+ * Bekannte Grenze: Abkürzungen mit Punkt (z. B. „d. h.") werden nicht
+ * erkannt, ein darauffolgendes Wort würde fälschlich großgeschrieben – in
+ * Zeugnistexten kommen solche Abkürzungen erfahrungsgemäß kaum vor.
+ */
+function grossschreibeSatzanfaenge(text: string): string {
+  return text.replace(
+    new RegExp(`(^|[.!?]\\s+|${BEMERKUNGEN_ABSATZTRENNER})([a-zäöüß])`, 'gu'),
+    (_treffer, praefix: string, buchstabe: string) => praefix + buchstabe.toUpperCase(),
+  );
+}
+
 /** Ersetzt die Platzhalter aus spezifikation.md 6.1, die innerhalb eines Satzbausteins vorkommen können. */
 export function ersetzePlatzhalter(satzbaustein: string, schueler: Schueler): string {
   const felder = erzeugeSchuelerFelder(schueler);
@@ -74,7 +112,7 @@ export function ersetzePlatzhalter(satzbaustein: string, schueler: Schueler): st
   for (const [platzhalter, wert] of Object.entries(felder)) {
     ergebnis = ergebnis.replaceAll(`{${platzhalter}}`, wert);
   }
-  return ergebnis;
+  return grossschreibeSatzanfaenge(ergebnis);
 }
 
 /**

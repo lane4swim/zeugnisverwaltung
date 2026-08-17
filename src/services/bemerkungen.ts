@@ -1,19 +1,5 @@
 import type { Bemerkungsbaustein, KompetenzDatei, Schueler } from '../types';
-import { ersetzePlatzhalter, loeseAuswahlgruppenAuf } from './textgenerierung';
-
-/**
- * Trennzeichen zwischen den einzelnen Bemerkungsbausteinen im von
- * `erzeugeBemerkungstext` gelieferten Text (spezifikation.md 5.3): jeder
- * Baustein bildet einen eigenen Absatz statt nur durch ein Leerzeichen von
- * den übrigen getrennt zu sein. Verwendet bewusst das Unicode-Zeichen
- * „Paragraph Separator" (U+2029) statt eines einfachen Zeilenumbruchs
- * (`\n`), damit es sich eindeutig von manuell eingegebenem, mehrzeiligem
- * Text unterscheiden lässt (der weiterhin als einfacher Zeilenumbruch
- * behandelt wird) und in der Bemerkungenansicht sowie beim Word-Export
- * gezielt in echte Absätze umgewandelt werden kann, statt als sichtbares
- * Zeichen zu erscheinen (siehe bemerkungenAnsicht.ts, wordMerge.ts).
- */
-export const BEMERKUNGEN_ABSATZTRENNER = ' ';
+import { BEMERKUNGEN_ABSATZTRENNER, ersetzePlatzhalter, loeseAuswahlgruppenAuf } from './textgenerierung';
 
 /**
  * Führt die ausgewählten Bemerkungsbausteine zu einem Text zusammen

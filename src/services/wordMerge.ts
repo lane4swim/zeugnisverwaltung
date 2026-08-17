@@ -1,6 +1,6 @@
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
-import { BEMERKUNGEN_ABSATZTRENNER } from './bemerkungen';
+import { BEMERKUNGEN_ABSATZTRENNER } from './textgenerierung';
 
 export class WordExportFehler extends Error {}
 
